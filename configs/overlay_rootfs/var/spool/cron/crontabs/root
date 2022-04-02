@@ -1,3 +1,4 @@
 */15 * * * * /usr/sbin/logrotate /etc/logrotate.conf
 0 * * * * /scripts/remove_old.sh
 0 2 * * 7 /scripts/reboot.sh
+* * * * * /scripts/healthcheck.sh

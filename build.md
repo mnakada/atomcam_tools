@@ -236,12 +236,12 @@ root@ac0375635c01:/openmiko# cp output/images/uImage.lzma /src
 rootfs内のファイルやbusyboxのmenuconfigを修正した場合
 ```shell
 root@ac0375635c01:/openmiko# make
-root@ac0375635c01:/openmiko# cp output/images/rootfs.ex2 /src
+root@ac0375635c01:/openmiko# cp output/images/rootfs.ext2 /src
 ```
 
 でbuildされてatomcam_tools/にコピーされます。
 
-それぞれfactory_t31_ZMC6tiIDQN, rootfs_hack.ex2の名前でSDCardにコピーしてください。
+それぞれfactory_t31_ZMC6tiIDQN, rootfs_hack.ext2の名前でSDCardにコピーしてください。
 
 
 

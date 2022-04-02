@@ -8,11 +8,13 @@ case "$1" in
     /scripts/webhook.sh &
     /scripts/webcmd.sh &
     /scripts/cruise.sh &
+    /scripts/healthcheck.sh &
   ;;
   stop)
     kill `pidof webhook.sh`
     kill `pidof webcmd.sh`
     kill `pidof cruise.sh`
+    kill `pidof healthcheck.sh`
   ;;
   restart|reload)
     $0 stop

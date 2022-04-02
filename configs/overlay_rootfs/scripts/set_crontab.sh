@@ -5,6 +5,7 @@ HACK_INI=/tmp/hack.ini
 BEGIN {
   printf("*/15 * * * * /usr/sbin/logrotate /etc/logrotate.conf\n");
   printf("0 * * * * /scripts/remove_old.sh\n");
+  printf("* * * * * /scripts/healthcheck.sh\n");
 }
 
 /REBOOT_SCHEDULE *=/ {

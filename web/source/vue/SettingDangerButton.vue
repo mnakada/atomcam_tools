@@ -5,7 +5,7 @@
         <h4>{{ title }}</h4>
       </ElCol>
       <ElCol :span="4">
-        <ElSwitch v-model="enable" inactive-text="Lock" />
+        <ElSwitch v-model="enable" inactive-text="Lock" :disabled="disabled" />
       </ElCol>
       <ElCol :span="4">
         <ElButton @click="$emit('click', $event)" type="danger" :disabled="!enable" :icon="icon">
@@ -49,6 +49,10 @@
       label: {
         type: String,
         default: null,
+      },
+      disabled: {
+        type: Boolean,
+        default: false,
       },
     },
     data() {

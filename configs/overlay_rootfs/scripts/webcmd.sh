@@ -19,11 +19,7 @@ do
     cmd=""
   fi
   if [ "$cmd" = "scheduleReboot" ]; then
-    cat << EOF | crontab -
-*/15 * * * * /usr/sbin/logrotate /etc/logrotate.conf
-0 * * * * /scripts/remove_old.sh
-${params//:/,} /scripts/reboot.sh
-EOF
+    /scripts/set_crontab.sh
   fi
   if [ "$cmd" = "setwebhook" ]; then
     kill -9 `pidof webhook.sh`

@@ -38,6 +38,7 @@ case "$1" in
   [ -f /media/mmc/hack.ini ] || touch /media/mmc/hack.ini
   cp /media/mmc/hack.ini /tmp/hack.ini
   chmod 666 /tmp/hack.ini
+  /scripts/set_crontab.sh
   mkdir -p /media/mmc/update
 
   insmod /lib/modules/3.10.14__isvp_swan_1.0__/extra/v4l2loopback.ko video_nr=1
@@ -64,4 +65,3 @@ case "$1" in
 esac
 
 exit $?
-

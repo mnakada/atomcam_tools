@@ -13,7 +13,17 @@ import { Row, Col, Button } from 'element-ui';
 import lang from 'element-ui/lib/locale/lang/ja';
 import locale from 'element-ui/lib/locale';
 
+const i18n = {
+  install: function(Vue) {
+    Vue.defaultLocale = 'en';
+    Vue.prototype.$t = function(obj) {
+      return obj[navigator.language] ? obj[navigator.language] : obj[Vue.defaultLocale];
+    };
+  },
+};
+
 locale.use(lang);
+Vue.use(i18n);
 Vue.prototype.$ELEMENT = { size: 'mini' };
 Vue.use(Row);
 Vue.use(Col);

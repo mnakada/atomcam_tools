@@ -45,7 +45,7 @@
         </div>
       </div>
 
-      <h3>基本設定</h3>
+      <h3>{{ $t({ja: '基本設定', en: 'Default Setting'}) }}</h3>
       <SettingInput title="デバイス名" tooltip="NASの保存フォルダ名やリモートアクセスのための名前を設定します" type="text" v-model="config.HOSTNAME" />
       <SettingSwitch title="ログイン認証" tooltip="このページへのアクセスのためのログイン認証を有効にします" v-model="loginAuth" />
       <SettingInput v-if="loginAuth==='on'" title="アカウント" tooltip="ログインのためのユーザーアカウントを設定します" type="text" v-model="account" />

@@ -81,10 +81,10 @@ mv $FILE $TMPFILE
 (
   if [ "$WEBHOOK" = "on" ] && [ "$WEBHOOK_URL" != "" ]; then
     if [ "$WEBHOOK_ALERM_PICT" = "on" ] && [ "$FILE" = "$SPATH/alarm.jpg" ]; then
-      LD_LIBRARY_PATH=/tmp/system/lib:/usr/lib:/tmp/system/lib/ld.so.1 /tmp/system/bin/curl -X POST -m 3 -F "image=@$TMPFILE" -F"type=image/jpeg" -F"device=${HOSTNAME}" $WEBHOOK_URL > /dev/null 2>&1
+      LD_LIBRARY_PATH=/tmp/system/lib:/usr/lib /tmp/system/lib/ld.so.1 /tmp/system/bin/curl -k -X POST -m 3 -F "image=@$TMPFILE" -F"type=image/jpeg" -F"device=${HOSTNAME}" $WEBHOOK_URL > /dev/null 2>&1
     fi
     if [ "$WEBHOOK_ALERM_VIDEO" = "on" ] && [ "$FILE" = "$SPATH/alarm_record.mp4" ]; then
-      LD_LIBRARY_PATH=/tmp/system/lib:/usr/lib:/tmp/system/lib/ld.so.1 /tmp/system/bin/curl -X POST -m 3 -F "video=@$TMPFILE" -F "type=video/mp4" -F"device=${HOSTNAME}" $WEBHOOK_URL > /dev/null 2>&1
+      LD_LIBRARY_PATH=/tmp/system/lib:/usr/lib /tmp/system/lib/ld.so.1 /tmp/system/bin/curl -k -X POST -m 3 -F "video=@$TMPFILE" -F "type=video/mp4" -F"device=${HOSTNAME}" $WEBHOOK_URL > /dev/null 2>&1
     fi
   fi
   if [ "$FMT" != "" ] ; then
@@ -108,10 +108,10 @@ mv $FILE $TMPFILE
 
     if [ "$WEBHOOK" = "on" ] && [ "$WEBHOOK_URL" != "" ]; then
       if [ "$WEBHOOK_ALARM_PICT_FINISH" = "on" ] && [ "$FILE" = "$SPATH/alarm.jpg" ]; then
-        LD_LIBRARY_PATH=/tmp/system/lib:/usr/lib:/tmp/system/lib/ld.so.1 /tmp/system/bin/curl -X POST -m 3 -H "Content-Type: application/json" -d "{\"type\":\"uploadPictureFinish\", \"device\":\"${HOSTNAME}\"${STORAGE}}" $WEBHOOK_URL > /dev/null 2>&1
+        LD_LIBRARY_PATH=/tmp/system/lib:/usr/lib /tmp/system/lib/ld.so.1 /tmp/system/bin/curl -k -X POST -m 3 -H "Content-Type: application/json" -d "{\"type\":\"uploadPictureFinish\", \"device\":\"${HOSTNAME}\"${STORAGE}}" $WEBHOOK_URL > /dev/null 2>&1
       fi
       if [ "$WEBHOOK_ALARM_VIDEO_FINISH" = "on" ] && [ "$FILE" = "$SPATH/alarm_record.mp4" ]; then
-        LD_LIBRARY_PATH=/tmp/system/lib:/usr/lib:/tmp/system/lib/ld.so.1 /tmp/system/bin/curl -X POST -m 3 -H "Content-Type: application/json" -d "{\"type\":\"uploadVideoFinish\", \"device\":\"${HOSTNAME}\"${STORAGE}}" $WEBHOOK_URL > /dev/null 2>&1
+        LD_LIBRARY_PATH=/tmp/system/lib:/usr/lib /tmp/system/lib/ld.so.1 /tmp/system/bin/curl -k -X POST -m 3 -H "Content-Type: application/json" -d "{\"type\":\"uploadVideoFinish\", \"device\":\"${HOSTNAME}\"${STORAGE}}" $WEBHOOK_URL > /dev/null 2>&1
       fi
     fi
   fi

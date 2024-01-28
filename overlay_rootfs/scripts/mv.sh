@@ -89,10 +89,10 @@ if [ "$FMT" != "" ]; then
       STORAGE="${STORAGE}, \"sdcardFile\":\"${SDCARDFILE}\""
     else
       /bin/busybox rm $TMPFILE
-      LD_LIBRARY_PATH=/tmp/system/lib:/usr/lib:/tmp/system/lib/ld.so.1 /tmp/system/bin/find_libc /media/mmc/record -depth -type d -empty -delete
+      LD_LIBRARY_PATH=/tmp/system/lib:/usr/lib /tmp/system/lib/ld.so.1 /tmp/system/bin/find_libc /media/mmc/record -depth -type d -empty -delete
     fi
     if [ "$WEBHOOK" = "on" ] && [ "$WEBHOOK_URL" != "" ] && [ "$WEBHOOK_RECORD_EVENT" = "on" ]; then
-      LD_LIBRARY_PATH=/tmp/system/lib:/usr/lib:/tmp/system/lib/ld.so.1 /tmp/system/bin/curl -X POST -m 3 -H "Content-Type: application/json" -d "{\"type\":\"recordEvent\", \"device\":\"${HOSTNAME}\"${STORAGE}}" $WEBHOOK_URL > /dev/null 2>&1
+      LD_LIBRARY_PATH=/tmp/system/lib:/usr/lib /tmp/system/lib/ld.so.1 /tmp/system/bin/curl -k -X POST -m 3 -H "Content-Type: application/json" -d "{\"type\":\"recordEvent\", \"device\":\"${HOSTNAME}\"${STORAGE}}" $WEBHOOK_URL > /dev/null 2>&1
     fi
   ) &
 else

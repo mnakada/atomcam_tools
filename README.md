@@ -34,9 +34,10 @@
 >
 > - 対処方法3  
 >   WebUIのカスタム更新ZIPファイルをONにする  
+>   URLに https://github.com/mnakada/atomcam_tools/releases/latest/download/atomcam_tools.zip を設定
 >   UpdateのLockをはずす  
 >   カスタム更新ZIPファイルをOFFにする   
->   CustomUpdateボタンを押してUpdateを実行
+>   Updateボタンを押してUpdateを実行
 
 
 > [!IMPORTANT]

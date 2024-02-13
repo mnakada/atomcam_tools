@@ -16,15 +16,21 @@ if [ "$1" = "finish" ] ; then
       CIFSFILE="time_lapse/${2##*/}"
       OUTFILE="/atom/mnt/$HOSTNAME/$CIFSFILE"
       DIR_PATH=${OUTFILE%/*}
-      mkdir -p $DIR_PATH
-      cp -f $2 $OUTFILE
+      CIFS_ERROR=""
+      for i in 1 2 3 4; do
+        [ "$i" = "4" ] && CIFS_ERROR="error" && break;
+        mkdir -p $DIR_PATH
+        cp -f $2 $OUTFILE
+        [ -f $OUTFILE ] && cmp $2 $OUTFILE && break
+      done
+      [ "$CIFS_ERROR" = "error" ] && echo "CIFS error $2 $OUTFILE" >> /media/mmc/atomhack.log
       STORAGE=", \"cifsFile\":\"${CIFSFILE}\""
     fi
 
     if [ "$STORAGE_SDCARD" = "on" -o "$STORAGE_SDCARD" = "record" -o "$STORAGE_SDCARD" = "alarm" ]; then
       STORAGE="${STORAGE}, \"sdcardFile\":\"${2##*media/mmc/}\""
     else
-      rm $2
+      [ "$CIFS_ERROR" = "" ] && rm $2
       find /media/mmc/time_lapse -depth -type d -empty -delete
     fi
     if [ "$WEBHOOK" = "on" ] && [ "$WEBHOOK_URL" != "" ] && [ "$WEBHOOK_TIMELAPSE_FINISH" = "on" ]; then

@@ -1,11 +1,11 @@
 /*
   usage:
-   timelapse <file> <interval> <count>   : start timelapse record
-   timelapse mp4 <file>                  : reconvert to mp4
-   timelapse close                       : close timelapse record (completely closed)
-   timelapse stop                        : stop timelapse record (possible to restart)
-   timelapse restart                     : restart timelapse record
-   timelapse                             : status or restart
+   timelapse <file> <interval> <count> [<out-fps>]  : start timelapse record
+   timelapse mp4 <file>                             : reconvert to mp4
+   timelapse close                                  : close timelapse record (completely closed)
+   timelapse stop                                   : stop timelapse record (possible to restart)
+   timelapse restart                                : restart timelapse record
+   timelapse                                        : status
 */
 
 #include <pthread.h>
@@ -21,8 +21,9 @@
 
 struct StszHeaderSt {
   unsigned int magic;
-  int interval;
-  int numOfTimes;
+  unsigned int interval;
+  unsigned short numOfTimes;
+  unsigned short fps;
   time_t endTime;
 };
 
@@ -31,8 +32,9 @@ struct ProcessingInfoSt {
   char mp4File[256];
   char mpxFile[256];
   int count;
-  int interval;
-  int numOfTimes;
+  unsigned int interval;
+  unsigned short numOfTimes;
+  unsigned short fps;
   time_t endTime;
 };
 
@@ -186,7 +188,7 @@ char *Timelapse(int fd, char *tokenPtr) {
   char *p = strtok_r(NULL, " \t\r\n", &tokenPtr);
   if(!p) {
     if(ProcessingInfo.count >= ProcessingInfo.numOfTimes) return "timelapse: not operating.";
-    snprintf(ResBuf, 255, "file: %s\ninterval: %dsec, count: %d/%d\n", ProcessingInfo.mp4File, ProcessingInfo.interval, ProcessingInfo.count, ProcessingInfo.numOfTimes);
+    snprintf(ResBuf, 255, "file: %s %dfps\ninterval: %dsec, count: %d/%d\n", ProcessingInfo.mp4File, ProcessingInfo.fps, ProcessingInfo.interval, ProcessingInfo.count, ProcessingInfo.numOfTimes);
     return ResBuf;
   }
 
@@ -238,6 +240,12 @@ char *Timelapse(int fd, char *tokenPtr) {
     if(!p) return "error";
     stszHeader.numOfTimes = atoi(p);
     if(stszHeader.numOfTimes < 1) stszHeader.numOfTimes = 1;
+
+    p = strtok_r(NULL, " \t\r\n", &tokenPtr);
+    stszHeader.fps = 20;
+    if(p) stszHeader.fps = atoi(p);
+    if(stszHeader.fps < 1) stszHeader.numOfTimes = 1;
+    if(stszHeader.fps > 60) stszHeader.numOfTimes = 60;
 
     struct timeval tv;
     gettimeofday(&tv, NULL);
@@ -321,6 +329,8 @@ static void *TimelapseThread() {
     }
     ProcessingInfo.interval = stszHeader.interval;
     ProcessingInfo.numOfTimes = stszHeader.numOfTimes;
+    ProcessingInfo.fps = stszHeader.fps;
+    if(!ProcessingInfo.fps) ProcessingInfo.fps = 20;
     ProcessingInfo.endTime = stszHeader.endTime;
 
 
@@ -464,7 +474,6 @@ finalize:
 
 static char *AppendMoov() {
 
-  unsigned int fps = 20;
   unsigned int timeScale = 1000;
   unsigned char sizeBuf[5];
 
@@ -580,7 +589,7 @@ static char *AppendMoov() {
   buf[0x002] = moovSize >> 8;
   buf[0x003] = moovSize;
 
-  unsigned int duration = ProcessingInfo.numOfTimes * timeScale / fps;
+  unsigned int duration = ProcessingInfo.numOfTimes * timeScale / ProcessingInfo.fps;
   buf[0x01c] = timeScale >> 24;
   buf[0x01d] = timeScale >> 16;
   buf[0x01e] = timeScale >> 8;
@@ -611,7 +620,7 @@ static char *AppendMoov() {
   buf[0x182] = ProcessingInfo.numOfTimes >> 8;
   buf[0x183] = ProcessingInfo.numOfTimes;
 
-  unsigned int sampleDelta = timeScale / fps;
+  unsigned int sampleDelta = timeScale / ProcessingInfo.fps;
   buf[0x184] = sampleDelta >> 24;
   buf[0x185] = sampleDelta >> 16;
   buf[0x186] = sampleDelta >> 8;

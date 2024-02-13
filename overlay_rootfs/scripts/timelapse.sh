@@ -41,12 +41,13 @@ if [ "$1" = "start" ] ; then
   WEBHOOK_TIMELAPSE_START=$(awk -F "=" '/WEBHOOK_TIMELAPSE_START *=/ {print $2}' $HACK_INI)
   TIMELAPSE_INTERVAL=$(awk -F "=" '/TIMELAPSE_INTERVAL *=/ {print $2}' $HACK_INI)
   TIMELAPSE_COUNT=$(awk -F "=" '/TIMELAPSE_COUNT *=/ {print $2}' $HACK_INI)
+  TIMELAPSE_FPS=$(awk -F "=" '/TIMELAPSE_FPS *=/ {print $2}' $HACK_INI)
   TIMELAPSE_PATH=$(awk -F "=" '/TIMELAPSE_PATH *=/ {print $2}' $HACK_INI)
   TIMELAPSE_FILE=`date +"/media/mmc/time_lapse/$TIMELAPSE_PATH.mp4"`
   TIMELAPSE_DIR=${TIMELAPSE_FILE%/*}
   mkdir -p $TIMELAPSE_DIR
 
-  res=`/scripts/cmd timelapse $TIMELAPSE_FILE $TIMELAPSE_INTERVAL $TIMELAPSE_COUNT`
+  res=`/scripts/cmd timelapse $TIMELAPSE_FILE $TIMELAPSE_INTERVAL $TIMELAPSE_COUNT $TIMELAPSE_FPS`
   [ "$res" = "ok" ] || exit 1
   if [ "$WEBHOOK" = "on" ] && [ "$WEBHOOK_URL" != "" ] && [ "$WEBHOOK_TIMELAPSE_START" = "on" ]; then
     /usr/bin/curl -X POST -m 3 -H "Content-Type: application/json" -d "{\"type\":\"timelapseStart\", \"device\":\"${HOSTNAME}\"${STORAGE}}" $INSECURE_FLAG $WEBHOOK_URL > /dev/null 2>&1

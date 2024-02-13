@@ -79,6 +79,9 @@ recording:
     savePath:
       title: Save PATH
       tooltip: Enter the recording PATH in strftime format ending with the file extension.
+    fps:
+      title: output fps
+      tooltip: Frame rate of output file
     note:
       comment: |
         Allow at least 5 minutes for processing between time lapse recordings.

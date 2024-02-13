@@ -79,6 +79,9 @@ recording:
     savePath:
       title: 保存するPATH
       tooltip: 録画するPATHをstrftimeの書式指定で記述します。最後に拡張子が付加されます。
+    fps:
+      title: 出力fps
+      tooltip: 出力ファイルのフレームレート
     note:
       comment: |
         録画の間は記録後の変換処理のため５分以上空けてください。

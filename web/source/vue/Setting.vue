@@ -85,6 +85,7 @@
 
       <SettingSwitch i18n="recording.timelapse" v-model="config.TIMELAPSE" />
       <SettingInput v-if="config.TIMELAPSE === 'on'" i18n="recording.timelapse.savePath" :titleOffset="2" :span="10" type="text" v-model="config.TIMELAPSE_PATH" @input="FixPath('TIMELAPSE_PATH')" />
+      <SettingInput v-if="config.TIMELAPSE === 'on'" i18n="recording.timelapse.fps" :titleOffset="2" :span="3" type="number" v-model="config.TIMELAPSE_FPS" :min="1" :max="60" />
       <SettingSchedule v-if="config.TIMELAPSE === 'on'" v-model="timelapse" :timelapse="true" />
       <SettingComment v-if="config.TIMELAPSE === 'on'" i18n="recording.timelapse.note" />
       <SettingProgress v-if="timelapseInfo.busy" i18n="recording.timelapse.start" :titleOffset="2" :percentage="timelapseInfo.count * 100 / timelapseInfo.max" :label="timelapseInfo.count.toString() + '/' + timelapseInfo.max.toString()" />
@@ -229,6 +230,7 @@
           TIMELAPSE_PATH: '%Y%m%d%H%M',
           TIMELAPSE_INTERVAL: 60,
           TIMELAPSE_COUNT: 960,
+          TIMELAPSE_FPS: 20,
           WEBHOOK: 'off',
           WEBHOOK_URL: '',
           WEBHOOK_INSECURE: 'off',

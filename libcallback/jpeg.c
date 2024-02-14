@@ -43,8 +43,8 @@ char *JpegCapture(int fd, char *tokenPtr) {
   if(p && (!strcmp(p, "0") || !strcmp(p, "1"))) {
     JpegChannel = atoi(p);
     p = strtok_r(NULL, " \t\r\n", &tokenPtr);
- }
- if(p && !strcmp(p, "-n")) NoHeader = 1;
+  }
+  if(p && !strcmp(p, "-n")) NoHeader = 1;
 
   pthread_mutex_unlock(&JpegDataMutex);
   return NULL;

@@ -131,6 +131,8 @@
       </div>
 
       <h3 v-t="'monitoring.title'" />
+      <SettingSwitch i18n="monitoring.network" v-model="config.MONITORING_NETWORK" />
+      <SettingSwitch i18n="monitoring.reboot" v-model="config.MONITORING_REBOOT" :titleOffset="2" />
       <SettingSwitch i18n="monitoring.ping" v-model="config.HEALTHCHECK" />
       <SettingInput v-if="config.HEALTHCHECK === 'on'" i18n="monitoring.URL" :titleOffset="2" :span="10" type="text" v-model="config.HEALTHCHECK_PING_URL" />
 
@@ -250,6 +252,8 @@
           AWS_VIDEO_DISABLE: 'off',
           CUSTOM_ZIP: 'off',
           CUSTOM_ZIP_URL: '',
+          MONITORING_NETWORK: 'on',
+          MONITORING_REBOOT: 'on',
           HEALTHCHECK: 'off',
           HEALTHCHECK_PING_URL: '',
           LOCALE: navigator.language.indexOf('en') === 0 ? 'en' : 'ja',

@@ -6,7 +6,11 @@
 case "$1" in
   start)
     logger -s "Starting ntpd: "
-    /usr/sbin/ntpd -qn -p ntp.nict.jp
+    if ping -c 1 ntp.nict.jp > /dev/null ; then
+      /usr/sbin/ntpd -qn -p ntp.nict.jp
+    else
+      [ -f /media/mmc/time.ini ] && date -s @`sed -ne 's/utc=//p' /media/mmc/time.ini`
+    fi
     /usr/sbin/ntpd -p ntp.nict.jp
     [ $? == 0 ] && logger -s "OK" || logger -s "FAIL"
   ;;

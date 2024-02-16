@@ -47,12 +47,12 @@ elif [ "0x424c" = "$VENDERID" ]; then
 fi
 
 if [ -f /media/mmc/wpa_supplicant.conf ] ; then
-  cp /media/mmc/wpa_supplicant.conf /etc/wpa_supplicant.conf
+  cat /media/mmc/wpa_supplicant.conf > /configs/etc/wpa_supplicant.conf
 else
   USER_CONFIG=/atom/configs/.user_config
   SSID=$(awk -F "=" '/\[NET\]/ { f = 1; } /ssid=/ {if(!f) next; gsub(/\/$/, "", $2); print $2}' $USER_CONFIG)
   PSK=$(awk -F "=" '/\[NET\]/ { f = 1; } /password=/ {if(!f) next; gsub(/\/$/, "", $2); print $2}' $USER_CONFIG)
-  cat > /etc/wpa_supplicant.conf << EOF
+  cat > /configs/etc/wpa_supplicant.conf << EOF
 ctrl_interface=/var/run/wpa_supplicant
 update_config=1
 network={
@@ -76,7 +76,7 @@ done
 
 HWADDR=$(awk -F "=" '/(CONFIG_INFO|NETRELATED_MAC)=/ { print substr($2,1,2) ":" substr($2,3,2) ":" substr($2,5,2) ":" substr($2,7,2) ":" substr($2,9,2) ":" substr($2,11,2); exit;}' /atom/configs/.product_config)
 ifconfig wlan0 hw ether $HWADDR up
-wpa_supplicant -f /tmp/log/wpa_supplicant.log -D nl80211 -i wlan0 -c /etc/wpa_supplicant.conf -B
+wpa_supplicant -f /tmp/log/wpa_supplicant.log -D nl80211 -i wlan0 -c /configs/etc/wpa_supplicant.conf -B
 udhcpc -i wlan0 -x hostname:atomcam -p /var/run/udhcpc.pid -b &
 
 count=0

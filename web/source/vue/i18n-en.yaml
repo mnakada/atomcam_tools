@@ -220,6 +220,12 @@ cruise:
 
 monitoring:
   title: Monitoring
+  network:
+    title: Network check
+    tooltip: Periodically check that the Network is connected and reconnect if necessary.
+  reboot:
+    title: reboot
+    tooltip: If reconnection fails, reboot the system.
   ping:
     title: ping
     tooltip: Enable Confirmation of Status via URL

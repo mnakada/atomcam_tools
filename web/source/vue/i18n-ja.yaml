@@ -219,6 +219,12 @@ cruise:
 
 monitoring:
   title: モニタリング
+  network:
+    title: Network確認
+    tooltip: Networkが接続されていることを定期的に確認し、必要なら再接続する
+  reboot:
+    title: 異常時再起動
+    tooltip: 再接続ができない場合、システムの再起動をする
   ping:
     title: ping
     tooltip: 指定されたURLで疎通確認できるようにする

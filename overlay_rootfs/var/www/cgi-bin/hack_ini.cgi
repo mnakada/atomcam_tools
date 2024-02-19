@@ -22,6 +22,7 @@ if [ "$REQUEST_METHOD" = "POST" ]; then
   }
   ' > /media/mmc/hack.ini
   cat /media/mmc/hack.ini > /tmp/hack.ini
+  /scripts/set_mp4write.sh
 
   awk '
   BEGIN {

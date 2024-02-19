@@ -3,7 +3,7 @@
 # for continuous recording file
 #
 
-if [ "${1%/*.mp4}" != "/tmp" ] || [ "${2##/media/mmc/record/*.mp4}" != "" ] ; then
+if [ "${1%/*.mp4}" != "/tmp" -a "${1%/*.mp4}" != "/media/mmc/tmp" -o "${2##/media/mmc/record/*.mp4}" != "" ] ; then
   /bin/busybox ${0##*/} $*
   exit
 fi

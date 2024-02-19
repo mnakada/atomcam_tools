@@ -23,6 +23,7 @@ extern char *IrLed(int fd, char *tokenPtr);
 extern char *AudioPlay(int fd, char *tokenPtr);
 extern char *CurlDebug(int fd, char *tokenPtr);
 extern char *Timelapse(int fd, char *tokenPtr);
+extern char *MP4Write(int fd, char *tokenPtr);
 
 struct CommandTableSt {
   const char *cmd;
@@ -39,6 +40,7 @@ struct CommandTableSt CommandTable[] = {
   { "aplay",      &AudioPlay },
   { "curlDebug",  &CurlDebug },
   { "timelapse",  &Timelapse },
+  { "mp4write",   &MP4Write },
 };
 
 void CommandResponse(int fd, const char *res) {

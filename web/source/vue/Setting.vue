@@ -333,7 +333,8 @@
       },
       RtspUrl0() {
         const port = (this.config.RTSP_OVER_HTTP  === 'on') ? 8080 : 8554;
-        return `rtsp://${window.location.host}:${port}/video0_unicast`;
+        const video = (this.config.RTSP_MAIN_FORMAT_HEVC === 'on') ? 'video2' : 'video0';
+        return `rtsp://${window.location.host}:${port}/${video}_unicast`;
       },
       RtspUrl1() {
         const port = (this.config.RTSP_OVER_HTTP  === 'on') ? 8080 : 8554;
@@ -705,7 +706,6 @@
           }
         }
         if((this.config.MINIMIZE_ALARM_CYCLE !== this.oldConfig.MINIMIZE_ALARM_CYCLE) ||
-           (this.config.RTSP_MAIN_FORMAT_HEVC !== this.oldConfig.RTSP_MAIN_FORMAT_HEVC) ||
            (this.config.AWS_VIDEO_DISABLE !== this.oldConfig.AWS_VIDEO_DISABLE))  {
           execCmds.push(`reboot`);
           this.rebooting = true;
@@ -721,7 +721,8 @@
             execCmds.push(`samba ${this.config.STORAGE_SDCARD_PUBLISH}`);
           }
           if((this.config.RTSP_VIDEO0 === "on") || (this.config.RTSP_VIDEO1 === "on")) {
-            if(this.config.RTSP_OVER_HTTP !== this.oldConfig.RTSP_OVER_HTTP) {
+            if((this.config.RTSP_OVER_HTTP !== this.oldConfig.RTSP_OVER_HTTP) ||
+               (this.config.RTSP_MAIN_FORMAT_HEVC !== this.oldConfig.RTSP_MAIN_FORMAT_HEVC)) {
               execCmds.push('rtspserver restart');
             } else if((this.config.RTSP_VIDEO0 !== this.oldConfig.RTSP_VIDEO0) ||
                       (this.config.RTSP_VIDEO1 !== this.oldConfig.RTSP_VIDEO1) ||

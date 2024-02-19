@@ -60,17 +60,21 @@ static struct video_capture_st video_capture[] = {
     .initialized = 0,
     .fd = -1,
   },
+  {
+    .capture = video2_encode_capture,
+    .width = 1920,
+    .height = 1080,
+    .device = "/dev/video2",
+    .format = V4L2_PIX_FMT_HEVC,
+
+    .callback = NULL,
+    .enable = 0,
+    .initialized = 0,
+    .fd = -1,
+  },
 };
 
-static int MainVideoCh = 0;
-
 static void __attribute ((constructor)) video_callback_init(void) {
-
-  char *p = getenv("RTSP_MAIN_FORMAT_HEVC");
-  if(p && !strcmp(p, "on")) {
-    MainVideoCh = 3;
-    video_capture[0].format = V4L2_PIX_FMT_HEVC;
-  }
 
   real_local_sdk_video_set_encode_frame_callback = dlsym(dlopen("/system/lib/liblocalsdk.so", RTLD_LAZY), "local_sdk_video_set_encode_frame_callback");
 }
@@ -78,7 +82,7 @@ static void __attribute ((constructor)) video_callback_init(void) {
 char *VideoCapture(int fd, char *p, char *tokenPtr) {
 
   int ch = 0;
-  if(p && (!strcmp(p, "0") || !strcmp(p, "1"))) {
+  if(p && (!strcmp(p, "0") || !strcmp(p, "1") || !strcmp(p, "2"))) {
     ch = atoi(p);
     p = strtok_r(NULL, " \t\r\n", &tokenPtr);
   }
@@ -141,8 +145,8 @@ static int video2_encode_capture(struct frames_st *frames) {
 int local_sdk_video_set_encode_frame_callback(int sch, void *callback) {
 
   int ch = sch;
-  if((ch == MainVideoCh) || (ch == 1)) {
-    if(ch == MainVideoCh) ch = 0;
+  if((ch == 0) || (ch == 1) || (ch == 3)) {
+    if(ch == 3) ch = 2;
     video_capture[ch].callback = callback;
     callback = video_capture[ch].capture;
   }

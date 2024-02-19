@@ -112,7 +112,6 @@ RTSP:
       text:
         - 'HEVC '
         - 'AVC '
-      comment: ※ 変更すると設定ボタンで再起動します
   sub:
     title: Sub
     tooltip: RTSP Sub(360 HEVC)を開始します

@@ -112,7 +112,6 @@ RTSP:
       text:
         - 'HEVC '
         - 'AVC '
-      comment: Note! If you change it, Atomcam will restart on submit.
   sub:
     title: Sub
     tooltip: Start Sub RTSP (360 HEVC)

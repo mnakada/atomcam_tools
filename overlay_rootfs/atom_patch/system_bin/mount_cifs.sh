@@ -13,8 +13,11 @@ if [ "$STORAGE_CIFS" = "on" -o "$STORAGE_CIFS" = "alarm" -o "$STORAGE_CIFS" = "r
   while [ -f $LOCKFILE ] ; do
     sleep 0.5
   done
-  mount | grep "$STORAGE_CIFSSERVER" > /dev/null && exit
   touch $LOCKFILE
+  if mount | grep "$STORAGE_CIFSSERVER" > /dev/null ; then
+    /bin/busybox rm -f $LOCKFILE
+    exit
+  fi
   for VER in 3.0 2.1 2.0
   do
     if [ -d /atom ] ; then

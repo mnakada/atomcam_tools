@@ -6,6 +6,7 @@ rm -f $TARGET_DIR/etc/init.d/S50sshd
 
 #add mount-point
 mkdir -p $TARGET_DIR/media/mmc
+mkdir -p $TARGET_DIR/boot
 mkdir -p $TARGET_DIR/atom
 mkdir -p $TARGET_DIR/configs
 

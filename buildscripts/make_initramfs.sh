@@ -14,6 +14,7 @@ fi
 echo "=== build initramfs ==="
 
 [ -f $BASE_DIR/staging/bin-init/fsck.fat ] || make dosfstools-init
+[ -f $BASE_DIR/staging/bin-init/fsck.exfat ] || make exfatprogs-init
 [ -f $BASE_DIR/staging/bin-init/busybox ] || make busybox-init
 [ -f $BASE_DIR/host/usr/bin/mkimage ] || make host-uboot-tools
 
@@ -26,6 +27,7 @@ mkdir -p {bin,dev,etc,lib,mnt,proc,root,sbin,sys,tmp}
 
 cp -r /src/initramfs_skeleton/* $ROOTFS_DIR/
 cp $BASE_DIR/staging/bin-init/fsck.fat $ROOTFS_DIR/bin/
+cp $BASE_DIR/staging/bin-init/fsck.exfat $ROOTFS_DIR/bin/
 cp $BASE_DIR/staging/bin-init/busybox $ROOTFS_DIR/bin/
 
 # Save a few bytes by removing the readme

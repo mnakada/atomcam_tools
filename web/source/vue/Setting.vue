@@ -257,6 +257,7 @@
           HEALTHCHECK: 'off',
           HEALTHCHECK_PING_URL: '',
           LOCALE: navigator.language.indexOf('en') === 0 ? 'en' : 'ja',
+          FRAMERATE: 20,
         },
         loginAuth: 'off',
         loginAuth2: 'off',

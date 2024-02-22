@@ -9,6 +9,7 @@ APPVER_FILE=/configs/app.ver
 APPVER=$(awk -F "=" '/appver *=/ {print $2}' $APPVER_FILE)
 HACK_INI=/tmp/hack.ini
 export MINIMIZE_ALARM_CYCLE=$(awk -F "=" '/MINIMIZE_ALARM_CYCLE *=/ {print $2}' $HACK_INI)
+export FRAMERATE=$(awk -F "=" '/FRAMERATE *=/ {print $2}' $HACK_INI)
 if [ "$(awk -F "=" '/ATOM_DEBUG_LOG *=/ {print $2}' $HACK_INI)" = "on" ]; then
   export ASSIS_LOG="/tmp/log/assis.log"
 else
@@ -36,6 +37,10 @@ if [ "on" = "$MINIMIZE_ALARM_CYCLE" ]; then
   grep '^alarmInterval=30$' /configs/.user_config || sed -i.old -e 's/^alarmInterval=.*$/alarmInterval=30/' /configs/.user_config
 else
   grep '^alarmInterval=300$' /configs/.user_config || sed -i.old -e 's/^alarmInterval=.*$/alarmInterval=300/' /configs/.user_config
+fi
+
+if [ "$FRAMERATE" != "" ]; then
+  grep "^fps=$FRAMERATE$" /config/.user_config || sed -i.old -e "s/^fps=.*$/fps=$FRAMERATE/" /configs/.user_config
 fi
 
 [ -f /media/mmc/atom-debug ] && exit 0

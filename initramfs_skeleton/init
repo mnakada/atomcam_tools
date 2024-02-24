@@ -6,22 +6,21 @@ mount -t proc proc /proc
 mount -t sysfs sysfs /sys
 sleep 1
 
+mkdir -p /boot
+mkdir -p /rootfs
 if blkid | grep '^/dev/mmcblk0p2:.*TYPE="exfat"$' ; then
   fsck.fat -a /dev/mmcblk0p1
-  mkdir -p /boot
   mount -t vfat /dev/mmcblk0p1 /boot -o rw,umask=0000,dmask=0000
   fsck.exfat -a /dev/mmcblk0p2
-  mkdir -p /rootfs
   mount -t exfat /dev/mmcblk0p2 /rootfs -o rw,umask=0000,dmask=0000
-  KERNEL_PATH=/boot
 else
   fsck.fat -a /dev/mmcblk0p1
-  mkdir -p /rootfs
   mount -t vfat /dev/mmcblk0p1 /rootfs -o rw,umask=0000,dmask=0000
-  KERNEL_PATH=/rootfs
+  mount -o bind /rootfs /boot
+  mount -o bind,remount,ro /boot
 fi
 
-[ -f $KERNEL_PATH/initramfs-debug ] && /bin/sh
+[ -f /boot/initramfs-debug ] && /bin/sh
 
 if [ -f /rootfs/update/atomcam_tools.zip ] ; then
   (cd /rootfs/update; unzip atomcam_tools.zip -o factory_t31_ZMC6tiIDQN rootfs_hack.ext2 rootfs_hack.squashfs)
@@ -54,7 +53,7 @@ if [ -f /rootfs/update/factory_t31_ZMC6tiIDQN ] ; then
   hsize=`hexdump -s 0x0c -n 4 -e '"0x" 4/1 "%02x" "\n"' /rootfs/update/factory_t31_ZMC6tiIDQN`
   tsize=$(($hsize + 64))
   if [ "$fsize" = "$tsize" ] ; then
-    mv -f /rootfs/update/factory_t31_ZMC6tiIDQN $KERNEL_PATH/factory_t31_ZMC6tiIDQN
+    mv -f /rootfs/update/factory_t31_ZMC6tiIDQN /boot/factory_t31_ZMC6tiIDQN
     sync
     exit # panic & reboot
   fi
@@ -79,5 +78,5 @@ mount --move /dev /newroot/dev
 mount --move /sys /newroot/sys
 mount --move /proc /newroot/proc
 mount --move /rootfs /newroot/media/mmc
-[ -d /boot ] && mount --move /boot /newroot/boot
+mount --move /boot /newroot/boot
 exec switch_root /newroot /sbin/init

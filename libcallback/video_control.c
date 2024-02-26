@@ -70,6 +70,46 @@ extern int IMP_ISP_Tuning_GetISPHflip(int *pmode);
 extern int IMP_ISP_Tuning_SetISPVflip(int mode);
 extern int IMP_ISP_Tuning_GetISPVflip(int *pmode);
 
+// ISP exposure attribute.
+typedef union isp_core_expr_attr{
+  struct {
+    int mode; // 0:auto / 1: manual
+    int unit; // 0: line / 1: us
+    unsigned short time;
+  } s_attr;
+  struct {
+    int mode; // 0:auto / 1: manual
+    unsigned short time;
+    unsigned short time_min;
+    unsigned short time_max;
+    unsigned short one_line_expr_in_us;
+  } g_attr;
+}IMPISPExpr;
+extern int IMP_ISP_Tuning_SetExpr(IMPISPExpr *expr);
+extern int IMP_ISP_Tuning_GetExpr(IMPISPExpr *expr);
+
+// ISP sensor fps
+extern int IMP_ISP_Tuning_GetSensorFPS(unsigned int *num, unsigned int *den);
+struct IMPEncoderFrmRate {
+  unsigned int frmRateNum;
+  unsigned int frmRateDen;
+};
+extern int IMP_Encoder_GetChnFrmRate(int ch, struct IMPEncoderFrmRate *frm);
+extern int IMP_Encoder_SetChnFrmRate(int ch, struct IMPEncoderFrmRate *frm);
+struct IMPEncoderGopAttr {
+  int uGopCtrlMode;
+  unsigned short uGopLength;
+  unsigned char uNumB;
+  unsigned int uMaxSameSenceCnt;
+  int bEnableLT;
+  unsigned int uFreqLT;
+  int bLTRC;
+};
+extern int IMP_Encoder_SetChnGopAttr(int ch,struct IMPEncoderGopAttr *gopAttr);
+extern int local_sdk_video_set_gop(int ch, int gop);
+extern int local_sdk_video_stop(int ch, int p1, int p2);
+extern int local_sdk_video_start(int ch);
+
 extern char *VideoCapture(int fd, char *p, char *tokenPtr);
 
 static char *Flip(char *tokenPtr);
@@ -86,7 +126,9 @@ static char *DRC(char *tokenPtr);
 static char *HiLight(char *tokenPtr);
 static char *AGain(char *tokenPtr);
 static char *DGain(char *tokenPtr);
+static char *Expr(char *tokenPtr);
 static char *Bitrate(char *tokenPtr);
+static char *Framerate(char *tokenPtr);
 
 struct CommandTableSt {
   const char *cmd;
@@ -107,10 +149,18 @@ static struct CommandTableSt VideoCommandTable[] = {
   { "hilight",   &HiLight }, // hilight 0 - 10
   { "again",     &AGain }, // again 0 -
   { "dgain",     &DGain }, // dgain 0 -
+  { "expr",      &Expr }, // expr manual|auto <time>
   { "bitrate",   &Bitrate }, // bitrate <ch> 10-3000(kbps)|auto
+  { "fps",       &Framerate }, // fps <ch> 1-30(fps)|auto
 };
 
 static int (*real_local_sdk_video_set_kbps)(int ch, int kbps);
+static int (*real_local_sdk_video_set_fps)(int fps);
+static int (*real_IMP_Encoder_CreateChn)(int ch, unsigned char *encAttr);
+
+int VideoControl_UserFps = 0;
+int VideoControl_AppFps = 25;
+
 static int userBitrate[4] = { 0, 0, 0, 0 };
 static int appBitrate[4] = { 960, 180, 0, 800 };
 static char videoResBuf[256];
@@ -118,6 +168,8 @@ static char videoResBuf[256];
 static void __attribute ((constructor)) video_control_init(void) {
 
   real_local_sdk_video_set_kbps = dlsym(dlopen ("/system/lib/liblocalsdk.so", RTLD_LAZY), "local_sdk_video_set_kbps");
+  real_local_sdk_video_set_fps = dlsym(dlopen ("/system/lib/liblocalsdk.so", RTLD_LAZY), "local_sdk_video_set_fps");
+  real_IMP_Encoder_CreateChn = dlsym(dlopen ("/system/lib/libimp.so", RTLD_LAZY), "IMP_Encoder_CreateChn");
 }
 
 char *VideoCommand(int fd, char *tokenPtr) {
@@ -143,6 +195,35 @@ int local_sdk_video_set_kbps(int ch, int kbps) {
     }
   }
   return real_local_sdk_video_set_kbps(ch, kbps);
+}
+
+int local_sdk_video_set_fps(int fps) {
+
+  VideoControl_AppFps = fps;
+  if(VideoControl_UserFps) {
+    fps = VideoControl_UserFps;
+    fprintf(stderr, "video_set_fps : %d -> %d\n", VideoControl_AppFps, fps);
+  } else {
+    fprintf(stderr, "video_set_fps : %d\n", fps);
+  }
+  return real_local_sdk_video_set_fps(fps);
+}
+
+int IMP_Encoder_CreateChn(int ch, unsigned char *attr) {
+
+  struct IMPEncoderGopAttr *gopAttr = (struct IMPEncoderGopAttr *)(attr + 88);
+  struct IMPEncoderFrmRate *frm = (struct IMPEncoderFrmRate *)(attr + 80);
+  int fps = frm->frmRateNum;
+  frm->frmRateNum = 30;
+  gopAttr->uGopLength = 30;
+  int ret = real_IMP_Encoder_CreateChn(ch, attr);
+
+  frm->frmRateNum = fps;
+  gopAttr->uGopLength = fps;
+  VideoControl_AppFps = fps;
+  IMP_Encoder_SetChnGopAttr(ch, gopAttr);
+  IMP_Encoder_SetChnFrmRate(ch, frm);
+  return ret;
 }
 
 static char *Flip(char *tokenPtr) {
@@ -335,6 +416,32 @@ static char *DGain(char *tokenPtr) {
   return res ? "error": "ok";
 }
 
+static char *Expr(char *tokenPtr) {
+
+  char *p = strtok_r(NULL, " \t\r\n", &tokenPtr);
+  IMPISPExpr attr;
+  if(!p) {
+    IMP_ISP_Tuning_GetExpr(&attr);
+    sprintf(videoResBuf, "%s %d %d %d %d\n", attr.g_attr.mode ? "manual" : "auto", attr.g_attr.time_min, attr.g_attr.time, attr.g_attr.time_max, attr.g_attr.one_line_expr_in_us);
+    return videoResBuf;
+  }
+
+  if(!strcmp(p, "auto")) {
+    attr.s_attr.mode = 0;
+    attr.s_attr.time = 0;
+  } else if(!strcmp(p, "manual")) {
+    attr.s_attr.mode = 1;
+    p = strtok_r(NULL, " \t\r\n", &tokenPtr);
+    if(!p) return "error";
+    attr.s_attr.time = atoi(p);
+  } else {
+    return "error";
+  }
+  attr.s_attr.unit = 1;
+  int res = IMP_ISP_Tuning_SetExpr(&attr);
+  return res ? "error": "ok";
+}
+
 static char *Bitrate(char *tokenPtr) {
 
   char *p = strtok_r(NULL, " \t\r\n", &tokenPtr);
@@ -361,5 +468,45 @@ static char *Bitrate(char *tokenPtr) {
     fprintf(stderr, "video_set_kbps ch%d: %d\n", ch, userBitrate[ch]);
     real_local_sdk_video_set_kbps(ch, userBitrate[ch]);
   }
+  return "ok";
+}
+
+static char *Framerate(char *tokenPtr) {
+
+  char *p = strtok_r(NULL, " \t\r\n", &tokenPtr);
+  if(!p) {
+    unsigned int num, den;
+    IMP_ISP_Tuning_GetSensorFPS(&num, &den);
+    struct IMPEncoderFrmRate encFps;
+    IMP_Encoder_GetChnFrmRate(0, &encFps);
+    if(VideoControl_UserFps) {
+      sprintf(videoResBuf, "%d isp:%d/%d enc:%d/%d\n", VideoControl_UserFps, num, den, encFps.frmRateNum, encFps.frmRateDen);
+    } else {
+      sprintf(videoResBuf, "auto %d isp:%d/%d enc:%d/%d\n", VideoControl_AppFps, num, den, encFps.frmRateNum, encFps.frmRateDen);
+    }
+    return videoResBuf;
+  }
+
+  int fps = VideoControl_AppFps;
+  if(!strcmp(p, "auto")) {
+    VideoControl_UserFps = 0;
+    fprintf(stderr, "video_set_fps : auto %d\n", VideoControl_AppFps);
+  } else {
+    fps = atoi(p);
+    if((fps < 1) || (fps > 30)) return "error";
+    VideoControl_UserFps = fps;
+    fprintf(stderr, "video_set_fps: %d\n", VideoControl_UserFps);
+  }
+
+  local_sdk_video_stop(0, 0, 0);
+  local_sdk_video_stop(1, 0, 0);
+  local_sdk_video_stop(3, 0, 0);
+  local_sdk_video_set_gop(0, fps);
+  local_sdk_video_set_gop(1, fps);
+  local_sdk_video_set_gop(3, fps);
+  real_local_sdk_video_set_fps(fps);
+  local_sdk_video_start(0);
+  local_sdk_video_start(1);
+  local_sdk_video_start(3);
   return "ok";
 }

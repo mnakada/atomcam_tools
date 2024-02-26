@@ -39,10 +39,6 @@ else
   grep '^alarmInterval=300$' /configs/.user_config || sed -i.old -e 's/^alarmInterval=.*$/alarmInterval=300/' /configs/.user_config
 fi
 
-if [ "$FRAMERATE" != "" ]; then
-  grep "^fps=$FRAMERATE$" /config/.user_config || sed -i.old -e "s/^fps=.*$/fps=$FRAMERATE/" /configs/.user_config
-fi
-
 [ -f /media/mmc/atom-debug ] && exit 0
 
 /system/bin/ver-comp

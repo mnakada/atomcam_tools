@@ -43,6 +43,15 @@ do
     echo "$cmd $params OK" >> /var/run/webres
     cmd=""
   fi
+  if [ "$cmd" = "mp4write" ]; then
+    /scripts/cmd mp4write ${params}
+  fi
+  if [ "$cmd" = "framerate" ]; then
+    /scripts/cmd video fps ${params}
+  fi
+  if [ "$cmd" = "bitrate" ]; then
+    /scripts/cmd video bitrate ${params}
+  fi
   if [ "$cmd" = "rtspserver" ] && [ "$params" != "" ]; then
     /scripts/rtspserver.sh $params
     echo "$cmd $params OK" >> /var/run/webres

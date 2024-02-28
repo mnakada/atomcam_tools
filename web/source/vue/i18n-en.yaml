@@ -182,11 +182,9 @@ motionDetect:
   sensorPeriod:
     title: Motion Sensor Period
     tooltip: Reduce new alarm window from 5 minutes to 30 seconds
-    comment: Note! If you change it, Atomcam will restart on submit.
   uploadStop:
     title: Motion Sensor Video Upload Stop
     tooltip: Prevent upload of detection videos to AtomTech servers. This will make it so they don't appear in the app. If you're concerned about sending stuff to their servers, check this option.
-    comment: Note! If you change it, Atomcam will restart on submit.
 
 cruise:
   title: Cruise
@@ -216,6 +214,20 @@ cruise:
     title: speed
     tooltip: 'Set the following speed.(1: low speed, 9: high speed)'
 
+videoSpec:
+  title: video config
+  frameRate:
+    title: frameRate
+    tooltip: Set the number of frames per second. (1-28FPS)
+  bitrateMainAVC:
+    title: MainAVC bitrate
+    tooltip: Set the bitrate of Main H.264/AVC HD. (300-2000bps)
+  bitrateMainHEVC:
+    title: MainHEVC bitrate
+    tooltip: Set the bitrate of Main H.265/HEVC HD. (300-2000bps)
+  bitrateSubHEVC:
+    title: SubHEVC bitrate
+    tooltip: Set the bitrate of Sub H.265/HEVC 360p. (100-500bps)
 
 monitoring:
   title: Monitoring

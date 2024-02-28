@@ -68,9 +68,9 @@ typedef enum {
 
 extern int video_get_frame(int ch, int lockId, int mode, unsigned char *buf, struct FrameCtrlSt *frameCtrl);
 extern void CommandResponse(int fd, const char *res);
+extern char CommandResBuf[];
 
 static struct ProcessingInfoSt ProcessingInfo;
-static char ResBuf[256];
 static char Filename[256];
 static pthread_mutex_t TimelapseMutex = PTHREAD_MUTEX_INITIALIZER;
 static int TimelapseFd = -1;
@@ -188,8 +188,8 @@ char *Timelapse(int fd, char *tokenPtr) {
   char *p = strtok_r(NULL, " \t\r\n", &tokenPtr);
   if(!p) {
     if(ProcessingInfo.count >= ProcessingInfo.numOfTimes) return "timelapse: not operating.";
-    snprintf(ResBuf, 255, "file: %s %dfps\ninterval: %dsec, count: %d/%d\n", ProcessingInfo.mp4File, ProcessingInfo.fps, ProcessingInfo.interval, ProcessingInfo.count, ProcessingInfo.numOfTimes);
-    return ResBuf;
+    snprintf(CommandResBuf, 255, "file: %s %dfps\ninterval: %dsec, count: %d/%d\n", ProcessingInfo.mp4File, ProcessingInfo.fps, ProcessingInfo.interval, ProcessingInfo.count, ProcessingInfo.numOfTimes);
+    return CommandResBuf;
   }
 
   if(!strcmp(p, "stop")) {

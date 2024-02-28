@@ -19,11 +19,14 @@ extern char *VideoCommand(int fd, char *tokenPtr);
 extern char *AudioCapture(int fd, char *tokenPtr);
 extern char *MotorMove(int fd, char *tokenPtr);
 extern char *WaitMotion(int fd, char *tokenPtr);
-extern char *IrLed(int fd, char *tokenPtr);
+extern char *NightLight(int fd, char *tokenPtr);
 extern char *AudioPlay(int fd, char *tokenPtr);
-extern char *CurlDebug(int fd, char *tokenPtr);
+extern char *CurlConfig(int fd, char *tokenPtr);
 extern char *Timelapse(int fd, char *tokenPtr);
 extern char *MP4Write(int fd, char *tokenPtr);
+extern char *AlarmInterval(int fd, char *tokenPtr);
+
+char *CommandResBuf[256];
 
 struct CommandTableSt {
   const char *cmd;
@@ -36,11 +39,12 @@ struct CommandTableSt CommandTable[] = {
   { "jpeg",       &JpegCapture },
   { "move",       &MotorMove },
   { "waitMotion", &WaitMotion },
-  { "irled",      &IrLed },
+  { "night",      &NightLight },
   { "aplay",      &AudioPlay },
-  { "curlDebug",  &CurlDebug },
+  { "curl",       &CurlConfig },
   { "timelapse",  &Timelapse },
   { "mp4write",   &MP4Write },
+  { "alarm",      &AlarmInterval },
 };
 
 void CommandResponse(int fd, const char *res) {

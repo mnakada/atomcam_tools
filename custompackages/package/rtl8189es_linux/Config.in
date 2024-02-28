@@ -1,9 +1,0 @@
-config BR2_PACKAGE_RTL8189ES_LINUX
-	bool "rtl8189es_linux"
-	depends on BR2_LINUX_KERNEL
-	help
-	  This module allows you to create "RTL8189ES WiFi module".
-	  https://github.com/gtxaspec/rtl8189ES_linux
-
-comment "RTL8189ES wifi needs a Linux kernel to be built"
-	depends on !BR2_LINUX_KERNEL

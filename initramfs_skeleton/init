@@ -80,4 +80,3 @@ mount --move /proc /newroot/proc
 mount --move /rootfs /newroot/media/mmc
 mount --move /boot /newroot/boot
 exec switch_root /newroot /sbin/init
-exec switch_root /newroot /sbin/init

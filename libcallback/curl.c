@@ -27,7 +27,6 @@ static const char *AlarmPath = "/device/v1/alarm/add";
 static const char *DummyRes = "{\"ts\":1641390551000,\"code\":\"1\",\"msg\":\"\",\"data\":{\"alarm_file_list\":[{\"file_type\":1,\"file_suffix\":\"jpg\",\"file_url\":\"https://localhost/hoge.jpg\",\"encryption_algorithm\":0,\"encryption_password\":\"\"},{\"file_type\":2,\"file_suffix\":\"mp4\",\"file_url\":\"https://localhost/fuga.mp4\",\"encryption_algorithm\":0,\"encryption_password\":\"\"}]}}";
 static const char *DummyHost = "https://localhost/";
 
-typedef int (*curl_seek_callback)(void *instream, int offset, int origin);
 typedef int (*curl_write_callback)(char *buffer, int size, int nitems, void *outstream);
 
 struct SessionHandle {
@@ -50,34 +49,50 @@ struct SessionHandle {
 };
 
 static CURLcode (*original_curl_easy_perform)(CURL *curl);
-static int curl_minimum_alarm_cycle = 0;
+int curl_minimum_alarm_cycle = 0;
+static int disable = 0;
 static int debug = 0;
 
 static void __attribute ((constructor)) curl_hook_init(void) {
+
   original_curl_easy_perform = dlsym(dlopen("/thirdlib/libcurl.so", RTLD_LAZY), "curl_easy_perform");
-  char *p = getenv("MINIMIZE_ALARM_CYCLE");
-  if(p && !strcmp(p, "on")) {
-    curl_minimum_alarm_cycle = 300;
-  }
-  p = getenv("ATOMTECH_AWS_ACCESS");
-  if(p && !strcmp(p, "disable_video")) {
-    curl_minimum_alarm_cycle = -1;
-  }
 }
 
-char *CurlDebug(int fd, char *tokenPtr) {
+char *CurlConfig(int fd, char *tokenPtr) {
 
   char *p = strtok_r(NULL, " \t\r\n", &tokenPtr);
-  if(!p) return debug ? "on" : "off";
-  if(!strcmp(p, "on")) {
-    debug = 1;
-    printf("[curl] curl debug on\n", p);
-    return "ok";
+  if(!p) return "error";
+  if(!strcmp(p, "debug")) {
+    p = strtok_r(NULL, " \t\r\n", &tokenPtr);
+    if(!p) return debug ? "on" : "off";
+    if(!strcmp(p, "on")) {
+      debug = 1;
+      printf("[curl] curl debug on\n", p);
+      return "ok";
+    }
+    if(!strcmp(p, "off")) {
+      debug = 0;
+      printf("[curl] curl debug off\n", p);
+      return "ok";
+    }
+    return "error";
   }
-  if(!strcmp(p, "off")) {
-    debug = 0;
-    printf("[curl] curl debug off\n", p);
-    return "ok";
+
+  if(!strcmp(p, "upload")) {
+    p = strtok_r(NULL, " \t\r\n", &tokenPtr);
+    if(!p) return disable ? "disable" : "enable";
+
+    if(!strcmp(p, "disable")) {
+      disable = 1;
+      printf("[curl] curl upload disable\n", p);
+      return "ok";
+    }
+    if(!strcmp(p, "enable")) {
+      disable = 0;
+      printf("[curl] curl upload enable\n", p);
+      return "ok";
+    }
+    return "error";
   }
   return "error";
 }
@@ -125,7 +140,7 @@ CURLcode curl_easy_perform(struct SessionHandle *data) {
     static time_t lastAccess = 0;
     struct timeval now;
     gettimeofday(&now, NULL);
-    if((curl_minimum_alarm_cycle < 0) || (now.tv_sec - lastAccess < curl_minimum_alarm_cycle)) {
+    if(disable || (now.tv_sec - lastAccess < curl_minimum_alarm_cycle)) {
       printf("[curl] Dismiss short cycle alarms.\n");
       memcpy(data->out, DummyRes, strlen(DummyRes));
       data->httpcode = 200;

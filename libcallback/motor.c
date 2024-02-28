@@ -4,6 +4,8 @@
 #include <string.h>
 #include <sys/time.h>
 
+extern char CommandResBuf[];
+
 extern int local_sdk_motor_get_position(float *step,float *angle);
 extern int local_sdk_motor_move_abs_angle(float pan, float tilt, int speed, void (*done)(float a, float b), void (*canceled)(void), int mode);
 extern int IMP_ISP_Tuning_GetISPHflip(int *pmode);
@@ -16,14 +18,13 @@ struct timeval MotorLastMovedTime = { 0, 0 };
 static void motor_move_done(float pan, float tilt) {
 
   if(MotorFd) {
-    static char motorResBuf[256];
     int vflip, hflip;
     IMP_ISP_Tuning_GetISPHflip(&hflip);
     IMP_ISP_Tuning_GetISPVflip(&vflip);
     if(hflip) pan = 355.0 - pan;
     if(vflip) tilt = 180.0 - tilt;
-    sprintf(motorResBuf, "%f %f %d %d\n", pan, tilt, hflip, vflip);
-    CommandResponse(MotorFd, motorResBuf);
+    sprintf(CommandResBuf, "%f %f %d %d\n", pan, tilt, hflip, vflip);
+    CommandResponse(MotorFd, CommandResBuf);
   }
   MotorFd = 0;
   struct timeval tv;
@@ -48,15 +49,14 @@ char *MotorMove(int fd, char *tokenPtr) {
     float pan; // 0-355
     float tilt; // 0-180
     int ret = local_sdk_motor_get_position(&pan, &tilt);
-    static char motorResBuf[256];
     if(!ret) {
       if(hflip) pan = 355.0 - pan;
       if(vflip) tilt = 180.0 - tilt;
-      sprintf(motorResBuf, "%f %f %d %d\n", pan, tilt, hflip, vflip);
+      sprintf(CommandResBuf, "%f %f %d %d\n", pan, tilt, hflip, vflip);
     } else {
       return "error";
     }
-    return motorResBuf;
+    return CommandResBuf;
   }
   float pan = atof(p); // 0-355
   if((pan < 0.0) || (pan > 355.0)) return "error";

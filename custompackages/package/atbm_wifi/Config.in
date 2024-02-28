@@ -1,9 +1,0 @@
-config BR2_PACKAGE_ATBM_WIFI
-	bool "atbm_wifi"
-	depends on BR2_LINUX_KERNEL
-	help
-	  This module allows you to create "ATBM WiFi module".
-	  https://github.com/gtxaspec/atbm_wifi
-
-comment "atbm wifi needs a Linux kernel to be built"
-	depends on !BR2_LINUX_KERNEL

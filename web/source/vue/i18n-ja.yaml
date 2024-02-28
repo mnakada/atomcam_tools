@@ -182,11 +182,9 @@ motionDetect:
   sensorPeriod:
     title: 動体検知周期の短縮
     tooltip: Alarmの無検知時間5分を30秒に短縮します
-    comment: ※ 変更すると設定ボタンで再起動します
   uploadStop:
     title: 動体検知録画upload停止
     tooltip: AtomTechサーバーへの検知動画転送を停止します。アプリから確認できなくなります。サーバーへの転送が気になる場合は設定してください。
-    comment: ※ 変更すると設定ボタンで再起動します
 
 cruise:
   title: クルーズ
@@ -215,6 +213,21 @@ cruise:
   followingSpeed:
     title: 追尾速度
     tooltip: 追尾時の速度です。9が高速、1が低速です。
+
+videoSpec:
+  title: ビデオ設定
+  frameRate:
+    title: フレームレート
+    tooltip: １秒あたりのフレーム数(1-28FPS)を設定します
+  bitrateMainAVC:
+    title: MainAVCの帯域
+    tooltip: Main H.264/AVC HDのビットレート(300-2000bps)を設定します
+  bitrateMainHEVC:
+    title: MainHEVCの帯域
+    tooltip: Main H.265/HEVC HDのビットレート(300-2000bps)を設定します
+  bitrateSubHEVC:
+    title: SubHEVCの帯域
+    tooltip: Sub H.265/HEVC 360pのビットレート(100-500bps)を設定します
 
 monitoring:
   title: モニタリング

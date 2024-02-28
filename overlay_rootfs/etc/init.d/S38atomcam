@@ -60,10 +60,7 @@ case "$1" in
         break
       fi
     done
-    /scripts/set_mp4write.sh
-    /scripts/cmd video bitrate 0 960  # ch0 H264 HD   Record/Alarm, RTSP AVC Main
-    /scripts/cmd video bitrate 1 auto # ch1 H265 360p MobileApp,    RTSP HEVC Sub
-    /scripts/cmd video bitrate 3 auto # ch3 H265 HD   MobileApp,    RTSP HEVC Main
+    /scripts/set_icamera_config.sh
     /scripts/cmd timelapse restart
     [ -x /media/mmc/post_icamera.sh ] && /media/mmc/post_icamera.sh start
   ;;

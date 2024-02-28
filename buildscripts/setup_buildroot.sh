@@ -13,7 +13,6 @@ patch -p1 < /src/patches/libv4l_add_lpthread.patch
 patch -p1 < /src/patches/linux_makefile.patch
 
 cp /src/configs/atomcam_defconfig configs/
-cp /src/configs/busybox.config package/busybox
 make atomcam_defconfig
 cp .config /src/configs/atomcam_defconfig
 

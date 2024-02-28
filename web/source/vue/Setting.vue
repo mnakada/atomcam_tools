@@ -40,13 +40,13 @@
         <div v-if="!rebooting" class="image-frame-inner3">
           <i class="el-icon-moon ir-led" />
           <ElButtonGroup>
-            <ElButton size="mini" type="primary" @click="IrLED('on')">
+            <ElButton size="mini" type="primary" @click="NightLight('on')">
               on
             </ElButton>
-            <ElButton size="mini" type="primary" @click="IrLED('auto')">
+            <ElButton size="mini" type="primary" @click="NightLight('auto')">
               auto
             </ElButton>
-            <ElButton size="mini" type="primary" @click="IrLED('off')">
+            <ElButton size="mini" type="primary" @click="NightLight('off')">
               off
             </ElButton>
           </ElButtonGroup>
@@ -69,7 +69,7 @@
       <SettingSwitch v-if="storage_sdcard" i18n="recording.SDCard.networkAccess" :titleOffset="2" v-model="config.STORAGE_SDCARD_PUBLISH" />
       <SettingInput v-if="storage_sdcard" i18n="recording.SDCard.savePath" :titleOffset="2" :span="10" type="text" v-model="config.STORAGE_SDCARD_PATH" @input="FixPath('STORAGE_SDCARD_PATH')" />
       <SettingSwitch v-if="storage_sdcard" i18n="recording.SDCard.automaticDeletion" :titleOffset="2" v-model="config.STORAGE_SDCARD_REMOVE" />
-      <SettingInput v-if="storage_sdcard && config.STORAGE_SDCARD_REMOVE === 'on'" i18n="recording.SDCard.daysToKeep" :titleOffset="2" :span="3" type="number" v-model="config.STORAGE_SDCARD_REMOVE_DAYS" :min="1" />
+      <SettingInputNumber v-if="storage_sdcard && config.STORAGE_SDCARD_REMOVE === 'on'" i18n="recording.SDCard.daysToKeep" :titleOffset="2" :span="3" v-model="config.STORAGE_SDCARD_REMOVE_DAYS" :min="1" />
       <SettingButton v-if="storage_sdcard" i18n="recording.SDCard.seeAllFiles" :span="4">
         <a href="/sdcard" target="_blank" class="el-button el-button--primary el-button--mini link-button">SD Card</a>
       </SettingButton>
@@ -81,11 +81,11 @@
       <SettingInput v-if="storage_cifs" i18n="recording.NAS.password" :titleOffset="2" type="password" v-model="config.STORAGE_CIFSPASSWD" show-password />
       <SettingInput v-if="storage_cifs" i18n="recording.NAS.savePath" :titleOffset="2" :span="10" type="text" v-model="config.STORAGE_CIFS_PATH" @input="FixPath('STORAGE_CIFS_PATH')" />
       <SettingSwitch v-if="storage_cifs" i18n="recording.NAS.automaticDeletion" :titleOffset="2" v-model="config.STORAGE_CIFS_REMOVE" />
-      <SettingInput v-if="storage_cifs && config.STORAGE_CIFS_REMOVE === 'on'" i18n="recording.NAS.daysToKeep" :titleOffset="2" :span="3" type="number" v-model="config.STORAGE_CIFS_REMOVE_DAYS" :min="1" />
+      <SettingInputNumber v-if="storage_cifs && config.STORAGE_CIFS_REMOVE === 'on'" i18n="recording.NAS.daysToKeep" :titleOffset="2" :span="3" v-model="config.STORAGE_CIFS_REMOVE_DAYS" :min="1" />
 
       <SettingSwitch i18n="recording.timelapse" v-model="config.TIMELAPSE" />
       <SettingInput v-if="config.TIMELAPSE === 'on'" i18n="recording.timelapse.savePath" :titleOffset="2" :span="10" type="text" v-model="config.TIMELAPSE_PATH" @input="FixPath('TIMELAPSE_PATH')" />
-      <SettingInput v-if="config.TIMELAPSE === 'on'" i18n="recording.timelapse.fps" :titleOffset="2" :span="3" type="number" v-model="config.TIMELAPSE_FPS" :min="1" :max="60" />
+      <SettingInputNumber v-if="config.TIMELAPSE === 'on'" i18n="recording.timelapse.fps" :titleOffset="2" :span="3" v-model="config.TIMELAPSE_FPS" :min="1" :max="60" />
       <SettingSchedule v-if="config.TIMELAPSE === 'on'" v-model="timelapse" :timelapse="true" />
       <SettingComment v-if="config.TIMELAPSE === 'on'" i18n="recording.timelapse.note" />
       <SettingProgress v-if="timelapseInfo.busy" i18n="recording.timelapse.start" :titleOffset="2" :percentage="timelapseInfo.count * 100 / timelapseInfo.max" :label="timelapseInfo.count.toString() + '/' + timelapseInfo.max.toString()" />
@@ -96,11 +96,11 @@
       <h3 v-t="'RTSP.title'" />
       <SettingSwitch i18n="RTSP.main" v-model="config.RTSP_VIDEO0" />
       <SettingSwitch v-if="config.RTSP_VIDEO0 === 'on'" i18n="RTSP.main.audio" :titleOffset="2" v-model="config.RTSP_AUDIO0" />
-      <SettingInput v-if="config.RTSP_VIDEO0 === 'on'" i18n="RTSP.main.URL" :titleOffset="2" :span="10" type="readonly" v-model="RtspUrl0" :min="1" />
+      <SettingInput v-if="config.RTSP_VIDEO0 === 'on'" i18n="RTSP.main.URL" :titleOffset="2" :span="10" type="readonly" v-model="RtspUrl0" />
       <SettingSwitch v-if="config.RTSP_VIDEO0 === 'on'" i18n="RTSP.main.format" :titleOffset="2" v-model="config.RTSP_MAIN_FORMAT_HEVC" />
       <SettingSwitch i18n="RTSP.sub" v-model="config.RTSP_VIDEO1" />
       <SettingSwitch v-if="config.RTSP_VIDEO1 === 'on'" i18n="RTSP.sub.audio" :titleOffset="2" v-model="config.RTSP_AUDIO1" />
-      <SettingInput v-if="config.RTSP_VIDEO1 === 'on'" i18n="RTSP.sub.URL" :titleOffset="2" :span="10" type="readonly" v-model="RtspUrl1" :min="1" />
+      <SettingInput v-if="config.RTSP_VIDEO1 === 'on'" i18n="RTSP.sub.URL" :titleOffset="2" :span="10" type="readonly" v-model="RtspUrl1" />
       <SettingSwitch v-if="(config.RTSP_VIDEO0 === 'on') || (config.RTSP_VIDEO1 === 'on')" i18n="RTSP.http" v-model="config.RTSP_OVER_HTTP" />
 
       <h3 v-t="'event.title'" />
@@ -129,6 +129,12 @@
           <SettingCruise v-for="(cruise, idx) of cruiseList" :key="'timetable'+idx" v-model="cruiseList[idx]" :pan="pan" :tilt="tilt" :selected="cruiseSelect === idx" @add="AddCruise" @remove="DeleteCruise(idx)" @pan="pan=$event" @tilt="tilt=$event" @click="CruiseSelect(idx)" />
         </div>
       </div>
+
+      <h3 v-t="'videoSpec.title'" />
+      <SettingInputNumber i18n="videoSpec.frameRate" :withSwitch="true" :defaultValue="20" :span="3" v-model="config.FRAMERATE" :min="1" :max="28" />
+      <SettingInputNumber i18n="videoSpec.bitrateMainAVC" :withSwitch="true" :span="3" v-model="config.BITRATE_MAIN_AVC" :min="300" :max="2000" />
+      <SettingInputNumber i18n="videoSpec.bitrateMainHEVC" :withSwitch="true" :span="3" v-model="config.BITRATE_MAIN_HEVC" :min="300" :max="2000" />
+      <SettingInputNumber i18n="videoSpec.bitrateSubHEVC" :withSwitch="true" :span="3" v-model="config.BITRATE_SUB_HEVC" :min="100" :max="500" />
 
       <h3 v-t="'monitoring.title'" />
       <SettingSwitch i18n="monitoring.network" v-model="config.MONITORING_NETWORK" />
@@ -169,6 +175,7 @@
   import { Tooltip, Drawer, Slider, ButtonGroup } from 'element-ui';
   import SettingSwitch from './SettingSwitch.vue';
   import SettingInput from './SettingInput.vue';
+  import SettingInputNumber from './SettingInputNumber.vue';
   import SettingButton from './SettingButton.vue';
   import SettingComment from './SettingComment.vue';
   import SettingDangerButton from './SettingDangerButton.vue';
@@ -190,6 +197,7 @@
       ElButtonGroup: ButtonGroup,
       SettingSwitch,
       SettingInput,
+      SettingInputNumber,
       SettingButton,
       SettingComment,
       SettingDangerButton,
@@ -257,6 +265,10 @@
           HEALTHCHECK: 'off',
           HEALTHCHECK_PING_URL: '',
           LOCALE: navigator.language.indexOf('en') === 0 ? 'en' : 'ja',
+          FRAMERATE: 20,
+          BITRATE_MAIN_AVC: 960, // ch0 H264 HD   Record/Alarm, RTSP AVC Main
+          BITRATE_SUB_HEVC: -1,   // ch1 H265 360p MobileApp,    RTSP HEVC Sub
+          BITRATE_MAIN_HEVC: -1,  // ch3 H265 HD   MobileApp,    RTSP HEVC Main
         },
         loginAuth: 'off',
         loginAuth2: 'off',
@@ -344,7 +356,7 @@
     async mounted() {
       const res = await axios.get('./cgi-bin/hack_ini.cgi').catch(err => {
         // eslint-disable-next-line no-console
-        console.log(err);
+        console.log('axios.get ./cgi-bin/hack_ini.cgi', err);
         return '';
       });
 
@@ -355,7 +367,7 @@
       }, Object.assign({}, this.config));
       this.config = Object.assign({}, this.oldConfig);
       // eslint-disable-next-line no-console
-      console.log(this.config);
+      console.log('config', this.config);
 
       if(this.config.LOCALE && (this.$i18n.availableLocales.indexOf(this.config.LOCALE) >= 0)) {
         this.$i18n.locale = this.config.LOCALE;
@@ -462,7 +474,7 @@
 
       const status = (await axios.get('./cgi-bin/cmd.cgi').catch(err => {
         // eslint-disable-next-line no-console
-        console.log(err);
+        console.log('axios.get ./cgi-bin/cmd.cgi', err);
         return { data: '' };
       })).data.split('\n').reduce((s, d) => {
         s[d.replace(/=.*$/, '').trim()] = d.replace(/^.*=/, '').trim();
@@ -489,7 +501,7 @@
       setInterval(async () => {
         const res = await axios.get('./cgi-bin/cmd.cgi?name=status').catch(err => {
           // eslint-disable-next-line no-console
-          console.log(err);
+          console.log('axios.get ./cgi-bin/cmd.cgi?name=status', err);
           return '';
         });
         if(res === '') return;
@@ -536,8 +548,8 @@
           this.Exec('posrec');
         }, 3000);
       },
-      IrLED(mode) {
-        this.Exec(`irled ${mode}`, 'socket');
+      NightLight(mode) {
+        this.Exec(`night ${mode}`, 'socket');
       },
       async TimelapseAbort() {
         this.timelapseInfo.abort = true;
@@ -547,7 +559,7 @@
       async StillImageInterval() {
         const image = await axios.get('./cgi-bin/get_jpeg.cgi', { responseType: 'arraybuffer' }).catch(err => {
           // eslint-disable-next-line no-console
-          console.log(err);
+          console.log('axios.get ./cgi-bin/get_jpeg.cgi', err);
         });
         if(image && image.data) this.stillImage = window.URL.createObjectURL(new Blob([image.data]));
         if(this.imageTimeout) clearTimeout(this.imageTimeout);
@@ -652,7 +664,7 @@
         } else {
           this.config.STORAGE_SDCARD = 'off';
         }
-        if(!this.storage_sdcard) this.config.STORAGE_SDCARD_PUBLISH = "off";
+        if(!this.storage_sdcard) this.config.STORAGE_SDCARD_PUBLISH = 'off';
 
         if(this.storage_cifs_record && this.storage_cifs_alarm) {
           this.config.STORAGE_CIFS = 'on';
@@ -690,8 +702,10 @@
 
         await axios.post('./cgi-bin/hack_ini.cgi', this.config).catch(err => {
           // eslint-disable-next-line no-console
-          console.log(err);
+          console.log('axios.post ./cgi-bin/hack_ini.cgi', err);
         });
+        // eslint-disable-next-line no-console
+        console.log('config', this.config);
 
         const execCmds = [];
         let href = null;
@@ -699,45 +713,62 @@
            (this.config.REBOOT_SCHEDULE !== this.oldConfig.REBOOT_SCHEDULE)) {
           execCmds.push('setCron');
         }
+        if(this.config.STORAGE_SDCARD !== this.oldConfig.STORAGE_SDCARD) {
+          let periodic = 'ram';
+          if((this.config.STORAGE_SDCARD === 'on') || (this.config.STORAGE_SDCARD === 'record')) periodic = 'sd';
+          let alarm = 'ram';
+          if((this.config.STORAGE_SDCARD === 'on') || (this.config.STORAGE_SDCARD === 'alarm')) alarm = 'sd';
+          execCmds.push(`mp4write ${periodic} ${alarm}`);
+        }
+        if(parseInt(this.config.FRAMERATE) !== parseInt(this.oldConfig.FRAMERATE)) {
+          execCmds.push(`framerate ${this.config.FRAMERATE < 0 ? 'auto' : this.config.FRAMERATE}`);
+        }
+        if(parseInt(this.config.BITRATE_MAIN_AVC) !== parseInt(this.oldConfig.BITRATE_MAIN_AVC)) {
+          execCmds.push(`bitrate 0 ${this.config.BITRATE_MAIN_AVC < 0 ? 'auto' : this.config.BITRATE_MAIN_AVC}`);
+        }
+        if(parseInt(this.config.BITRATE_SUB_HEVC) !== parseInt(this.oldConfig.BITRATE_SUB_HEVC)) {
+          execCmds.push(`bitrate 1 ${this.config.BITRATE_SUB_HEVC < 0 ? 'auto' : this.config.BITRATE_SUB_HEVC}`);
+        }
+        if(parseInt(this.config.BITRATE_MAIN_HEVC) !== parseInt(this.oldConfig.BITRATE_MAIN_HEVC)) {
+          execCmds.push(`bitrate 3 ${this.config.BITRATE_MAIN_HEVC < 0 ? 'auto' : this.config.BITRATE_MAIN_HEVC}`);
+        }
         if(this.config.HOSTNAME !== this.oldConfig.HOSTNAME) {
           execCmds.push(`hostname ${this.config.HOSTNAME}`);
           if(window.location.host === `${this.oldConfig.HOSTNAME}.local`) {
             href = `http://${this.config.HOSTNAME}.local`;
           }
         }
-        if((this.config.MINIMIZE_ALARM_CYCLE !== this.oldConfig.MINIMIZE_ALARM_CYCLE) ||
-           (this.config.AWS_VIDEO_DISABLE !== this.oldConfig.AWS_VIDEO_DISABLE))  {
-          execCmds.push(`reboot`);
-          this.rebooting = true;
-          this.rebootStart = new Date();
-          this.rebootStart.setSeconds(this.rebootStart.getSeconds() + 30);
-        } else {
-          if(((this.config.RTSP_VIDEO0 !== this.oldConfig.RTSP_VIDEO0) ||
-              (this.config.RTSP_VIDEO1 !== this.oldConfig.RTSP_VIDEO1)) &&
-             (this.config.RTSP_VIDEO0 === "off") && (this.config.RTSP_VIDEO1 === "off")) {
-            execCmds.push('rtspserver off');
+        if(this.config.MINIMIZE_ALARM_CYCLE !== this.oldConfig.MINIMIZE_ALARM_CYCLE) {
+          execCmds.push(`alarm ${this.config.MINIMIZE_ALARM_CYCLE === 'on' ? '30' : '300'}`);
+        }
+        if(this.config.AWS_VIDEO_DISABLE !== this.oldConfig.AWS_VIDEO_DISABLE) {
+          execCmds.push(`curl upload ${this.config.AWS_VIDEO_DISABLE === 'on' ? 'disable' : 'enable'}`);
+        }
+        if(((this.config.RTSP_VIDEO0 !== this.oldConfig.RTSP_VIDEO0) ||
+            (this.config.RTSP_VIDEO1 !== this.oldConfig.RTSP_VIDEO1)) &&
+           (this.config.RTSP_VIDEO0 === 'off') && (this.config.RTSP_VIDEO1 === 'off')) {
+          execCmds.push('rtspserver off');
+        }
+        if(this.config.STORAGE_SDCARD_PUBLISH !== this.oldConfig.STORAGE_SDCARD_PUBLISH) {
+          execCmds.push(`samba ${this.config.STORAGE_SDCARD_PUBLISH}`);
+        }
+        if((this.config.RTSP_VIDEO0 === 'on') || (this.config.RTSP_VIDEO1 === 'on')) {
+          if((this.config.RTSP_OVER_HTTP !== this.oldConfig.RTSP_OVER_HTTP) ||
+             (this.config.RTSP_MAIN_FORMAT_HEVC !== this.oldConfig.RTSP_MAIN_FORMAT_HEVC)) {
+            execCmds.push('rtspserver restart');
+          } else if((this.config.RTSP_VIDEO0 !== this.oldConfig.RTSP_VIDEO0) ||
+                    (this.config.RTSP_VIDEO1 !== this.oldConfig.RTSP_VIDEO1) ||
+                    (this.config.RTSP_AUDIO0 !== this.oldConfig.RTSP_AUDIO0) ||
+                    (this.config.RTSP_AUDIO1 !== this.oldConfig.RTSP_AUDIO1)) {
+            execCmds.push('rtspserver on');
           }
-          if(this.config.STORAGE_SDCARD_PUBLISH !== this.oldConfig.STORAGE_SDCARD_PUBLISH) {
-            execCmds.push(`samba ${this.config.STORAGE_SDCARD_PUBLISH}`);
-          }
-          if((this.config.RTSP_VIDEO0 === "on") || (this.config.RTSP_VIDEO1 === "on")) {
-            if((this.config.RTSP_OVER_HTTP !== this.oldConfig.RTSP_OVER_HTTP) ||
-               (this.config.RTSP_MAIN_FORMAT_HEVC !== this.oldConfig.RTSP_MAIN_FORMAT_HEVC)) {
-              execCmds.push('rtspserver restart');
-            } else if((this.config.RTSP_VIDEO0 !== this.oldConfig.RTSP_VIDEO0) ||
-                      (this.config.RTSP_VIDEO1 !== this.oldConfig.RTSP_VIDEO1) ||
-                      (this.config.RTSP_AUDIO0 !== this.oldConfig.RTSP_AUDIO0) ||
-                      (this.config.RTSP_AUDIO1 !== this.oldConfig.RTSP_AUDIO1)) {
-              execCmds.push('rtspserver on');
-            }
-          }
-          if(Object.keys(this.config).some(prop => (prop.search(/WEBHOOK/) === 0) && (this.config[prop] !== this.oldConfig[prop]))) {
-            execCmds.push('setwebhook');
-          }
-          if((this.config.CRUISE !== this.oldConfig.CRUISE) ||
-             (this.config.CRUISE_LIST !== this.oldConfig.CRUISE_LIST)) {
-               execCmds.push('cruise restart');
-          }
+        }
+        if(Object.keys(this.config).some(prop => (prop.search(/WEBHOOK/) === 0) && (this.config[prop] !== this.oldConfig[prop]))) {
+          execCmds.push('setwebhook');
+        }
+        if((this.config.CRUISE !== this.oldConfig.CRUISE) ||
+           (this.config.CRUISE_LIST !== this.oldConfig.CRUISE_LIST)) {
+             execCmds.push('cruise restart');
         }
         if(this.config.DIGEST !== this.oldConfig.DIGEST) execCmds.push('lighttpd');
 
@@ -746,10 +777,6 @@
           this.executing = true;
           this.$nextTick(async () => {
             for(const cmd of execCmds) {
-              if(cmd === 'reboot') {
-                this.DoReboot();
-                break;
-              }
               await this.Exec(cmd);
             }
             if(execCmds.indexOf('lighttpd') >= 0) {
@@ -764,7 +791,7 @@
       async Exec(cmd, port) {
         return await axios.post(`./cgi-bin/cmd.cgi?port=${port}`, { exec: cmd }).catch(err => {
           // eslint-disable-next-line no-console
-          console.log(err);
+          console.log(`axios.post ./cgi-bin/cmd.cgi?port=${port}`, err);
         });
       },
     },

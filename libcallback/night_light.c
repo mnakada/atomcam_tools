@@ -7,7 +7,7 @@ extern int local_sdk_open_night_light();
 extern int local_sdk_auto_night_light();
 extern void CommandResponse(int fd, const char *res);
 
-char *IrLed(int fd, char *tokenPtr) {
+char *NightLight(int fd, char *tokenPtr) {
 
   char *p = strtok_r(NULL, " \t\r\n", &tokenPtr);
   if(!p) return "error";

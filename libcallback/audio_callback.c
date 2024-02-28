@@ -13,6 +13,8 @@
 static const int AudioDecviceID = 1;
 static const int AudioChID = 0;
 
+extern char CommandResBuf[];
+
 typedef struct {
   int samplerate; // Audio sampling rate. 8000 Hz
   int bitwidth; // Audio sampling precision. 16 bit
@@ -80,8 +82,6 @@ struct audio_capture_st audio_capture[] = {
     .enable = 0,
   },
 };
-
-static char audioResBuf[256];
 
 static char *HighPassFilter(char *tokenPtr) {
 
@@ -156,8 +156,8 @@ static char *Volume(char *tokenPtr) {
     int vol;
     int ret = IMP_AI_GetVol(AudioDecviceID, AudioChID, &vol);
     if(ret) return "error";
-    sprintf(audioResBuf, "%d\n", vol);
-    return audioResBuf;
+    sprintf(CommandResBuf, "%d\n", vol);
+    return CommandResBuf;
   }
   int ret = IMP_AI_SetVol(AudioDecviceID, AudioChID, atoi(p));
   return ret ? "error" : "ok";
@@ -170,8 +170,8 @@ static char *Gain(char *tokenPtr) {
     int gain;
     int ret = IMP_AI_GetGain(AudioDecviceID, AudioChID, &gain);
     if(ret) return "error";
-    sprintf(audioResBuf, "%d\n", gain);
-    return audioResBuf;
+    sprintf(CommandResBuf, "%d\n", gain);
+    return CommandResBuf;
   }
   int ret = IMP_AI_SetGain(AudioDecviceID, AudioChID, atoi(p));
   return ret ? "error" : "ok";
@@ -184,8 +184,8 @@ static char *AlcGain(char *tokenPtr) {
     int gain;
     int ret = IMP_AI_GetAlcGain(AudioDecviceID, AudioChID, &gain);
     if(ret) return "error";
-    sprintf(audioResBuf, "%d\n", gain);
-    return audioResBuf;
+    sprintf(CommandResBuf, "%d\n", gain);
+    return CommandResBuf;
   }
   int ret = IMP_AI_SetAlcGain(AudioDecviceID, AudioChID, atoi(p));
   return ret ? "error" : "ok";

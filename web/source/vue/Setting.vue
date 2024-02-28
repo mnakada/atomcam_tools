@@ -40,13 +40,13 @@
         <div v-if="!rebooting" class="image-frame-inner3">
           <i class="el-icon-moon ir-led" />
           <ElButtonGroup>
-            <ElButton size="mini" type="primary" @click="IrLED('on')">
+            <ElButton size="mini" type="primary" @click="NightLight('on')">
               on
             </ElButton>
-            <ElButton size="mini" type="primary" @click="IrLED('auto')">
+            <ElButton size="mini" type="primary" @click="NightLight('auto')">
               auto
             </ElButton>
-            <ElButton size="mini" type="primary" @click="IrLED('off')">
+            <ElButton size="mini" type="primary" @click="NightLight('off')">
               off
             </ElButton>
           </ElButtonGroup>
@@ -537,8 +537,8 @@
           this.Exec('posrec');
         }, 3000);
       },
-      IrLED(mode) {
-        this.Exec(`irled ${mode}`, 'socket');
+      NightLight(mode) {
+        this.Exec(`night ${mode}`, 'socket');
       },
       async TimelapseAbort() {
         this.timelapseInfo.abort = true;

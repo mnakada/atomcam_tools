@@ -25,8 +25,8 @@ fi
 if [ "0x024c" = "$VENDERID" ]; then
   insmod /atom/system/driver/rtl8189ftv.ko
 elif [ "0x007a" = "$VENDERID" ]; then
-  if [ -f /atom/therdlib/atbm603x_wifi_sdio.ko ] ; then
-    insmod /atom/therdlib/atbm603x_wifi_sdio.ko
+  if [ -f /atom/thirdlib/atbm603x_wifi_sdio.ko ] ; then
+    insmod /atom/thirdlib/atbm603x_wifi_sdio.ko
   elif [ -f /atom/system/driver/atbm603x_wifi_sdio.ko ] ; then
     [ -f /atom/usr/share/atbm603x_conf/atbm_txpwer_dcxo_cfg.txt ] && cp /atom/usr/share/atbm603x_conf/atbm_txpwer_dcxo_cfg.txt /tmp
     [ -f /atom/usr/share/atbm603x_conf/set_rate_power.txt ] && cp /atom/usr/share/atbm603x_conf/set_rate_power.txt /tmp

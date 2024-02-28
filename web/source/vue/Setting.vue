@@ -69,7 +69,7 @@
       <SettingSwitch v-if="storage_sdcard" i18n="recording.SDCard.networkAccess" :titleOffset="2" v-model="config.STORAGE_SDCARD_PUBLISH" />
       <SettingInput v-if="storage_sdcard" i18n="recording.SDCard.savePath" :titleOffset="2" :span="10" type="text" v-model="config.STORAGE_SDCARD_PATH" @input="FixPath('STORAGE_SDCARD_PATH')" />
       <SettingSwitch v-if="storage_sdcard" i18n="recording.SDCard.automaticDeletion" :titleOffset="2" v-model="config.STORAGE_SDCARD_REMOVE" />
-      <SettingInput v-if="storage_sdcard && config.STORAGE_SDCARD_REMOVE === 'on'" i18n="recording.SDCard.daysToKeep" :titleOffset="2" :span="3" type="number" v-model="config.STORAGE_SDCARD_REMOVE_DAYS" :min="1" />
+      <SettingInputNumber v-if="storage_sdcard && config.STORAGE_SDCARD_REMOVE === 'on'" i18n="recording.SDCard.daysToKeep" :titleOffset="2" :span="3" v-model="config.STORAGE_SDCARD_REMOVE_DAYS" :min="1" />
       <SettingButton v-if="storage_sdcard" i18n="recording.SDCard.seeAllFiles" :span="4">
         <a href="/sdcard" target="_blank" class="el-button el-button--primary el-button--mini link-button">SD Card</a>
       </SettingButton>
@@ -81,11 +81,11 @@
       <SettingInput v-if="storage_cifs" i18n="recording.NAS.password" :titleOffset="2" type="password" v-model="config.STORAGE_CIFSPASSWD" show-password />
       <SettingInput v-if="storage_cifs" i18n="recording.NAS.savePath" :titleOffset="2" :span="10" type="text" v-model="config.STORAGE_CIFS_PATH" @input="FixPath('STORAGE_CIFS_PATH')" />
       <SettingSwitch v-if="storage_cifs" i18n="recording.NAS.automaticDeletion" :titleOffset="2" v-model="config.STORAGE_CIFS_REMOVE" />
-      <SettingInput v-if="storage_cifs && config.STORAGE_CIFS_REMOVE === 'on'" i18n="recording.NAS.daysToKeep" :titleOffset="2" :span="3" type="number" v-model="config.STORAGE_CIFS_REMOVE_DAYS" :min="1" />
+      <SettingInputNumber v-if="storage_cifs && config.STORAGE_CIFS_REMOVE === 'on'" i18n="recording.NAS.daysToKeep" :titleOffset="2" :span="3" v-model="config.STORAGE_CIFS_REMOVE_DAYS" :min="1" />
 
       <SettingSwitch i18n="recording.timelapse" v-model="config.TIMELAPSE" />
       <SettingInput v-if="config.TIMELAPSE === 'on'" i18n="recording.timelapse.savePath" :titleOffset="2" :span="10" type="text" v-model="config.TIMELAPSE_PATH" @input="FixPath('TIMELAPSE_PATH')" />
-      <SettingInput v-if="config.TIMELAPSE === 'on'" i18n="recording.timelapse.fps" :titleOffset="2" :span="3" type="number" v-model="config.TIMELAPSE_FPS" :min="1" :max="60" />
+      <SettingInputNumber v-if="config.TIMELAPSE === 'on'" i18n="recording.timelapse.fps" :titleOffset="2" :span="3" v-model="config.TIMELAPSE_FPS" :min="1" :max="60" />
       <SettingSchedule v-if="config.TIMELAPSE === 'on'" v-model="timelapse" :timelapse="true" />
       <SettingComment v-if="config.TIMELAPSE === 'on'" i18n="recording.timelapse.note" />
       <SettingProgress v-if="timelapseInfo.busy" i18n="recording.timelapse.start" :titleOffset="2" :percentage="timelapseInfo.count * 100 / timelapseInfo.max" :label="timelapseInfo.count.toString() + '/' + timelapseInfo.max.toString()" />
@@ -96,11 +96,11 @@
       <h3 v-t="'RTSP.title'" />
       <SettingSwitch i18n="RTSP.main" v-model="config.RTSP_VIDEO0" />
       <SettingSwitch v-if="config.RTSP_VIDEO0 === 'on'" i18n="RTSP.main.audio" :titleOffset="2" v-model="config.RTSP_AUDIO0" />
-      <SettingInput v-if="config.RTSP_VIDEO0 === 'on'" i18n="RTSP.main.URL" :titleOffset="2" :span="10" type="readonly" v-model="RtspUrl0" :min="1" />
+      <SettingInput v-if="config.RTSP_VIDEO0 === 'on'" i18n="RTSP.main.URL" :titleOffset="2" :span="10" type="readonly" v-model="RtspUrl0" />
       <SettingSwitch v-if="config.RTSP_VIDEO0 === 'on'" i18n="RTSP.main.format" :titleOffset="2" v-model="config.RTSP_MAIN_FORMAT_HEVC" />
       <SettingSwitch i18n="RTSP.sub" v-model="config.RTSP_VIDEO1" />
       <SettingSwitch v-if="config.RTSP_VIDEO1 === 'on'" i18n="RTSP.sub.audio" :titleOffset="2" v-model="config.RTSP_AUDIO1" />
-      <SettingInput v-if="config.RTSP_VIDEO1 === 'on'" i18n="RTSP.sub.URL" :titleOffset="2" :span="10" type="readonly" v-model="RtspUrl1" :min="1" />
+      <SettingInput v-if="config.RTSP_VIDEO1 === 'on'" i18n="RTSP.sub.URL" :titleOffset="2" :span="10" type="readonly" v-model="RtspUrl1" />
       <SettingSwitch v-if="(config.RTSP_VIDEO0 === 'on') || (config.RTSP_VIDEO1 === 'on')" i18n="RTSP.http" v-model="config.RTSP_OVER_HTTP" />
 
       <h3 v-t="'event.title'" />
@@ -169,6 +169,7 @@
   import { Tooltip, Drawer, Slider, ButtonGroup } from 'element-ui';
   import SettingSwitch from './SettingSwitch.vue';
   import SettingInput from './SettingInput.vue';
+  import SettingInputNumber from './SettingInputNumber.vue';
   import SettingButton from './SettingButton.vue';
   import SettingComment from './SettingComment.vue';
   import SettingDangerButton from './SettingDangerButton.vue';
@@ -190,6 +191,7 @@
       ElButtonGroup: ButtonGroup,
       SettingSwitch,
       SettingInput,
+      SettingInputNumber,
       SettingButton,
       SettingComment,
       SettingDangerButton,

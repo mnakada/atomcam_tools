@@ -356,7 +356,7 @@
     async mounted() {
       const res = await axios.get('./cgi-bin/hack_ini.cgi').catch(err => {
         // eslint-disable-next-line no-console
-        console.log(err);
+        console.log('axios.get ./cgi-bin/hack_ini.cgi', err);
         return '';
       });
 
@@ -367,7 +367,7 @@
       }, Object.assign({}, this.config));
       this.config = Object.assign({}, this.oldConfig);
       // eslint-disable-next-line no-console
-      console.log(this.config);
+      console.log('config', this.config);
 
       if(this.config.LOCALE && (this.$i18n.availableLocales.indexOf(this.config.LOCALE) >= 0)) {
         this.$i18n.locale = this.config.LOCALE;
@@ -474,7 +474,7 @@
 
       const status = (await axios.get('./cgi-bin/cmd.cgi').catch(err => {
         // eslint-disable-next-line no-console
-        console.log(err);
+        console.log('axios.get ./cgi-bin/cmd.cgi', err);
         return { data: '' };
       })).data.split('\n').reduce((s, d) => {
         s[d.replace(/=.*$/, '').trim()] = d.replace(/^.*=/, '').trim();
@@ -501,7 +501,7 @@
       setInterval(async () => {
         const res = await axios.get('./cgi-bin/cmd.cgi?name=status').catch(err => {
           // eslint-disable-next-line no-console
-          console.log(err);
+          console.log('axios.get ./cgi-bin/cmd.cgi?name=status', err);
           return '';
         });
         if(res === '') return;
@@ -559,7 +559,7 @@
       async StillImageInterval() {
         const image = await axios.get('./cgi-bin/get_jpeg.cgi', { responseType: 'arraybuffer' }).catch(err => {
           // eslint-disable-next-line no-console
-          console.log(err);
+          console.log('axios.get ./cgi-bin/get_jpeg.cgi', err);
         });
         if(image && image.data) this.stillImage = window.URL.createObjectURL(new Blob([image.data]));
         if(this.imageTimeout) clearTimeout(this.imageTimeout);
@@ -664,7 +664,7 @@
         } else {
           this.config.STORAGE_SDCARD = 'off';
         }
-        if(!this.storage_sdcard) this.config.STORAGE_SDCARD_PUBLISH = "off";
+        if(!this.storage_sdcard) this.config.STORAGE_SDCARD_PUBLISH = 'off';
 
         if(this.storage_cifs_record && this.storage_cifs_alarm) {
           this.config.STORAGE_CIFS = 'on';
@@ -702,8 +702,10 @@
 
         await axios.post('./cgi-bin/hack_ini.cgi', this.config).catch(err => {
           // eslint-disable-next-line no-console
-          console.log(err);
+          console.log('axios.post ./cgi-bin/hack_ini.cgi', err);
         });
+        // eslint-disable-next-line no-console
+        console.log('config', this.config);
 
         const execCmds = [];
         let href = null;
@@ -789,7 +791,7 @@
       async Exec(cmd, port) {
         return await axios.post(`./cgi-bin/cmd.cgi?port=${port}`, { exec: cmd }).catch(err => {
           // eslint-disable-next-line no-console
-          console.log(err);
+          console.log(`axios.post ./cgi-bin/cmd.cgi?port=${port}`, err);
         });
       },
     },

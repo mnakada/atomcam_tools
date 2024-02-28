@@ -25,6 +25,8 @@ extern char *CurlDebug(int fd, char *tokenPtr);
 extern char *Timelapse(int fd, char *tokenPtr);
 extern char *MP4Write(int fd, char *tokenPtr);
 
+char *CommandResBuf[256];
+
 struct CommandTableSt {
   const char *cmd;
   char * (*func)(int, char *);

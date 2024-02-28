@@ -8,6 +8,7 @@
 #include <math.h>
 #include <unistd.h>
 
+extern char CommandResBuf[];
 extern void CommandResponse(int fd, const char *res);
 extern int local_sdk_motor_get_position(float *step,float *angle);
 extern int IMP_ISP_Tuning_GetISPHflip(int *pmode);
@@ -59,7 +60,6 @@ int local_sdk_video_osd_update_rect(int ch, int display, struct RectInfoSt *rect
         float pan; // 0-355
         float tilt; // 0-180
         int ret = local_sdk_motor_get_position(&pan, &tilt);
-        static char waitMotionResBuf[256];
         if(!ret) {
           int vflip, hflip;
           IMP_ISP_Tuning_GetISPHflip(&hflip);
@@ -72,13 +72,13 @@ int local_sdk_video_osd_update_rect(int ch, int display, struct RectInfoSt *rect
           tilt -= (rectInfo->top + rectInfo->bottom - 180 * 2) * 55 / (2 * 360);
           if(tilt < 45.0) tilt = 45.0;
           if(tilt > 180.0) tilt = 180.0;
-          sprintf(waitMotionResBuf, "detect %d %d %d %d %d %d\n",
+          sprintf(CommandResBuf, "detect %d %d %d %d %d %d\n",
             rectInfo->left, rectInfo->right, rectInfo->top, rectInfo->bottom, lroundf(pan), lroundf(tilt));
         } else {
-          sprintf(waitMotionResBuf, "detect %d %d %d %d - -\n",
+          sprintf(CommandResBuf, "detect %d %d %d %d - -\n",
             rectInfo->left, rectInfo->right, rectInfo->top, rectInfo->bottom);
         }
-        CommandResponse(WaitMotionFd, waitMotionResBuf);
+        CommandResponse(WaitMotionFd, CommandResBuf);
       } else {
         CommandResponse(WaitMotionFd, "clear\n");
       }

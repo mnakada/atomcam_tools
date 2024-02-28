@@ -12,8 +12,8 @@ struct Mp4StartConfig {
 static int (*original_mp4write_start_handler)(void *handler, char *file, struct Mp4StartConfig *config);
 static int mp4write_periodicSD = 0;
 static int mp4write_AlarmSD = 0;
-static char ResBuf[256];
 
+extern char CommandResBuf[];
 extern int VideoControl_UserFps;
 extern int VideoControl_AppFps;
 
@@ -26,10 +26,10 @@ char *MP4Write(int fd, char *tokenPtr) {
 
   char *p = strtok_r(NULL, " \t\r\n", &tokenPtr);
   if(!p) {
-    snprintf(ResBuf, 255, "periodicRec: %s, alarmRec: %s",
+    snprintf(CommandResBuf, 255, "periodicRec: %s, alarmRec: %s",
       mp4write_periodicSD ? "sd" : "ram",
       mp4write_AlarmSD ? "sd" : "ram");
-    return ResBuf;
+    return CommandResBuf;
   }
 
   char *q = strtok_r(NULL, " \t\r\n", &tokenPtr);

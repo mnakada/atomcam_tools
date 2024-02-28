@@ -11,6 +11,8 @@
 #include <sys/time.h>
 #include <pthread.h>
 
+extern char CommandResBuf[];
+
 // contrast of image effect.
 extern int IMP_ISP_Tuning_SetContrast(unsigned char contrast);
 extern int IMP_ISP_Tuning_GetContrast(unsigned char *pcontrast);
@@ -163,7 +165,6 @@ int VideoControl_AppFps = 25;
 
 static int userBitrate[4] = { 0, 0, 0, 0 };
 static int appBitrate[4] = { 960, 180, 0, 800 };
-static char videoResBuf[256];
 
 static void __attribute ((constructor)) video_control_init(void) {
 
@@ -263,8 +264,8 @@ static char *Contrast(char *tokenPtr) {
   if(!p) {
     unsigned char cont;
     IMP_ISP_Tuning_GetContrast(&cont);
-    sprintf(videoResBuf, "%d\n", cont);
-    return videoResBuf;
+    sprintf(CommandResBuf, "%d\n", cont);
+    return CommandResBuf;
   }
   int res = IMP_ISP_Tuning_SetContrast(atoi(p));
   return res ? "error": "ok";
@@ -276,8 +277,8 @@ static char *Brightness(char *tokenPtr) {
   if(!p) {
     unsigned char bri;
     IMP_ISP_Tuning_GetBrightness(&bri);
-    sprintf(videoResBuf, "%d\n", bri);
-    return videoResBuf;
+    sprintf(CommandResBuf, "%d\n", bri);
+    return CommandResBuf;
   }
   int res = IMP_ISP_Tuning_SetBrightness(atoi(p));
   return res ? "error": "ok";
@@ -289,8 +290,8 @@ static char *Saturation(char *tokenPtr) {
   if(!p) {
     unsigned char sat;
     IMP_ISP_Tuning_GetSaturation(&sat);
-    sprintf(videoResBuf, "%d\n", sat);
-    return videoResBuf;
+    sprintf(CommandResBuf, "%d\n", sat);
+    return CommandResBuf;
   }
   int res = IMP_ISP_Tuning_SetSaturation(atoi(p));
   return res ? "error": "ok";
@@ -302,8 +303,8 @@ static char *Sharpness(char *tokenPtr) {
   if(!p) {
     unsigned char sharpness;
     IMP_ISP_Tuning_GetSharpness(&sharpness);
-    sprintf(videoResBuf, "%d\n", sharpness);
-    return videoResBuf;
+    sprintf(CommandResBuf, "%d\n", sharpness);
+    return CommandResBuf;
   }
   int res = IMP_ISP_Tuning_SetSharpness(atoi(p));
   return res ? "error": "ok";
@@ -315,8 +316,8 @@ static char *AEComp(char *tokenPtr) {
   if(!p) {
     int comp;
     IMP_ISP_Tuning_GetAeComp(&comp);
-    sprintf(videoResBuf, "%d\n", comp);
-    return videoResBuf;
+    sprintf(CommandResBuf, "%d\n", comp);
+    return CommandResBuf;
   }
   int res = IMP_ISP_Tuning_SetAeComp(atoi(p));
   return res ? "error": "ok";
@@ -328,8 +329,8 @@ static char *AEItMax(char *tokenPtr) {
   if(!p) {
     unsigned int itMax;
     IMP_ISP_Tuning_GetAE_IT_MAX(&itMax);
-    sprintf(videoResBuf, "%d\n", itMax);
-    return videoResBuf;
+    sprintf(CommandResBuf, "%d\n", itMax);
+    return CommandResBuf;
   }
   int res = IMP_ISP_Tuning_SetAe_IT_MAX(atoi(p));
   return res ? "error": "ok";
@@ -357,8 +358,8 @@ static char *DPC(char *tokenPtr) {
   if(!p) {
     unsigned int dpc;
     IMP_ISP_Tuning_GetDPC_Strength(&dpc);
-    sprintf(videoResBuf, "%d\n", dpc);
-    return videoResBuf;
+    sprintf(CommandResBuf, "%d\n", dpc);
+    return CommandResBuf;
   }
   int res = IMP_ISP_Tuning_SetDPC_Strength(atoi(p));
   return res ? "error": "ok";
@@ -370,8 +371,8 @@ static char *DRC(char *tokenPtr) {
   if(!p) {
     unsigned int drc;
     IMP_ISP_Tuning_GetDRC_Strength(&drc);
-    sprintf(videoResBuf, "%d\n", drc);
-    return videoResBuf;
+    sprintf(CommandResBuf, "%d\n", drc);
+    return CommandResBuf;
   }
   int res = IMP_ISP_Tuning_SetDRC_Strength(atoi(p));
   return res ? "error": "ok";
@@ -383,8 +384,8 @@ static char *HiLight(char *tokenPtr) {
   if(!p) {
     unsigned int strength;
     IMP_ISP_Tuning_GetHiLightDepress(&strength);
-    sprintf(videoResBuf, "%d\n", strength);
-    return videoResBuf;
+    sprintf(CommandResBuf, "%d\n", strength);
+    return CommandResBuf;
   }
   int res = IMP_ISP_Tuning_SetHiLightDepress(atoi(p));
   return res ? "error": "ok";
@@ -396,8 +397,8 @@ static char *AGain(char *tokenPtr) {
   if(!p) {
     unsigned int gain;
     IMP_ISP_Tuning_GetMaxAgain(&gain);
-    sprintf(videoResBuf, "%d\n", gain);
-    return videoResBuf;
+    sprintf(CommandResBuf, "%d\n", gain);
+    return CommandResBuf;
   }
   int res = IMP_ISP_Tuning_SetMaxAgain(atoi(p));
   return res ? "error": "ok";
@@ -409,8 +410,8 @@ static char *DGain(char *tokenPtr) {
   if(!p) {
     unsigned int gain;
     IMP_ISP_Tuning_GetMaxDgain(&gain);
-    sprintf(videoResBuf, "%d\n", gain);
-    return videoResBuf;
+    sprintf(CommandResBuf, "%d\n", gain);
+    return CommandResBuf;
   }
   int res = IMP_ISP_Tuning_SetMaxDgain(atoi(p));
   return res ? "error": "ok";
@@ -422,8 +423,8 @@ static char *Expr(char *tokenPtr) {
   IMPISPExpr attr;
   if(!p) {
     IMP_ISP_Tuning_GetExpr(&attr);
-    sprintf(videoResBuf, "%s %d %d %d %d\n", attr.g_attr.mode ? "manual" : "auto", attr.g_attr.time_min, attr.g_attr.time, attr.g_attr.time_max, attr.g_attr.one_line_expr_in_us);
-    return videoResBuf;
+    sprintf(CommandResBuf, "%s %d %d %d %d\n", attr.g_attr.mode ? "manual" : "auto", attr.g_attr.time_min, attr.g_attr.time, attr.g_attr.time_max, attr.g_attr.one_line_expr_in_us);
+    return CommandResBuf;
   }
 
   if(!strcmp(p, "auto")) {
@@ -451,11 +452,11 @@ static char *Bitrate(char *tokenPtr) {
   p = strtok_r(NULL, " \t\r\n", &tokenPtr);
   if(!p) {
     if(userBitrate[ch]) {
-      sprintf(videoResBuf, "%d\n", userBitrate[ch]);
+      sprintf(CommandResBuf, "%d\n", userBitrate[ch]);
     } else {
-      sprintf(videoResBuf, "auto %d\n", appBitrate[ch]);
+      sprintf(CommandResBuf, "auto %d\n", appBitrate[ch]);
     }
-    return videoResBuf;
+    return CommandResBuf;
   }
   if(!strcmp(p, "auto")) {
     userBitrate[ch] = 0;
@@ -480,22 +481,22 @@ static char *Framerate(char *tokenPtr) {
     struct IMPEncoderFrmRate encFps;
     IMP_Encoder_GetChnFrmRate(0, &encFps);
     if(VideoControl_UserFps) {
-      sprintf(videoResBuf, "%d isp:%d/%d enc:%d/%d\n", VideoControl_UserFps, num, den, encFps.frmRateNum, encFps.frmRateDen);
+      sprintf(CommandResBuf, "%d isp:%d/%d enc:%d/%d\n", VideoControl_UserFps, num, den, encFps.frmRateNum, encFps.frmRateDen);
     } else {
-      sprintf(videoResBuf, "auto %d isp:%d/%d enc:%d/%d\n", VideoControl_AppFps, num, den, encFps.frmRateNum, encFps.frmRateDen);
+      sprintf(CommandResBuf, "auto %d isp:%d/%d enc:%d/%d\n", VideoControl_AppFps, num, den, encFps.frmRateNum, encFps.frmRateDen);
     }
-    return videoResBuf;
+    return CommandResBuf;
   }
 
   int fps = VideoControl_AppFps;
   if(!strcmp(p, "auto")) {
     VideoControl_UserFps = 0;
-    fprintf(stderr, "video_set_fps : auto %d\n", VideoControl_AppFps);
+    fprintf(stderr, "video framerate : auto %d\n", VideoControl_AppFps);
   } else {
     fps = atoi(p);
     if((fps < 1) || (fps > 30)) return "error";
     VideoControl_UserFps = fps;
-    fprintf(stderr, "video_set_fps: %d\n", VideoControl_UserFps);
+    fprintf(stderr, "video framerate: %d\n", VideoControl_UserFps);
   }
 
   local_sdk_video_stop(0, 0, 0);

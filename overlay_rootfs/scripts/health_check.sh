@@ -44,7 +44,7 @@ for retry in 0 1 2 3 4 5; do
   sleep 10
 done
 
-[ "$MONITORING_REBOOT" = "off" ] && exit 0
+[ "$MONITORING_REBOOT" = "off" -o -f /media/mmc/atom-debug ] && exit 0
 
 echo $(date +"%Y/%m/%d %H:%M:%S : retry error -> reboot") >> /media/mmc/healthcheck.log
 echo router=$ROUTER >> /media/mmc/healthcheck.log

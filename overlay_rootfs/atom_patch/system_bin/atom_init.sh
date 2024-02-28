@@ -8,7 +8,6 @@ PRODUCT_MODEL=$(awk -F "=" '/PRODUCT_MODEL *=/ {print $2}' $PRODUCT_CONFIG)
 APPVER_FILE=/configs/app.ver
 APPVER=$(awk -F "=" '/appver *=/ {print $2}' $APPVER_FILE)
 HACK_INI=/tmp/hack.ini
-export FRAMERATE=$(awk -F "=" '/FRAMERATE *=/ {print $2}' $HACK_INI)
 if [ "$(awk -F "=" '/ATOM_DEBUG_LOG *=/ {print $2}' $HACK_INI)" = "on" ]; then
   export ASSIS_LOG="/tmp/log/assis.log"
 else

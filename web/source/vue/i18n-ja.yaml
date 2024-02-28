@@ -214,6 +214,21 @@ cruise:
     title: 追尾速度
     tooltip: 追尾時の速度です。9が高速、1が低速です。
 
+videoSpec:
+  title: ビデオ設定
+  frameRate:
+    title: フレームレート
+    tooltip: １秒あたりのフレーム数(1-28FPS)を設定します
+  bitrateMainAVC:
+    title: MainAVCの帯域
+    tooltip: Main H.264/AVC HDのビットレート(300-2000bps)を設定します
+  bitrateMainHEVC:
+    title: MainHEVCの帯域
+    tooltip: Main H.265/HEVC HDのビットレート(300-2000bps)を設定します
+  bitrateSubHEVC:
+    title: SubHEVCの帯域
+    tooltip: Sub H.265/HEVC 360pのビットレート(100-500bps)を設定します
+
 monitoring:
   title: モニタリング
   network:

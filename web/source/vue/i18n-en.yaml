@@ -214,6 +214,20 @@ cruise:
     title: speed
     tooltip: 'Set the following speed.(1: low speed, 9: high speed)'
 
+videoSpec:
+  title: video config
+  frameRate:
+    title: frameRate
+    tooltip: Set the number of frames per second. (1-28FPS)
+  bitrateMainAVC:
+    title: MainAVC bitrate
+    tooltip: Set the bitrate of Main H.264/AVC HD. (300-2000bps)
+  bitrateMainHEVC:
+    title: MainHEVC bitrate
+    tooltip: Set the bitrate of Main H.265/HEVC HD. (300-2000bps)
+  bitrateSubHEVC:
+    title: SubHEVC bitrate
+    tooltip: Set the bitrate of Sub H.265/HEVC 360p. (100-500bps)
 
 monitoring:
   title: Monitoring

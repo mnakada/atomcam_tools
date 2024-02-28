@@ -15,9 +15,9 @@ ALARM="ram"
 [ "$STORAGE_SDCARD" = "on" -o "$STORAGE_SDCARD" = "alarm" ] && ALARM="sd"
 /scripts/cmd mp4write $PERIODIC $ALARM
 
-[ "$FRAMERATE" = "" ] || /scripts/cmd video fps $FRAMERATE
-[ "$BITRATE_MAIN_AVC" = "" ] || [ "$BITRATE_MAIN_AVC" -eq 0 ] || /scripts/cmd video bitrate 0 $BITRATE_MAIN_AVC
-[ "$BITRATE_SUB_HEVC" = "" ] || [ "$BITRATE_SUB_HEVC" -eq 0 ] || /scripts/cmd video bitrate 1 $BITRATE_SUB_HEVC
-[ "$BITRATE_MAIN_HEVC" = "" ] || [ "$BITRATE_MAIN_HEVC" -eq 0 ] || /scripts/cmd video bitrate 3 $BITRATE_MAIN_HEVC
 [ "$MINIMIZE_ALARM_CYCLE" = "on" ] && /scripts/cmd alarm 30
 [ "$AWS_VIDEO_DISABLE" = "on" ] && /scripts/cmd curl upload disable
+[ "$FRAMERATE" = "" ] || [ "$FRAMERATE" -le 0 ] || /scripts/cmd video fps $FRAMERATE
+[ "$BITRATE_MAIN_AVC" = "" ] || [ "$BITRATE_MAIN_AVC" -le 0 ] || /scripts/cmd video bitrate 0 $BITRATE_MAIN_AVC
+[ "$BITRATE_SUB_HEVC" = "" ] || [ "$BITRATE_SUB_HEVC" -le 0 ] || /scripts/cmd video bitrate 1 $BITRATE_SUB_HEVC
+[ "$BITRATE_MAIN_HEVC" = "" ] || [ "$BITRATE_MAIN_HEVC" -le 0 ] || /scripts/cmd video bitrate 3 $BITRATE_MAIN_HEVC

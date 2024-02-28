@@ -130,6 +130,12 @@
         </div>
       </div>
 
+      <h3 v-t="'videoSpec.title'" />
+      <SettingInputNumber i18n="videoSpec.frameRate" :withSwitch="true" :defaultValue="20" :span="3" v-model="config.FRAMERATE" :min="1" :max="28" />
+      <SettingInputNumber i18n="videoSpec.bitrateMainAVC" :withSwitch="true" :span="3" v-model="config.BITRATE_MAIN_AVC" :min="300" :max="2000" />
+      <SettingInputNumber i18n="videoSpec.bitrateMainHEVC" :withSwitch="true" :span="3" v-model="config.BITRATE_MAIN_HEVC" :min="300" :max="2000" />
+      <SettingInputNumber i18n="videoSpec.bitrateSubHEVC" :withSwitch="true" :span="3" v-model="config.BITRATE_SUB_HEVC" :min="100" :max="500" />
+
       <h3 v-t="'monitoring.title'" />
       <SettingSwitch i18n="monitoring.network" v-model="config.MONITORING_NETWORK" />
       <SettingSwitch v-if="config.MONITORING_NETWORK === 'on'" i18n="monitoring.reboot" v-model="config.MONITORING_REBOOT" :titleOffset="2" />
@@ -260,6 +266,9 @@
           HEALTHCHECK_PING_URL: '',
           LOCALE: navigator.language.indexOf('en') === 0 ? 'en' : 'ja',
           FRAMERATE: 20,
+          BITRATE_MAIN_AVC: 960, // ch0 H264 HD   Record/Alarm, RTSP AVC Main
+          BITRATE_SUB_HEVC: -1,   // ch1 H265 360p MobileApp,    RTSP HEVC Sub
+          BITRATE_MAIN_HEVC: -1,  // ch3 H265 HD   MobileApp,    RTSP HEVC Main
         },
         loginAuth: 'off',
         loginAuth2: 'off',
@@ -701,6 +710,18 @@
         if((this.config.TIMELAPSE_SCHEDULE !== this.oldConfig.TIMELAPSE_SCHEDULE) ||
            (this.config.REBOOT_SCHEDULE !== this.oldConfig.REBOOT_SCHEDULE)) {
           execCmds.push('setCron');
+        }
+        if(parseInt(this.config.FRAMERATE) !== parseInt(this.oldConfig.FRAMERATE)) {
+          execCmds.push(`framerate ${this.config.FRAMERATE < 0 ? 'auto' : this.config.FRAMERATE}`);
+        }
+        if(parseInt(this.config.BITRATE_MAIN_AVC) !== parseInt(this.oldConfig.BITRATE_MAIN_AVC)) {
+          execCmds.push(`bitrate 0 ${this.config.BITRATE_MAIN_AVC < 0 ? 'auto' : this.config.BITRATE_MAIN_AVC}`);
+        }
+        if(parseInt(this.config.BITRATE_SUB_HEVC) !== parseInt(this.oldConfig.BITRATE_SUB_HEVC)) {
+          execCmds.push(`bitrate 1 ${this.config.BITRATE_SUB_HEVC < 0 ? 'auto' : this.config.BITRATE_SUB_HEVC}`);
+        }
+        if(parseInt(this.config.BITRATE_MAIN_HEVC) !== parseInt(this.oldConfig.BITRATE_MAIN_HEVC)) {
+          execCmds.push(`bitrate 3 ${this.config.BITRATE_MAIN_HEVC < 0 ? 'auto' : this.config.BITRATE_MAIN_HEVC}`);
         }
         if(this.config.HOSTNAME !== this.oldConfig.HOSTNAME) {
           execCmds.push(`hostname ${this.config.HOSTNAME}`);

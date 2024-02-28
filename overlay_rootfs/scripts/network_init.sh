@@ -37,7 +37,6 @@ elif [ "0x007a" = "$VENDERID" ]; then
       insmod /atom/system/driver/atbm603x_wifi_sdio.ko
     fi
   fi
-  echo "LOG_ERR=OFF LOG_SCAN=OFF" > /sys/module/atbm603x_wifi_sdio/atbmfs/atbm_printk_mask 2> /dev/null
 elif [ "0x5653" = "$VENDERID" ]; then
   insmod /atom/system/driver/ssv6x5x.ko stacfgpath=/atom/system/driver/ssv6x5x-wifi.cfg
 elif [ "0x424c" = "$VENDERID" ]; then

@@ -711,6 +711,13 @@
            (this.config.REBOOT_SCHEDULE !== this.oldConfig.REBOOT_SCHEDULE)) {
           execCmds.push('setCron');
         }
+        if(this.config.STORAGE_SDCARD !== this.oldConfig.STORAGE_SDCARD) {
+          let periodic = 'ram';
+          if((this.config.STORAGE_SDCARD === 'on') || (this.config.STORAGE_SDCARD === 'record')) periodic = 'sd';
+          let alarm = 'ram';
+          if((this.config.STORAGE_SDCARD === 'on') || (this.config.STORAGE_SDCARD === 'alarm')) alarm = 'sd';
+          execCmds.push(`mp4write ${periodic} ${alarm}`);
+        }
         if(parseInt(this.config.FRAMERATE) !== parseInt(this.oldConfig.FRAMERATE)) {
           execCmds.push(`framerate ${this.config.FRAMERATE < 0 ? 'auto' : this.config.FRAMERATE}`);
         }

@@ -182,11 +182,9 @@ motionDetect:
   sensorPeriod:
     title: Motion Sensor Period
     tooltip: Reduce new alarm window from 5 minutes to 30 seconds
-    comment: Note! If you change it, Atomcam will restart on submit.
   uploadStop:
     title: Motion Sensor Video Upload Stop
     tooltip: Prevent upload of detection videos to AtomTech servers. This will make it so they don't appear in the app. If you're concerned about sending stuff to their servers, check this option.
-    comment: Note! If you change it, Atomcam will restart on submit.
 
 cruise:
   title: Cruise

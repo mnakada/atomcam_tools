@@ -706,39 +706,37 @@
             href = `http://${this.config.HOSTNAME}.local`;
           }
         }
-        if((this.config.MINIMIZE_ALARM_CYCLE !== this.oldConfig.MINIMIZE_ALARM_CYCLE) ||
-           (this.config.AWS_VIDEO_DISABLE !== this.oldConfig.AWS_VIDEO_DISABLE))  {
-          execCmds.push(`reboot`);
-          this.rebooting = true;
-          this.rebootStart = new Date();
-          this.rebootStart.setSeconds(this.rebootStart.getSeconds() + 30);
-        } else {
-          if(((this.config.RTSP_VIDEO0 !== this.oldConfig.RTSP_VIDEO0) ||
-              (this.config.RTSP_VIDEO1 !== this.oldConfig.RTSP_VIDEO1)) &&
-             (this.config.RTSP_VIDEO0 === "off") && (this.config.RTSP_VIDEO1 === "off")) {
-            execCmds.push('rtspserver off');
+        if(this.config.MINIMIZE_ALARM_CYCLE !== this.oldConfig.MINIMIZE_ALARM_CYCLE) {
+          execCmds.push(`alarm ${this.config.MINIMIZE_ALARM_CYCLE === 'on' ? '30' : '300'}`);
+        }
+        if(this.config.AWS_VIDEO_DISABLE !== this.oldConfig.AWS_VIDEO_DISABLE) {
+          execCmds.push(`curl upload ${this.config.AWS_VIDEO_DISABLE === 'on' ? 'disable' : 'enable'}`);
+        }
+        if(((this.config.RTSP_VIDEO0 !== this.oldConfig.RTSP_VIDEO0) ||
+            (this.config.RTSP_VIDEO1 !== this.oldConfig.RTSP_VIDEO1)) &&
+           (this.config.RTSP_VIDEO0 === 'off') && (this.config.RTSP_VIDEO1 === 'off')) {
+          execCmds.push('rtspserver off');
+        }
+        if(this.config.STORAGE_SDCARD_PUBLISH !== this.oldConfig.STORAGE_SDCARD_PUBLISH) {
+          execCmds.push(`samba ${this.config.STORAGE_SDCARD_PUBLISH}`);
+        }
+        if((this.config.RTSP_VIDEO0 === 'on') || (this.config.RTSP_VIDEO1 === 'on')) {
+          if((this.config.RTSP_OVER_HTTP !== this.oldConfig.RTSP_OVER_HTTP) ||
+             (this.config.RTSP_MAIN_FORMAT_HEVC !== this.oldConfig.RTSP_MAIN_FORMAT_HEVC)) {
+            execCmds.push('rtspserver restart');
+          } else if((this.config.RTSP_VIDEO0 !== this.oldConfig.RTSP_VIDEO0) ||
+                    (this.config.RTSP_VIDEO1 !== this.oldConfig.RTSP_VIDEO1) ||
+                    (this.config.RTSP_AUDIO0 !== this.oldConfig.RTSP_AUDIO0) ||
+                    (this.config.RTSP_AUDIO1 !== this.oldConfig.RTSP_AUDIO1)) {
+            execCmds.push('rtspserver on');
           }
-          if(this.config.STORAGE_SDCARD_PUBLISH !== this.oldConfig.STORAGE_SDCARD_PUBLISH) {
-            execCmds.push(`samba ${this.config.STORAGE_SDCARD_PUBLISH}`);
-          }
-          if((this.config.RTSP_VIDEO0 === "on") || (this.config.RTSP_VIDEO1 === "on")) {
-            if((this.config.RTSP_OVER_HTTP !== this.oldConfig.RTSP_OVER_HTTP) ||
-               (this.config.RTSP_MAIN_FORMAT_HEVC !== this.oldConfig.RTSP_MAIN_FORMAT_HEVC)) {
-              execCmds.push('rtspserver restart');
-            } else if((this.config.RTSP_VIDEO0 !== this.oldConfig.RTSP_VIDEO0) ||
-                      (this.config.RTSP_VIDEO1 !== this.oldConfig.RTSP_VIDEO1) ||
-                      (this.config.RTSP_AUDIO0 !== this.oldConfig.RTSP_AUDIO0) ||
-                      (this.config.RTSP_AUDIO1 !== this.oldConfig.RTSP_AUDIO1)) {
-              execCmds.push('rtspserver on');
-            }
-          }
-          if(Object.keys(this.config).some(prop => (prop.search(/WEBHOOK/) === 0) && (this.config[prop] !== this.oldConfig[prop]))) {
-            execCmds.push('setwebhook');
-          }
-          if((this.config.CRUISE !== this.oldConfig.CRUISE) ||
-             (this.config.CRUISE_LIST !== this.oldConfig.CRUISE_LIST)) {
-               execCmds.push('cruise restart');
-          }
+        }
+        if(Object.keys(this.config).some(prop => (prop.search(/WEBHOOK/) === 0) && (this.config[prop] !== this.oldConfig[prop]))) {
+          execCmds.push('setwebhook');
+        }
+        if((this.config.CRUISE !== this.oldConfig.CRUISE) ||
+           (this.config.CRUISE_LIST !== this.oldConfig.CRUISE_LIST)) {
+             execCmds.push('cruise restart');
         }
         if(this.config.DIGEST !== this.oldConfig.DIGEST) execCmds.push('lighttpd');
 
@@ -747,10 +745,6 @@
           this.executing = true;
           this.$nextTick(async () => {
             for(const cmd of execCmds) {
-              if(cmd === 'reboot') {
-                this.DoReboot();
-                break;
-              }
               await this.Exec(cmd);
             }
             if(execCmds.indexOf('lighttpd') >= 0) {

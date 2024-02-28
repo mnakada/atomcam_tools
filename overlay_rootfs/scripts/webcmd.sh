@@ -52,6 +52,12 @@ do
   if [ "$cmd" = "bitrate" ]; then
     /scripts/cmd video bitrate ${params}
   fi
+  if [ "$cmd" = "alarm" ]; then
+    /scripts/cmd alarm ${params}
+  fi
+  if [ "$cmd" = "curl" ]; then
+    /scripts/cmd curl ${params}
+  fi
   if [ "$cmd" = "rtspserver" ] && [ "$params" != "" ]; then
     /scripts/rtspserver.sh $params
     echo "$cmd $params OK" >> /var/run/webres

@@ -182,11 +182,9 @@ motionDetect:
   sensorPeriod:
     title: 動体検知周期の短縮
     tooltip: Alarmの無検知時間5分を30秒に短縮します
-    comment: ※ 変更すると設定ボタンで再起動します
   uploadStop:
     title: 動体検知録画upload停止
     tooltip: AtomTechサーバーへの検知動画転送を停止します。アプリから確認できなくなります。サーバーへの転送が気になる場合は設定してください。
-    comment: ※ 変更すると設定ボタンで再起動します
 
 cruise:
   title: クルーズ

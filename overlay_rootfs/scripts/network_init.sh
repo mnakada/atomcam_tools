@@ -25,18 +25,16 @@ fi
 if [ "0x024c" = "$VENDERID" ]; then
   insmod /atom/system/driver/rtl8189ftv.ko
 elif [ "0x007a" = "$VENDERID" ]; then
-  if [ -f /atom/thirdlib/atbm603x_wifi_sdio.ko ] ; then
-    insmod /atom/thirdlib/atbm603x_wifi_sdio.ko
-  elif [ -f /atom/system/driver/atbm603x_wifi_sdio.ko ] ; then
-    [ -f /atom/usr/share/atbm603x_conf/atbm_txpwer_dcxo_cfg.txt ] && cp /atom/usr/share/atbm603x_conf/atbm_txpwer_dcxo_cfg.txt /tmp
-    [ -f /atom/usr/share/atbm603x_conf/set_rate_power.txt ] && cp /atom/usr/share/atbm603x_conf/set_rate_power.txt /tmp
-    insmod /atom/system/driver/atbm603x_wifi_sdio.ko
-    if [ ! -f /sys/module/atbm603x_wifi_sdio/parameters/fw_ver ]; then
-      sync
-      echo 3 > /proc/sys/vm/drop_caches
-      insmod /atom/system/driver/atbm603x_wifi_sdio.ko
-    fi
-  fi
+  [ -f /atom/usr/share/atbm603x_conf/atbm_txpwer_dcxo_cfg.txt ] && cp /atom/usr/share/atbm603x_conf/atbm_txpwer_dcxo_cfg.txt /tmp
+  [ -f /atom/usr/share/atbm603x_conf/set_rate_power.txt ] && cp /atom/usr/share/atbm603x_conf/set_rate_power.txt /tmp
+  insmod /lib/modules/atbm603x_wifi_sdio.ko
+  count=0
+  while [ "`cat /sys/module/atbm604x_wifi_sdio/initstate 2>&1`" != "live" ] ; do
+    sleep 0.5
+    let count++
+    [ 20 -le $count ] && break
+  done
+  echo "LOG_ERR=OFF LOG_SCAN=OFF" > /sys/module/atbm603x_wifi_sdio/atbmfs/atbm_printk_mask 2> /dev/null
 elif [ "0x5653" = "$VENDERID" ]; then
   insmod /atom/system/driver/ssv6x5x.ko stacfgpath=/atom/system/driver/ssv6x5x-wifi.cfg
 elif [ "0x424c" = "$VENDERID" ]; then
@@ -64,8 +62,7 @@ EOF
 fi
 
 count=0
-while ! ip link | grep wlan0 > /dev/null
-do
+while ! ip link | grep wlan0 > /dev/null ; do
   sleep 0.5
   let count++
   [ 20 -le $count ] && break

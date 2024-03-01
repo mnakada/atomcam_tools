@@ -17,7 +17,6 @@ else
   fsck.fat -a /dev/mmcblk0p1
   mount -t vfat /dev/mmcblk0p1 /rootfs -o rw,umask=0000,dmask=0000
   mount -o bind /rootfs /boot
-  mount -o bind,remount,ro /boot
 fi
 
 [ -f /boot/initramfs-debug ] && /bin/sh
@@ -78,5 +77,6 @@ mount --move /dev /newroot/dev
 mount --move /sys /newroot/sys
 mount --move /proc /newroot/proc
 mount --move /rootfs /newroot/media/mmc
+mount -o bind,remount,ro /boot
 mount --move /boot /newroot/boot
 exec switch_root /newroot /sbin/init

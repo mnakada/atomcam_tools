@@ -29,7 +29,7 @@ elif [ "0x007a" = "$VENDERID" ]; then
   [ -f /atom/usr/share/atbm603x_conf/set_rate_power.txt ] && cp /atom/usr/share/atbm603x_conf/set_rate_power.txt /tmp
   insmod /lib/modules/atbm603x_wifi_sdio.ko
   count=0
-  while [ "`cat /sys/module/atbm604x_wifi_sdio/initstate 2>&1`" != "live" ] ; do
+  while [ "`cat /sys/module/atbm603x_wifi_sdio/initstate 2>&1`" != "live" ] ; do
     sleep 0.5
     let count++
     [ 20 -le $count ] && break

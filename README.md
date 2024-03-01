@@ -120,6 +120,28 @@
   - SD-Cardにpost_icamera.shファイルが存在すると実行
   - RootFSがReadOnlyになったため、hook pointとして追加
 
+- FAT32＋exFAT構成に対応(FAT32上限の2TB以上のSD-Cardを使いたい場合)
+
+  - u-bootがFATFSしか見えないので、以下の構成でSD-Cardにpartitionを切った構成に対応
+  - 1st partition : FATFS boot  将来の余裕をみて16MB以上
+    - factory_t31_ZMC6tiIDQNのみ入れる
+
+  - 2nd partition : ExFAT atomtools (残りのサイズ）
+    - 残りのrootfs_hack.squashfs, hostname, authorized_keys, etcを入れる
+
+- Videoのbitrateの設定
+
+  - MainのHDのチャンネルは300~2000bpsの範囲
+    - 高い値にすると負荷が増えます
+  - Subの360pのチャンネルは100~500bpsの範囲
+    - 高い値にすると負荷が増えます
+
+- Videoのframerateの設定
+
+  - 1~28fpsの範囲
+    - 25くらいまでが妥当、それ以上を設定するとたまに間に合わなくなって動作がおかしくなります
+
+
 
 
 ## セキュリティに関わる重要事項
@@ -508,7 +530,23 @@ pan,tiltは数値を直接入力するか、Jpeg表示の左、下にあるス�
 
 速度は１が低速、９が高速です。
 
+### ビデオ設定
 
+#### フレームレート
+
+１秒あたりのフレーム数(1-28fps)を設定します。
+
+#### MainAVCの帯域
+
+Main H.264/AVC HDのビットレート(300-2000bps)を設定します。
+
+#### MainHEVCの帯域
+
+Main H.265/HEVC HDのビットレート(300-2000bps)を設定します。
+
+#### SubHEVCの帯域
+
+Sub H.265/HEVC 360pのビットレート(100-500bps)を設定します。
 
 ### モニタリング
 

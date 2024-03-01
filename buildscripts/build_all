@@ -9,5 +9,8 @@ mkdir -p target/usr/lib
 cp -dpf staging/usr/lib/libstdc++.so* target/usr/lib/
 find ./build -name ".stamp_target_installed*" -print | xargs rm -f
 cd /atomtools/build/buildroot-2016.02
-
+if cmp /src/custompackages/package/Config.in package/Config.in ; then
+  cp -pr /src/custompackages/package/* package
+  make /src/configs/atomcam_defconfig
+fi
 make

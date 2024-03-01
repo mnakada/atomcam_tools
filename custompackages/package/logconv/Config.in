@@ -1,0 +1,4 @@
+config BR2_PACKAGE_LOGCONV
+	bool "logconv"
+	help
+	  AtomCam log converter

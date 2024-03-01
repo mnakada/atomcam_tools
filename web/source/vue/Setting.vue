@@ -266,9 +266,9 @@
           HEALTHCHECK_PING_URL: '',
           LOCALE: navigator.language.indexOf('en') === 0 ? 'en' : 'ja',
           FRAMERATE: 20,
-          BITRATE_MAIN_AVC: 960, // ch0 H264 HD   Record/Alarm, RTSP AVC Main
-          BITRATE_SUB_HEVC: -1,   // ch1 H265 360p MobileApp,    RTSP HEVC Sub
-          BITRATE_MAIN_HEVC: -1,  // ch3 H265 HD   MobileApp,    RTSP HEVC Main
+          BITRATE_MAIN_AVC: 960,   // ch0 H264 HD   Record/Alarm, RTSP AVC Main
+          BITRATE_SUB_HEVC: -180,  // ch1 H265 360p MobileApp,    RTSP HEVC Sub
+          BITRATE_MAIN_HEVC: -800, // ch3 H265 HD   MobileApp,    RTSP HEVC Main
         },
         loginAuth: 'off',
         loginAuth2: 'off',

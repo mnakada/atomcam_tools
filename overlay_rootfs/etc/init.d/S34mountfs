@@ -28,7 +28,7 @@ case "$1" in
     [ -f /media/mmc/configs ] || ( dd if=/dev/zero of=/media/mmc/configs bs=1M count=1 && mkfs.ext2 -F /media/mmc/configs )
     fsck -t ext2 -y /media/mmc/configs
     mount -t ext2 -o loop /media/mmc/configs /atom/configs
-    if [ ! -f /atom/configs/.product_config -o ! -f /atom/configs/.user_config -o ! -f /atom/configs/.rtsp_config -o ! -f /atom/configs/.timezone_config -o ! -f /atom/configs/TZ -o ! -f /atom/configs/app.ver ] ; then
+    if [ ! -f /atom/configs/.product_config -o ! -f /atom/configs/.user_config -o ! -f /atom/configs/app.ver ] ; then
       echo "rebuild configs" >> /media/mmc/atomhack.log
       mount -t jffs2 /dev/mtdblock6 /mnt
       cp -p /mnt/.* /mnt/* /atom/configs 2> /dev/null

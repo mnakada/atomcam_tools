@@ -67,12 +67,12 @@ char *CurlConfig(int fd, char *tokenPtr) {
     if(!p) return debug ? "on" : "off";
     if(!strcmp(p, "on")) {
       debug = 1;
-      printf("[curl] curl debug on\n", p);
+      printf("[curl] curl debug on\n");
       return "ok";
     }
     if(!strcmp(p, "off")) {
       debug = 0;
-      printf("[curl] curl debug off\n", p);
+      printf("[curl] curl debug off\n");
       return "ok";
     }
     return "error";
@@ -84,12 +84,12 @@ char *CurlConfig(int fd, char *tokenPtr) {
 
     if(!strcmp(p, "disable")) {
       disable = 1;
-      printf("[curl] curl upload disable\n", p);
+      printf("[curl] curl upload disable\n");
       return "ok";
     }
     if(!strcmp(p, "enable")) {
       disable = 0;
-      printf("[curl] curl upload enable\n", p);
+      printf("[curl] curl upload enable\n");
       return "ok";
     }
     return "error";
@@ -102,7 +102,7 @@ static void Dump(const char *str, void *start, int size) {
   for(int i = 0; i < size; i+= 16) {
     char buf1[256];
     char buf2[256];
-    sprintf(buf1, "%08x : ", start + i);
+    sprintf(buf1, "%08x : ", (unsigned int)(start + i));
     for(int j = 0; j < 16; j++) {
       if(i + j >= size) break;
       unsigned char d = ((unsigned char *)start)[i + j];
@@ -132,7 +132,7 @@ CURLcode curl_easy_perform(struct SessionHandle *data) {
     if(data->postfieldsize > 0) {
       if(debug) Dump("[curl] post", data->postfields, data->postfieldsize);
     } else {
-      if(debug) fprintf(stderr, "[curl] post : %s\n", data->postfields);
+      if(debug) fprintf(stderr, "[curl] post : %s\n", (char *)data->postfields);
     }
   }
 
@@ -158,7 +158,7 @@ CURLcode curl_easy_perform(struct SessionHandle *data) {
   }
 
   CURLcode res = original_curl_easy_perform(data);
-  if(data->out) printf("[curl] res : %s\n", data->out);
+  if(data->out) printf("[curl] res : %s\n", (char *)data->out);
   if(debug) fprintf(stderr, "[curl] ret: %d\n", res);
   return res;
 }

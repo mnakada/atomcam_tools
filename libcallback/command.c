@@ -189,7 +189,7 @@ static void *CommandThread(void *arg) {
 
 static void __attribute ((constructor)) command_init(void) {
 
-  setenv("LD_PRELOAD", NULL, 1);
+  unsetenv("LD_PRELOAD");
   if(pipe(SelfPipe)) {
     fprintf(stderr, "pipe error\n");
     return;

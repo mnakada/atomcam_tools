@@ -13,7 +13,6 @@ int main(int argc, char **argv) {
   FILE *fp = fopen(argv[1], "r");
   fseek(fp, 32, SEEK_SET);
 
-  unsigned char x = 0x09;
   int tc = 0;
   unsigned long time;
   while(!feof(fp)) {
@@ -55,4 +54,5 @@ int main(int argc, char **argv) {
     putchar(d);
   }
   fclose(fp);
+  return 0;
 }

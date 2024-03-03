@@ -10,21 +10,10 @@ mkdir -p $TARGET_DIR/boot
 mkdir -p $TARGET_DIR/atom
 mkdir -p $TARGET_DIR/configs
 
-# tinyalsa
-cd $BUILD_DIR
-git clone https://github.com/tinyalsa/tinyalsa.git -b v2.0.0 --depth 1
-cd tinyalsa
-patch -p1 -N < /src/patches/tinyalsa/tinyalsa.patch
+# build libcallback.so
 export CROSS_BASE=/atomtools/build/cross/mips-uclibc
 export CROSS_COMPILE=${CROSS_BASE}/bin/mipsel-ingenic-linux-uclibc-
-export DESTDIR=${CROSS_BASE}//mipsel-ingenic-linux-uclibc/sysroot
-export PREFIX=/usr
 export CFLAGS="-std=gnu99 -msoft-float"
-make install
-mkdir -p $TARGET_DIR/lib/modules
-cp -dpf ${DESTDIR}/usr/lib/libtinyalsa.so.* $TARGET_DIR/lib/modules
-
-# build libcallback.so
 rm -rf /atomtools/build/buildroot-2016.02/output/local/libcallback
 mkdir -p /atomtools/build/buildroot-2016.02/output/local
 cp -pr /src/libcallback /atomtools/build/buildroot-2016.02/output/local

@@ -13,7 +13,7 @@ mkdir -p $TARGET_DIR/configs
 # build libcallback.so
 export CROSS_BASE=/atomtools/build/cross/mips-uclibc
 export CROSS_COMPILE=${CROSS_BASE}/bin/mipsel-ingenic-linux-uclibc-
-export CFLAGS="-std=gnu99 -msoft-float"
+export CFLAGS="-std=gnu99"
 rm -rf /atomtools/build/buildroot-2016.02/output/local/libcallback
 mkdir -p /atomtools/build/buildroot-2016.02/output/local
 cp -pr /src/libcallback /atomtools/build/buildroot-2016.02/output/local

@@ -2,7 +2,7 @@ version: "3"
 
 services:
   builder:
-    image: atomtools/atomtools:Ver.2.0.0
+    image: atomtools/atomtools:Ver.2.2.0
     volumes:
       - ".:/src"
     cap_add:

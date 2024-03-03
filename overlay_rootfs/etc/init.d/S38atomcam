@@ -40,7 +40,7 @@ case "$1" in
     /scripts/set_crontab.sh
     touch /tmp/resolv.conf
 
-    insmod /lib/modules/3.10.14__isvp_swan_1.0__/extra/v4l2loopback.ko video_nr=0,1,2
+    insmod /lib/modules/v4l2loopback.ko video_nr=0,1,2
     chroot /atom /tmp/system/bin/atom_init.sh
     [ -f /media/mmc/atom-debug ] && exit 0
     

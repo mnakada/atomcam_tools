@@ -17,4 +17,9 @@ endef
 endif
 
 $(eval $(kernel-module))
+
+define V4L2LOOPBACK_KERNEL_MODULES_INSTALL
+	cp $(@D)/*.ko $(TARGET_DIR)/lib/modules
+endef
+
 $(eval $(generic-package))

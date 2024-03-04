@@ -694,6 +694,7 @@ static char *AppendMoov() {
   }
   fclose(fp2);
   fclose(fp);
+  free(buf);
 
   rename(ProcessingInfo.mpxFile, ProcessingInfo.mp4File);
   unlink(ProcessingInfo.stszFile);

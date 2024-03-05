@@ -38,6 +38,9 @@ recording:
     savePath:
       title: Save PATH
       tooltip: Describes the PATH to be recorded in the format specification of strftime. valid only for alarm_record
+    directWrite:
+      title: Direct Recording
+      tooltip: Normally, the recording is made once on the RAM-DISK and then copied to the SD-Card, but to save RAM, the recording is made directly on the SD-Card.
     automaticDeletion:
       title: Automatic Recording Deletion
       tooltip: Automatically delete recordings from SD card
@@ -66,6 +69,9 @@ recording:
     savePath:
       title: Save PATH
       tooltip: enter the storage PATH after the network name in strftime format ending with the file extension.
+    alwaysMount:
+      title: always mount
+      tooltip: Monitor the NAS to mount periodically.
     automaticDeletion:
       title: Automatic Recording Deletion
       tooltip: Automatically delete recordings from the CIFS Server

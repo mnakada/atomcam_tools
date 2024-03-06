@@ -69,9 +69,6 @@ recording:
     savePath:
       title: 保存するPATH
       tooltip: ネットワークPATH以降の録画するPATHをstrftimeの書式指定で記述します。最後に拡張子が付加されます
-    alwaysMount:
-      title: 常時マウント
-      tooltip: 定期的にNASをmountするように監視します
     automaticDeletion:
       title: ファイルの自動削除
       tooltip: CIFS Serverに録画したファイルを自動的に削除します

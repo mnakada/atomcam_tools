@@ -69,9 +69,6 @@ recording:
     savePath:
       title: Save PATH
       tooltip: enter the storage PATH after the network name in strftime format ending with the file extension.
-    alwaysMount:
-      title: always mount
-      tooltip: Monitor the NAS to mount periodically.
     automaticDeletion:
       title: Automatic Recording Deletion
       tooltip: Automatically delete recordings from the CIFS Server

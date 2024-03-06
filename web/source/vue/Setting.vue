@@ -80,7 +80,6 @@
       <SettingInput v-if="storage_cifs" i18n="recording.NAS.networkPath" :titleOffset="2" :span="10" type="text" v-model="config.STORAGE_CIFSSERVER" @input="FixPath('STORAGE_CIFSSERVER')" />
       <SettingInput v-if="storage_cifs" i18n="recording.NAS.account" :titleOffset="2" type="text" v-model="config.STORAGE_CIFSUSER" />
       <SettingInput v-if="storage_cifs" i18n="recording.NAS.password" :titleOffset="2" type="password" v-model="config.STORAGE_CIFSPASSWD" show-password />
-      <SettingSwitch v-if="storage_cifs" i18n="recording.NAS.alwaysMount" :titleOffset="2" v-model="config.STORAGE_CIFSALWAYSMOUNT" />
       <SettingInput v-if="storage_cifs" i18n="recording.NAS.savePath" :titleOffset="2" :span="10" type="text" v-model="config.STORAGE_CIFS_PATH" @input="FixPath('STORAGE_CIFS_PATH')" />
       <SettingSwitch v-if="storage_cifs" i18n="recording.NAS.automaticDeletion" :titleOffset="2" v-model="config.STORAGE_CIFS_REMOVE" />
       <SettingInputNumber v-if="storage_cifs && config.STORAGE_CIFS_REMOVE === 'on'" i18n="recording.NAS.daysToKeep" :titleOffset="2" :span="3" v-model="config.STORAGE_CIFS_REMOVE_DAYS" :min="1" />
@@ -230,7 +229,7 @@
           STORAGE_SDCARD_PATH: '%Y%m%d/%H%M%S',
           STORAGE_SDCARD_REMOVE: 'off',
           STORAGE_SDCARD_REMOVE_DAYS: 30,
-          STORAGE_SDCARD_DIRECT_WRITE: 'on',
+          STORAGE_SDCARD_DIRECT_WRITE: 'off',
           STORAGE_CIFS: 'off', // on(alarm & record), alarm, record, off
           STORAGE_CIFS_PATH: '%Y%m%d/%H%M%S',
           STORAGE_CIFS_REMOVE: 'off',
@@ -238,7 +237,6 @@
           STORAGE_CIFSSERVER: '',
           STORAGE_CIFSUSER: '',
           STORAGE_CIFSPASSWD: '',
-          STORAGE_CIFSALWAYSMOUNT: 'on',
           TIMELAPSE: 'off',
           TIMELAPSE_SCHEDULE: '0 4 * * 0:1:2:3:4:5:6', // -> /var/spool/crontabs/root
           TIMELAPSE_PATH: '%Y%m%d%H%M',
@@ -717,7 +715,8 @@
            (this.config.REBOOT_SCHEDULE !== this.oldConfig.REBOOT_SCHEDULE)) {
           execCmds.push('setCron');
         }
-        if(this.config.STORAGE_SDCARD !== this.oldConfig.STORAGE_SDCARD) {
+        if((this.config.STORAGE_SDCARD !== this.oldConfig.STORAGE_SDCARD) ||
+           (this.config.STORAGE_SDCARD_DIRECT_WRITE !== this.oldConfig.STORAGE_SDCARD_DIRECT_WRITE)) {
           let periodic = 'ram';
           let alarm = 'ram';
           if(this.config.STORAGE_SDCARD_DIRECT_WRITE === 'on') {

@@ -17,29 +17,6 @@
 > 直接SD-Cardに書き込む場合は通常の書き込み方で大丈夫です。
 
 
-
-> [!IMPORTANT]
->
-> **Ver.2.0.0pre1~4, Ver.2.0.0, Ver.2.1.0のWebUIのUpdateの判断にbugがありUpdateできません。**  
->
-> - 対処方法1（SD-Cardにアクセスできる場合）  
->   atomcam_tools.zipを展開後、  
->   factory_t31_ZMC6tiIDQNとrootfs_hack.squashfsを
->   SD-Cardに直接書き込む
->
-> - 対処方法2（sshでloginできる場合）  
->   PCでatomcam_tools.zipを取得  
->   scp atomcam_tools.zip http://atomcam.local/media/mmc/update  
->   その後、WebUIでリブート
->
-> - 対処方法3  
->   WebUIのカスタム更新ZIPファイルをONにする  
->   URLに https://github.com/mnakada/atomcam_tools/releases/latest/download/atomcam_tools.zip を設定
->   UpdateのLockをはずす  
->   カスタム更新ZIPファイルをOFFにする   
->   Updateボタンを押してUpdateを実行
-
-
 > [!IMPORTANT]
 >
 > **Timelapseを設定している場合**
@@ -277,6 +254,16 @@ recordフォルダ、time_lapseフォルダはアプリからアクセスされ�
 例えば %Y%m%d/%H%M%S を指定すると/alarm_record/20211128/223000.mp4 というようなファイルが作られます。 
 
 フォルダがない場合は自動で作成します。
+
+##### 録画をSD-Cardに直接記録
+
+offにすると一旦RAM-Diskにファイルを生成してからSD-Cardにコピーします。
+
+onにするとSD-Cardに直接ファイルを生成します。
+
+SD-Cardのスピードや各種設定によって最適な設定が分からないため設定を変えて試してください。
+
+SD-Cardに記録される常時録画かモーション検知録画のファイルに効果があります。
 
 ##### ファイルの自動削除
 

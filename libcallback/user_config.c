@@ -20,10 +20,7 @@ static void __attribute ((constructor)) alarmInterval_init(void) {
 
 int strncmp(const char *s1, const char *s2, size_t size) {
 
-  if(!configData && !strcmp(s1, "indicator")) {
-    configData = (struct configDataSt *)(s1 - 4) - 1;
-    fprintf(stderr, "user_config: %08x\n", (unsigned int)configData);
-  }
+  if(!configData && !strcmp(s1, "indicator")) configData = (struct configDataSt *)(s1 - 4) - 1;
   return original_strncmp(s1, s2, size);
 }
 

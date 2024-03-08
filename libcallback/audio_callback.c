@@ -266,11 +266,12 @@ static uint32_t audio_pcm_capture(struct frames_st *frames) {
     }
 
     if(audio_capture[ch].pcm && audio_capture[ch].enable) {
-      if(pcm_mmap_avail(audio_capture[ch].pcm) >= config.period_size * config.period_count / 4) {
+      int availLength = pcm_mmap_avail(audio_capture[ch].pcm);
+      if(availLength >= frames->length) {
         int err = pcm_writei(audio_capture[ch].pcm, frames->buf, pcm_bytes_to_frames(audio_capture[ch].pcm, frames->length));
         if(err < 0) fprintf(stderr, "pcm_writei ch%d err=%d\n", ch, err);
       } else {
-        fprintf(stderr, "[audio] drop packet: ch%d %d\n", ch, frames->length);
+        fprintf(stderr, "[audio] drop packet: ch%d %d,%d,%d\n", ch, availLength, config.period_size * config.period_count / 4, frames->length);
         pcm_prepare(audio_capture[ch].pcm);
       }
     }

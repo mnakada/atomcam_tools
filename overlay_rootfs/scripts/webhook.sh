@@ -2,6 +2,7 @@
 
 HACK_INI=/tmp/hack.ini
 mkdir -p /tmp/log
+[ -f /media/mmc/atom-log ] && ATOM_LOG="on"
 awk '
 BEGIN {
   FS = "=";
@@ -12,7 +13,7 @@ BEGIN {
   logDisable = 1;
   lastTimestamp = 0;
   logPause = 0;
-  if(ENV["ATOM_DEBUG_LOG"] == "on") logDisable = 0;
+  if(ATOM_LOG == "on") logDisable = 0;
   if(ENV["WEBHOOK_INSECURE"] == "on") INSECURE_FLAG = "-k ";
 }
 
@@ -77,4 +78,4 @@ function Post(event, data) {
     system("curl -X POST -m 3 -H \x27Content-Type: application/json\x27 -d \x27{\"type\":\"" event "\", \"device\":\"" HOSTNAME "\", \"data\":" data "}\x27 " INSECURE_FLAG ENV["WEBHOOK_URL"] " > /dev/null 2>&1");
   }
 }
-' -v HACK_INI=$HACK_INI /var/run/atomapp
+' -v HACK_INI=$HACK_INI -v ATOM_LOG=$ATOM_LOG /var/run/atomapp

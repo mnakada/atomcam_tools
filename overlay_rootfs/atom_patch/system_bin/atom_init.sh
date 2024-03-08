@@ -8,10 +8,12 @@ PRODUCT_MODEL=$(awk -F "=" '/PRODUCT_MODEL *=/ {print $2}' $PRODUCT_CONFIG)
 APPVER_FILE=/configs/app.ver
 APPVER=$(awk -F "=" '/appver *=/ {print $2}' $APPVER_FILE)
 HACK_INI=/tmp/hack.ini
-if [ "$(awk -F "=" '/ATOM_DEBUG_LOG *=/ {print $2}' $HACK_INI)" = "on" ]; then
+if [ -f /media/mmc/atom-log ]; then
   export ASSIS_LOG="/tmp/log/assis.log"
+  export TOOLS_LOG="/media/mmc/tools.log"
 else
   export ASSIS_LOG="/dev/null"
+  export TOOLS_LOG="/dev/stderr"
 fi
 
 insmod /system/driver/tx-isp-t31.ko isp_clk=100000000
@@ -34,5 +36,5 @@ insmod /system/driver/speaker_ctl.ko
 /system/bin/ver-comp
 /system/bin/assis >> $ASSIS_LOG 2>&1 &
 /system/bin/hl_client >> /dev/null 2>&1 &
-LD_PRELOAD=/tmp/system/lib/modules/libcallback.so /system/bin/iCamera_app >> /var/run/atomapp &
+LD_PRELOAD=/tmp/system/lib/modules/libcallback.so /system/bin/iCamera_app >> /var/run/atomapp 2>> /$TOOLS_LOG &
 [ "AC1" = "$PRODUCT_MODEL" -o "ATOM_CamV3C" = "$PRODUCT_MODEL" ] && /system/bin/dongle_app >> /dev/null &

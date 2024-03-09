@@ -368,6 +368,11 @@ static void *TimelapseThread() {
       int ret = video_get_frame(0, 0, 2, frameCtrl.buf, &frameCtrl);
       if(ret) fprintf(stderr, "[timelapse] error video_get_frame %d\n", ret);
       if(frameCtrl.stat) fprintf(stderr, "[timelapse] error video_get_frame frame.sstat %d\n", frameCtrl.stat);
+      if(ret || frameCtrl.stat) {
+        sleep(1);
+        continue;
+      }
+
       int lastSC = -1;
       for(int i = 0; i < 0x100; i++) {
         if((frameCtrl.buf[i] == 0) && (frameCtrl.buf[i + 1] == 0) && (frameCtrl.buf[i + 2] == 0) && (frameCtrl.buf[i + 3] == 1)) {
@@ -393,38 +398,50 @@ static void *TimelapseThread() {
         }
       }
 
-      if(!ret && !frameCtrl.stat) {
-        FILE *fp = fopen(ProcessingInfo.mpxFile, "r+"); // Do not open in append mode when seeking and writing.
-        if(fp) {
-          unsigned int mdatOffset = mdatSize + sizeof(mp4Header) - 8;
-          fseek(fp, mdatOffset, SEEK_SET);
-          fwrite(frameCtrl.buf, frameCtrl.size, 1, fp);
-          mdatSize += frameCtrl.size; // sizeof(mp4Header) - 8 = mdat size offset
-          unsigned char buf[4];
-          buf[0] = mdatSize >> 24;
-          buf[1] = mdatSize >> 16;
-          buf[2] = mdatSize >> 8;
-          buf[3] = mdatSize;
-          fseek(fp, sizeof(mp4Header) - 8, SEEK_SET);
-          fwrite(buf, 4, 1, fp);
-          fclose(fp);
-          fp = fopen(ProcessingInfo.stszFile, "a");
-          if(fp) {
-            unsigned char buf[8];
-            buf[0] = mdatOffset >> 24;
-            buf[1] = mdatOffset >> 16;
-            buf[2] = mdatOffset >> 8;
-            buf[3] = mdatOffset;
-            buf[4] = frameCtrl.size >> 24;
-            buf[5] = frameCtrl.size >> 16;
-            buf[6] = frameCtrl.size >> 8;
-            buf[7] = frameCtrl.size;
-            fwrite(buf, 8, 1, fp);
-            fclose(fp);
-          }
-          sync();
-        }
+      FILE *fp = fopen(ProcessingInfo.mpxFile, "r+"); // Do not open in append mode when seeking and writing.
+      if(!fp) {
+        fprintf(stderr, "[timelapse] error fopen %s\n", ProcessingInfo.mpxFile);
+        sleep(1);
+        continue;
       }
+      unsigned int mdatOffset = mdatSize + sizeof(mp4Header) - 8;
+      fseek(fp, mdatOffset, SEEK_SET);
+      fwrite(frameCtrl.buf, frameCtrl.size, 1, fp);
+      mdatSize += frameCtrl.size; // sizeof(mp4Header) - 8 = mdat size offset
+      unsigned char buf[32];
+      buf[0] = mdatSize >> 24;
+      buf[1] = mdatSize >> 16;
+      buf[2] = mdatSize >> 8;
+      buf[3] = mdatSize;
+      fseek(fp, sizeof(mp4Header) - 8, SEEK_SET);
+      fwrite(buf, 4, 1, fp);
+      fclose(fp);
+
+      fp = fopen(ProcessingInfo.stszFile, "a");
+      if(!fp) {
+        fprintf(stderr, "[timelapse] error fopen %s\n", ProcessingInfo.stszFile);
+        sleep(1);
+        continue;
+      }
+      buf[0] = mdatOffset >> 24;
+      buf[1] = mdatOffset >> 16;
+      buf[2] = mdatOffset >> 8;
+      buf[3] = mdatOffset;
+      buf[4] = frameCtrl.size >> 24;
+      buf[5] = frameCtrl.size >> 16;
+      buf[6] = frameCtrl.size >> 8;
+      buf[7] = frameCtrl.size;
+      fwrite(buf, 8, 1, fp);
+      fclose(fp);
+      sync();
+
+      ProcessingInfo.count++;
+      time_t t = time(NULL);
+      char str[32];
+      strftime(str, sizeof(str), "[%Y/%m/%d-%T]", localtime(&t));
+      fputs(str, stderr);
+      fprintf(stderr, "[timelapse] %d/%d\n", ProcessingInfo.count, ProcessingInfo.numOfTimes);
+      printf("[webhook] time_lapse_event %s %d/%d\n", ProcessingInfo.mp4File, ProcessingInfo.count, ProcessingInfo.numOfTimes);
 
       if(Directive != Directive_Nop) {
         CommandResponse(TimelapseFd, "ok");
@@ -432,13 +449,11 @@ static void *TimelapseThread() {
         Directive = Directive_Nop;
       }
 
-      ProcessingInfo.count++;
-      fprintf(stderr, "[timelapse] %d/%d\n", ProcessingInfo.count, ProcessingInfo.numOfTimes);
-      fprintf(stdout, "[webhook] time_lapse_event %s %d/%d\n", ProcessingInfo.mp4File, ProcessingInfo.count, ProcessingInfo.numOfTimes);
       if(ProcessingInfo.count >= ProcessingInfo.numOfTimes) break;
 
       struct timeval now;
       gettimeofday(&now, NULL);
+      if(now.tv_sec >= ProcessingInfo.endTime) break;
       int targetTime = ProcessingInfo.endTime - ((ProcessingInfo.endTime - now.tv_sec) * 1000 - 500) / (ProcessingInfo.interval * 1000) * ProcessingInfo.interval;
       while(targetTime > now.tv_sec) {
         sleep(1);
@@ -457,7 +472,7 @@ static void *TimelapseThread() {
 
     char *res = AppendMoov();
     if(!strcmp(res, "ok")) {
-      fprintf(stdout, "[webhook] time_lapse_finish %s %d/%d\n", ProcessingInfo.mp4File, ProcessingInfo.count, ProcessingInfo.numOfTimes);
+      printf("[webhook] time_lapse_finish %s %d/%d\n", ProcessingInfo.mp4File, ProcessingInfo.count, ProcessingInfo.numOfTimes);
       fprintf(stderr, "[timelapse] finish %s %d/%d\n", ProcessingInfo.mp4File, ProcessingInfo.count, ProcessingInfo.numOfTimes);
     }
     CommandResponse(TimelapseFd, res);

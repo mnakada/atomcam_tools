@@ -1,6 +1,7 @@
 #!/bin/sh
 
 if [ "$1" = "stop" -o "$1" = "restart" ] ; then
+  ifconfig | grep eth0 && ifconfig eth0 down
   killall -SIGKILL wpa_supplicant
   killall -SIGKILL udhcpc
   [ "$1" = "stop" ] && exit 0
@@ -14,6 +15,24 @@ ifconfig lo up
 
 [ -x /media/mmc/network_init.sh ] && /media/mmc/network_init.sh start && exit
 
+# USB-Ether
+if lsusb | grep 'Device 002:' ; then
+  for i in r8152 asix ax88179_178a cdc_ether ; do
+    modprobe $i
+    sleep 0.5
+    if ip link | grep eth0 > /dev/null ; then
+      ifconfig eth0 up
+      udhcpc -i eth0 -x hostname:atomcam -p /var/run/udhcpc.pid -b
+      for count in `seq 20` ; do
+        ifconfig eth0 | grep 'inet addr' > /dev/null && exit 0
+        sleep 0.5
+      done
+    fi
+    rmmod $i
+  done
+fi
+
+# WiFi
 VENDERID="0x024c"
 if [ -f /atom/system/driver/mmc_detect_test.ko ]; then
   insmod /atom/system/driver/mmc_detect_test.ko

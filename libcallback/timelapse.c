@@ -33,8 +33,8 @@ struct ProcessingInfoSt {
   char mpxFile[256];
   int count;
   unsigned int interval;
-  unsigned short numOfTimes;
-  unsigned short fps;
+  unsigned int numOfTimes;
+  unsigned int fps;
   time_t endTime;
 };
 
@@ -244,8 +244,8 @@ char *Timelapse(int fd, char *tokenPtr) {
     p = strtok_r(NULL, " \t\r\n", &tokenPtr);
     stszHeader.fps = 20;
     if(p) stszHeader.fps = atoi(p);
-    if(stszHeader.fps < 1) stszHeader.numOfTimes = 1;
-    if(stszHeader.fps > 60) stszHeader.numOfTimes = 60;
+    if(stszHeader.fps < 1) stszHeader.fps = 1;
+    if(stszHeader.fps > 60) stszHeader.fps = 60;
 
     struct timeval tv;
     gettimeofday(&tv, NULL);
@@ -659,7 +659,11 @@ static char *AppendMoov() {
   buf[23] = ProcessingInfo.numOfTimes >= 8 ? 8 : ProcessingInfo.numOfTimes;
   buf[27] = 1;
   if(stscEntry > 1) {
-    buf[31] = (ProcessingInfo.numOfTimes / 8) + 1;
+    unsigned int cnt = (ProcessingInfo.numOfTimes / 8) + 1;
+    buf[28] = cnt >> 24;
+    buf[29] = cnt >> 16;
+    buf[30] = cnt >> 8;
+    buf[31] = cnt;
     buf[35] = (ProcessingInfo.numOfTimes % 8);
     buf[39] = 1;
   }

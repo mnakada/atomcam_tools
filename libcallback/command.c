@@ -25,6 +25,7 @@ extern char *CurlConfig(int fd, char *tokenPtr);
 extern char *Timelapse(int fd, char *tokenPtr);
 extern char *MP4Write(int fd, char *tokenPtr);
 extern char *AlarmInterval(int fd, char *tokenPtr);
+extern char *UserConfig(int fd, char *tokenPtr);
 
 char *CommandResBuf[256];
 
@@ -45,6 +46,7 @@ struct CommandTableSt CommandTable[] = {
   { "timelapse",  &Timelapse },
   { "mp4write",   &MP4Write },
   { "alarm",      &AlarmInterval },
+  { "config",     &UserConfig },
 };
 
 void CommandResponse(int fd, const char *res) {

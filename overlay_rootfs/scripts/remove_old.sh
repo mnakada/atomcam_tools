@@ -1,14 +1,14 @@
 #!/bin/sh
 
 HACK_INI=/tmp/hack.ini
-STORAGE_SDCARD_REMOVE=$(awk -F "=" '/STORAGE_SDCARD_REMOVE *=/ {print $2}' $HACK_INI)
-STORAGE_SDCARD_REMOVE_DAYS=$(awk -F "=" '/STORAGE_SDCARD_REMOVE_DAYS *=/ {print $2}' $HACK_INI)
+STORAGE_SDCARD_REMOVE=$(awk -F "=" '/^STORAGE_SDCARD_REMOVE *=/ {print $2}' $HACK_INI)
+STORAGE_SDCARD_REMOVE_DAYS=$(awk -F "=" '/^STORAGE_SDCARD_REMOVE_DAYS *=/ {print $2}' $HACK_INI)
 
-STORAGE_CIFS_REMOVE=$(awk -F "=" '/STORAGE_CIFS_REMOVE *=/ {print $2}' $HACK_INI)
-STORAGE_CIFS_REMOVE_DAYS=$(awk -F "=" '/STORAGE_CIFS_REMOVE_DAYS *=/ {print $2}' $HACK_INI)
+STORAGE_CIFS_REMOVE=$(awk -F "=" '/^STORAGE_CIFS_REMOVE *=/ {print $2}' $HACK_INI)
+STORAGE_CIFS_REMOVE_DAYS=$(awk -F "=" '/^STORAGE_CIFS_REMOVE_DAYS *=/ {print $2}' $HACK_INI)
 
-STORAGE_CIFS=$(awk -F "=" '/STORAGE_CIFS *=/ {print $2}' $HACK_INI)
-STORAGE_SDCARD=$(awk -F "=" '/STORAGE_SDCARD *=/ {print $2}' $HACK_INI)
+STORAGE_CIFS=$(awk -F "=" '/^STORAGE_CIFS *=/ {print $2}' $HACK_INI)
+STORAGE_SDCARD=$(awk -F "=" '/^STORAGE_SDCARD *=/ {print $2}' $HACK_INI)
 HOSTNAME=`hostname`
 
 if [ "$STORAGE_SDCARD_REMOVE" = "on" ] && [ "$STORAGE_SDCARD_REMOVE_DAYS" != "" ]; then

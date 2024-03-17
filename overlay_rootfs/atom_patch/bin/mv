@@ -9,14 +9,14 @@ if [ "${1%/*.mp4}" != "/tmp" -a "${1%/*.mp4}" != "/media/mmc/tmp" -o "${2##/medi
 fi
 
 HACK_INI=/tmp/hack.ini
-RECORDING_LOCAL_SCHEDULE=$(awk -F "=" '/RECORDING_LOCAL_SCHEDULE *=/ {print $2}' $HACK_INI)
-STORAGE_CIFS=$(awk -F "=" '/STORAGE_CIFS *=/ { gsub(/^\/*/, "", $2);print $2}' $HACK_INI)
-STORAGE_CIFS_PATH=$(awk -F "=" '/STORAGE_CIFS_PATH *=/ { gsub(/^\/*/, "", $2);print $2}' $HACK_INI)
-STORAGE_SDCARD=$(awk -F "=" '/STORAGE_SDCARD *=/ {print $2}' $HACK_INI)
-WEBHOOK=$(awk -F "=" '/WEBHOOK *=/ {print $2}' $HACK_INI)
-WEBHOOK_URL=$(awk -F "=" '/WEBHOOK_URL *=/ {print $2}' $HACK_INI)
-[ "$(awk -F "=" '/WEBHOOK_INSECURE *=/ {print $2}' $HACK_INI)" = "on" ] && INSECURE_FLAG="-k "
-WEBHOOK_RECORD_EVENT=$(awk -F "=" '/WEBHOOK_RECORD_EVENT *=/ {print $2}' $HACK_INI)
+RECORDING_LOCAL_SCHEDULE=$(awk -F "=" '/^RECORDING_LOCAL_SCHEDULE *=/ {print $2}' $HACK_INI)
+STORAGE_CIFS=$(awk -F "=" '/^STORAGE_CIFS *=/ { gsub(/^\/*/, "", $2);print $2}' $HACK_INI)
+STORAGE_CIFS_PATH=$(awk -F "=" '/^STORAGE_CIFS_PATH *=/ { gsub(/^\/*/, "", $2);print $2}' $HACK_INI)
+STORAGE_SDCARD=$(awk -F "=" '/^STORAGE_SDCARD *=/ {print $2}' $HACK_INI)
+WEBHOOK=$(awk -F "=" '/^WEBHOOK *=/ {print $2}' $HACK_INI)
+WEBHOOK_URL=$(awk -F "=" '/^WEBHOOK_URL *=/ {print $2}' $HACK_INI)
+[ "$(awk -F "=" '/^WEBHOOK_INSECURE *=/ {print $2}' $HACK_INI)" = "on" ] && INSECURE_FLAG="-k "
+WEBHOOK_RECORD_EVENT=$(awk -F "=" '/^WEBHOOK_RECORD_EVENT *=/ {print $2}' $HACK_INI)
 HOSTNAME=`hostname`
 
 if [ "$RECORDING_LOCAL_SCHEDULE" = "on" ]; then

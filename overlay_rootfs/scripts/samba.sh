@@ -2,7 +2,7 @@
 
 if [ "$1" == "on" ]; then
   HACK_INI=/tmp/hack.ini
-  STORAGE_SDCARD_PUBLISH=$(awk -F "=" '/STORAGE_SDCARD_PUBLISH *=/ {print $2}' $HACK_INI)
+  STORAGE_SDCARD_PUBLISH=$(awk -F "=" '/^STORAGE_SDCARD_PUBLISH *=/ {print $2}' $HACK_INI)
 
   if [ "$STORAGE_SDCARD_PUBLISH" = "on" ]; then
     printf "Starting SMB services: "

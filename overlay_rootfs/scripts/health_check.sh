@@ -1,10 +1,10 @@
 #!/bin/sh
 
 HACK_INI=/tmp/hack.ini
-MONITORING_NETWORK=$(awk -F "=" '/MONITORING_NETWORK *=/ {print $2}' $HACK_INI)
-MONITORING_REBOOT=$(awk -F "=" '/MONITORING_REBOOT *=/ {print $2}' $HACK_INI)
-HEALTHCHECK=$(awk -F "=" '/HEALTHCHECK *=/ {print $2}' $HACK_INI)
-HEALTHCHECK_PING_URL=$(awk -F "=" '/HEALTHCHECK_PING_URL *=/ {print $2}' $HACK_INI)
+MONITORING_NETWORK=$(awk -F "=" '/^MONITORING_NETWORK *=/ {print $2}' $HACK_INI)
+MONITORING_REBOOT=$(awk -F "=" '/^MONITORING_REBOOT *=/ {print $2}' $HACK_INI)
+HEALTHCHECK=$(awk -F "=" '/^HEALTHCHECK *=/ {print $2}' $HACK_INI)
+HEALTHCHECK_PING_URL=$(awk -F "=" '/^HEALTHCHECK_PING_URL *=/ {print $2}' $HACK_INI)
 
 for retry in 0 1 2 3 4 5; do
   ifconfig | grep 'Link encap:' | grep -v Loopback || break

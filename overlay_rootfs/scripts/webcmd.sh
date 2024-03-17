@@ -89,8 +89,8 @@ do
   fi
   if [ "$cmd" = "update" ]; then
     HACK_INI=/tmp/hack.ini
-    CUSTOM_ZIP=$(awk -F "=" '/CUSTOM_ZIP *=/ {print $2}' $HACK_INI)
-    ZIP_URL=$(awk -F "=" '/CUSTOM_ZIP_URL *=/ {print $2}' $HACK_INI)
+    CUSTOM_ZIP=$(awk -F "=" '/^CUSTOM_ZIP *=/ {print $2}' $HACK_INI)
+    ZIP_URL=$(awk -F "=" '/^CUSTOM_ZIP_URL *=/ {print $2}' $HACK_INI)
     if [ "$CUSTOM_ZIP" = "off" ] || [ "$ZIP_URL" = "" ]; then
       ZIP_URL="https://github.com/mnakada/atomcam_tools/releases/latest/download/atomcam_tools.zip"
     fi

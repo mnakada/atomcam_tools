@@ -2,15 +2,15 @@
 
 HACK_INI=/tmp/hack.ini
 HOSTNAME=`hostname`
-WEBHOOK=$(awk -F "=" '/WEBHOOK *=/ {print $2}' $HACK_INI)
-WEBHOOK_URL=$(awk -F "=" '/WEBHOOK_URL *=/ {print $2}' $HACK_INI)
-[ "$(awk -F "=" '/WEBHOOK_INSECURE *=/ {print $2}' $HACK_INI)" = "on" ] && INSECURE_FLAG="-k "
+WEBHOOK=$(awk -F "=" '/^WEBHOOK *=/ {print $2}' $HACK_INI)
+WEBHOOK_URL=$(awk -F "=" '/^WEBHOOK_URL *=/ {print $2}' $HACK_INI)
+[ "$(awk -F "=" '/^WEBHOOK_INSECURE *=/ {print $2}' $HACK_INI)" = "on" ] && INSECURE_FLAG="-k "
 
 if [ "$1" = "finish" ] ; then
-  STORAGE_CIFS=$(awk -F "=" '/STORAGE_CIFS *=/ { gsub(/^\/*/, "", $2);print $2}' $HACK_INI)
-  STORAGE_CIFS_PATH=$(awk -F "=" '/STORAGE_CIFS_PATH *=/ { gsub(/^\/*/, "", $2);print $2}' $HACK_INI)
-  STORAGE_SDCARD=$(awk -F "=" '/STORAGE_SDCARD *=/ {print $2}' $HACK_INI)
-  WEBHOOK_TIMELAPSE_FINISH=$(awk -F "=" '/WEBHOOK_TIMELAPSE_FINISH *=/ {print $2}' $HACK_INI)
+  STORAGE_CIFS=$(awk -F "=" '/^STORAGE_CIFS *=/ { gsub(/^\/*/, "", $2);print $2}' $HACK_INI)
+  STORAGE_CIFS_PATH=$(awk -F "=" '/^STORAGE_CIFS_PATH *=/ { gsub(/^\/*/, "", $2);print $2}' $HACK_INI)
+  STORAGE_SDCARD=$(awk -F "=" '/^STORAGE_SDCARD *=/ {print $2}' $HACK_INI)
+  WEBHOOK_TIMELAPSE_FINISH=$(awk -F "=" '/^WEBHOOK_TIMELAPSE_FINISH *=/ {print $2}' $HACK_INI)
   (
     if [ "$STORAGE_CIFS" = "on" -o "$STORAGE_CIFS" = "record" -o "$STORAGE_CIFS" = "alarm" ] && /atom_patch/system_bin/mount_cifs.sh ; then
       CIFSFILE="time_lapse/${2##*/}"
@@ -41,14 +41,14 @@ if [ "$1" = "finish" ] ; then
 fi
 
 if [ "$1" = "start" ] ; then
-  TIMELAPSE=$(awk -F "=" '/TIMELAPSE *=/ {print $2}' $HACK_INI)
+  TIMELAPSE=$(awk -F "=" '/^TIMELAPSE *=/ {print $2}' $HACK_INI)
   [ "$TIMELAPSE" = "on" ] || exit 0
 
-  WEBHOOK_TIMELAPSE_START=$(awk -F "=" '/WEBHOOK_TIMELAPSE_START *=/ {print $2}' $HACK_INI)
-  TIMELAPSE_INTERVAL=$(awk -F "=" '/TIMELAPSE_INTERVAL *=/ {print $2}' $HACK_INI)
-  TIMELAPSE_COUNT=$(awk -F "=" '/TIMELAPSE_COUNT *=/ {print $2}' $HACK_INI)
-  TIMELAPSE_FPS=$(awk -F "=" '/TIMELAPSE_FPS *=/ {print $2}' $HACK_INI)
-  TIMELAPSE_PATH=$(awk -F "=" '/TIMELAPSE_PATH *=/ {print $2}' $HACK_INI)
+  WEBHOOK_TIMELAPSE_START=$(awk -F "=" '/^WEBHOOK_TIMELAPSE_START *=/ {print $2}' $HACK_INI)
+  TIMELAPSE_INTERVAL=$(awk -F "=" '/^TIMELAPSE_INTERVAL *=/ {print $2}' $HACK_INI)
+  TIMELAPSE_COUNT=$(awk -F "=" '/^TIMELAPSE_COUNT *=/ {print $2}' $HACK_INI)
+  TIMELAPSE_FPS=$(awk -F "=" '/^TIMELAPSE_FPS *=/ {print $2}' $HACK_INI)
+  TIMELAPSE_PATH=$(awk -F "=" '/^TIMELAPSE_PATH *=/ {print $2}' $HACK_INI)
   TIMELAPSE_FILE=`date +"/media/mmc/time_lapse/$TIMELAPSE_PATH.mp4"`
   TIMELAPSE_DIR=${TIMELAPSE_FILE%/*}
   mkdir -p $TIMELAPSE_DIR

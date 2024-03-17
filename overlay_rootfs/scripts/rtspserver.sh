@@ -15,12 +15,12 @@ if [ "$1" = "off" -o "$1" = "restart" ]; then
 fi
 
 HACK_INI=/tmp/hack.ini
-RTSP_VIDEO0=$(awk -F "=" '/RTSP_VIDEO0 *=/ {print $2}' $HACK_INI)
-RTSP_AUDIO0=$(awk -F "=" '/RTSP_AUDIO0 *=/ {print $2}' $HACK_INI)
-RTSP_VIDEO1=$(awk -F "=" '/RTSP_VIDEO1 *=/ {print $2}' $HACK_INI)
-RTSP_AUDIO1=$(awk -F "=" '/RTSP_AUDIO1 *=/ {print $2}' $HACK_INI)
-RTSP_OVER_HTTP=$(awk -F "=" '/RTSP_OVER_HTTP *=/ {print $2}' $HACK_INI)
-RTSP_MAIN_FORMAT_HEVC=$(awk -F "=" '/RTSP_MAIN_FORMAT_HEVC *=/ {print $2}' $HACK_INI)
+RTSP_VIDEO0=$(awk -F "=" '/^RTSP_VIDEO0 *=/ {print $2}' $HACK_INI)
+RTSP_AUDIO0=$(awk -F "=" '/^RTSP_AUDIO0 *=/ {print $2}' $HACK_INI)
+RTSP_VIDEO1=$(awk -F "=" '/^RTSP_VIDEO1 *=/ {print $2}' $HACK_INI)
+RTSP_AUDIO1=$(awk -F "=" '/^RTSP_AUDIO1 *=/ {print $2}' $HACK_INI)
+RTSP_OVER_HTTP=$(awk -F "=" '/^RTSP_OVER_HTTP *=/ {print $2}' $HACK_INI)
+RTSP_MAIN_FORMAT_HEVC=$(awk -F "=" '/^RTSP_MAIN_FORMAT_HEVC *=/ {print $2}' $HACK_INI)
 MAIN_VIDEO=0
 MAIN_NOUSE=2
 [ "$RTSP_MAIN_FORMAT_HEVC" = "on" ] && MAIN_VIDEO=2 && MAIN_NOUSE=0

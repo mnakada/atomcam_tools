@@ -8,12 +8,12 @@
 #    sleep <wait>  Sleep.
 
 HACK_INI=/tmp/hack.ini
-CRUISE=$(awk -F "=" '/CRUISE *=/ {print $2}' $HACK_INI)
-CRUISE_LIST=$(awk -F "=" '/CRUISE_LIST *=/ {gsub(/^ */, "", $2);gsub(/ *; */, ";", $2);print $2}' $HACK_INI)
+CRUISE=$(awk -F "=" '/^CRUISE *=/ {print $2}' $HACK_INI)
+CRUISE_LIST=$(awk -F "=" '/^CRUISE_LIST *=/ {gsub(/^ */, "", $2);gsub(/ *; */, ";", $2);print $2}' $HACK_INI)
 [ "$CRUISE" != "on" ] && exit 0
 
 PRODUCT_CONFIG=/atom/configs/.product_config
-PRODUCT_MODEL=$(awk -F "=" '/PRODUCT_MODEL *=/ {print $2}' $PRODUCT_CONFIG)
+PRODUCT_MODEL=$(awk -F "=" '/^PRODUCT_MODEL *=/ {print $2}' $PRODUCT_CONFIG)
 [ "ATOM_CAKP1JZJP" != "$PRODUCT_MODEL" ] && exit 0
 
 while : ; do

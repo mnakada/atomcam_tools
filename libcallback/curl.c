@@ -116,8 +116,6 @@ static void Dump(const char *str, void *start, int size) {
 
 CURLcode curl_easy_perform(struct SessionHandle *data) {
 
-  if(!curl_minimum_alarm_cycle) return original_curl_easy_perform(data);
-
   unsigned int ra = 0;
   asm volatile(
     "ori %0, $31, 0\n"

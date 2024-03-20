@@ -54,7 +54,7 @@ char *MP4Write(int fd, char *tokenPtr) {
 
 int mp4write_start_handler(void *handler, char *file, struct Mp4StartConfig *config) {
 
-  if((mp4write_AlarmSD && !strcmp(file, "/tmp/alarm_record.mp4")) ||
+  if((mp4write_AlarmSD && !strncmp(file, "/tmp/alarm_", 11)) ||
      (mp4write_periodicSD && !strncmp(file, "/tmp/", 5) && (strlen(file) == 11))) {
     char buf[64];
     strncpy(buf, file + 5, 30);

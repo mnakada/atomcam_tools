@@ -41,7 +41,14 @@ case "$1" in
     touch /tmp/resolv.conf
 
     insmod /lib/modules/v4l2loopback.ko video_nr=0,1,2
-    chroot /atom /tmp/system/bin/atom_init.sh
+
+    PRODUCT_CONFIG=/atom/configs/.product_config
+    export PRODUCT_MODEL=$(awk -F "=" '/^PRODUCT_MODEL *=/ {print $2}' $PRODUCT_CONFIG)
+    if [ "WYZE_CAKP2JFUS" = "$PRODUCT_MODEL" ] ; then
+      chroot /atom /tmp/system/bin/wyze_init.sh
+    else
+      chroot /atom /tmp/system/bin/atom_init.sh
+    fi
     [ -f /media/mmc/atom-debug ] && exit 0
     
     count=0

@@ -13,23 +13,35 @@ else
   export TOOLS_LOG="/dev/console"
 fi
 
-insmod /system/driver/tx-isp-t31.ko isp_clk=100000000
-if [ "ATOM_CAKP1JZJP" = "$PRODUCT_MODEL" ] ; then
-  insmod /system/driver/audio.ko spk_gpio=-1 alc_mode=0 mic_gain=0
+insmod /system/driver/tx-isp-t31.ko isp_clk=220000000
+insmod /system/driver/audio.ko spk_gpio=-1 alc_mode=0 mic_gain=0
+ubootddr=`sed -n '30p' /proc/jz/clock/clocks | cut -d ' ' -f 7`
+if [[ "540.000MHz" == $ubootddr ]]; then
+   insmod /system/driver/avpu.ko clk_name='mpll' avpu_clk=540000000
 else
-  insmod /system/driver/audio.ko spk_gpio=-1
+   insmod /system/driver/avpu.ko
 fi
-insmod /system/driver/avpu.ko
 insmod /system/driver/sinfo.ko
 insmod /system/driver/sample_pwm_core.ko
 insmod /system/driver/sample_pwm_hal.ko
 insmod /system/driver/speaker_ctl.ko
-[ "ATOM_CAKP1JZJP" = "$PRODUCT_MODEL" ] && insmod /system/driver/sample_motor.ko vstep_offset=0 hmaxstep=2130 vmaxstep=1580
+
+cp /atom/system/driver/*.txt /tmp/ 2> /dev/null
+sync
 
 [ -f /media/mmc/atom-debug ] && exit 0
 
 /system/bin/ver-comp
+/sbin/syslogd -C2048 -n -S &
+count=0
+while :
+do
+  pidof syslogd > /dev/null && break
+  sleep 0.5
+  let count++
+  [ 20 -le $count ] && exit 1
+done
 /system/bin/assis >> $ASSIS_LOG 2>&1 &
 /system/bin/hl_client >> /dev/null 2>&1 &
-LD_PRELOAD=/tmp/system/lib/modules/libcallback.so /system/bin/iCamera_app >> /var/run/atomapp 2>> /$TOOLS_LOG &
-[ "AC1" = "$PRODUCT_MODEL" -o "ATOM_CamV3C" = "$PRODUCT_MODEL" ] && /system/bin/dongle_app >> /dev/null &
+/system/bin/sinker &
+LD_PRELOAD=/tmp/system/lib/modules/libcallback.so /system/bin/iCamera >> /var/run/atomapp 2>> /$TOOLS_LOG &

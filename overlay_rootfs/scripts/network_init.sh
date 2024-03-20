@@ -64,8 +64,12 @@ if [ -f /media/mmc/wpa_supplicant.conf ] ; then
   cat /media/mmc/wpa_supplicant.conf > /configs/etc/wpa_supplicant.conf
 else
   USER_CONFIG=/atom/configs/.user_config
+  WIFISSID=/atom/configs/.wifissid
+  WIFIPASSWD=/atom/configs/.wifipasswd
   SSID=$(awk -F "=" '/\[NET\]/ { f = 1; } /ssid=/ {if(!f) next; gsub(/\/$/, "", $2); print $2}' $USER_CONFIG)
+  [ "$SSID" = "" -a -f $WIFISSID ] && SSID=`cat $WIFISSID`
   PSK=$(awk -F "=" '/\[NET\]/ { f = 1; } /password=/ {if(!f) next; gsub(/\/$/, "", $2); print $2}' $USER_CONFIG)
+  [ "$PSK" = "" -a -f $WIFIPASSWD ] && PSK=`cat $WIFIPASSWD`
   cat > /configs/etc/wpa_supplicant.conf << EOF
 ctrl_interface=/var/run/wpa_supplicant
 update_config=1

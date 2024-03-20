@@ -36,7 +36,7 @@ struct video_capture_st {
   int fd;
 };
 
-static struct video_capture_st video_capture[] = {
+static struct video_capture_st video_capture_atomcam[] = {
   {
     .capture = video0_encode_capture,
     .width = 1920,
@@ -78,7 +78,46 @@ static struct video_capture_st video_capture[] = {
   },
 };
 
+static struct video_capture_st video_capture_wyzecam[] = {
+  {
+    .capture = video0_encode_capture,
+    .width = 1920,
+    .height = 1080,
+    .device = "/dev/video0",
+    .format = V4L2_PIX_FMT_H264,
+
+    .callback = NULL,
+    .enable = 0,
+    .initialized = 0,
+    .stream = 0,
+    .fd = -1,
+  },
+  {
+    .capture = video1_encode_capture,
+    .width = 640,
+    .height = 320,
+    .device = "/dev/video1",
+    .format = V4L2_PIX_FMT_H264,
+
+    .callback = NULL,
+    .enable = 0,
+    .initialized = 0,
+    .stream = 0,
+    .fd = -1,
+  },
+};
+
+static struct video_capture_st *video_capture = video_capture_atomcam;
+static int VideoChNum = 3;
+extern int AudioBitrate;
+
 static void __attribute ((constructor)) video_callback_init(void) {
+
+  char *p = getenv("PRODUCT_MODEL");
+  if(!strcmp(p, "WYZE_CAKP2JFUS")) {
+    VideoChNum = 2;
+    video_capture = video_capture_wyzecam;
+  }
 
   real_local_sdk_video_set_encode_frame_callback = dlsym(dlopen("/system/lib/liblocalsdk.so", RTLD_LAZY), "local_sdk_video_set_encode_frame_callback");
 }
@@ -88,6 +127,7 @@ char *VideoCapture(int fd, char *p, char *tokenPtr) {
   int ch = 0;
   if(p && (!strcmp(p, "0") || !strcmp(p, "1") || !strcmp(p, "2"))) {
     ch = atoi(p);
+    if(ch >= VideoChNum) return "error";
     p = strtok_r(NULL, " \t\r\n", &tokenPtr);
   }
   if(!p) return video_capture[ch].enable ? "on" : "off";
@@ -155,8 +195,10 @@ int local_sdk_video_set_encode_frame_callback(int sch, void *callback) {
   int ch = sch;
   if((ch == 0) || (ch == 1) || (ch == 3)) {
     if(ch == 3) ch = 2;
-    video_capture[ch].callback = callback;
-    callback = video_capture[ch].capture;
+    if((ch < VideoChNum) && !video_capture[ch].callback) {
+      video_capture[ch].callback = callback;
+      callback = video_capture[ch].capture;
+    }
   }
   return real_local_sdk_video_set_encode_frame_callback(sch, callback);
 }

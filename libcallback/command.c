@@ -16,7 +16,7 @@ static int SelfPipe[2];
 
 extern char *JpegCapture(int fd, char *tokenPtr);
 extern char *VideoCommand(int fd, char *tokenPtr);
-extern char *AudioCapture(int fd, char *tokenPtr);
+extern char *AudioCommand(int fd, char *tokenPtr);
 extern char *MotorMove(int fd, char *tokenPtr);
 extern char *WaitMotion(int fd, char *tokenPtr);
 extern char *NightLight(int fd, char *tokenPtr);
@@ -36,7 +36,7 @@ struct CommandTableSt {
 
 struct CommandTableSt CommandTable[] = {
   { "video",      &VideoCommand },
-  { "audio",      &AudioCapture },
+  { "audio",      &AudioCommand },
   { "jpeg",       &JpegCapture },
   { "move",       &MotorMove },
   { "waitMotion", &WaitMotion },

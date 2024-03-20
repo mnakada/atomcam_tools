@@ -5,9 +5,6 @@ export PATH=/tmp/system/bin:/system/bin:/bin:/sbin:/usr/bin:/usr/sbin
 export LD_LIBRARY_PATH=/thirdlib:/system/lib:/tmp:/tmp/system/lib/modules/
 PRODUCT_CONFIG=/configs/.product_config
 PRODUCT_MODEL=$(awk -F "=" '/^PRODUCT_MODEL *=/ {print $2}' $PRODUCT_CONFIG)
-APPVER_FILE=/configs/app.ver
-APPVER=$(awk -F "=" '/^appver *=/ {print $2}' $APPVER_FILE)
-HACK_INI=/tmp/hack.ini
 if [ -f /media/mmc/atom-log ]; then
   export ASSIS_LOG="/tmp/log/assis.log"
   export TOOLS_LOG="/media/mmc/tools.log"
@@ -28,8 +25,6 @@ insmod /system/driver/sample_pwm_core.ko
 insmod /system/driver/sample_pwm_hal.ko
 insmod /system/driver/speaker_ctl.ko
 [ "ATOM_CAKP1JZJP" = "$PRODUCT_MODEL" ] && insmod /system/driver/sample_motor.ko vstep_offset=0 hmaxstep=2130 vmaxstep=1580
-
-/bin/busybox rm -rf /media/mmc/.Trashes
 
 [ -f /media/mmc/atom-debug ] && exit 0
 

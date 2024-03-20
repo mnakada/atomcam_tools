@@ -73,6 +73,7 @@ case "$1" in
     mount -o bind /configs/crontabs /var/spool/cron/crontabs
     mkdir -p /media/mmc/update
     mkdir -p /media/mmc/tmp
+    rm -rf /media/mmc/.Trashes
     rm -f /media/mmc/tmp/*
     rm -f /media/mmc/timelapse.info
     rm -f /media/mmc/time_lapse.info

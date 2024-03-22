@@ -48,11 +48,11 @@ case "$1" in
     while :
     do
       res=`/scripts/cmd audio` 2> /dev/null
-      [ "$res" = "on" -o "$res" = "off" ] && echo "=== iCamera_app callback OK ====" && break;
+      [ "$res" = "on" -o "$res" = "off" ] && echo "=== libcallback OK ====" && break;
       sleep 0.5
       let count++
       if [ 20 -le $count ] ; then
-        echo "=== iCamera_app callback error ==="
+        echo "=== libcallback error ==="
         sync
         sync
         sync

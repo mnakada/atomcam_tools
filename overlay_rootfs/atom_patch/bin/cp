@@ -1,1 +1,7 @@
-busybox
+#!/bin/sh
+#
+# for alarm recording file
+#
+
+echo "======= $0 $* =======" > /dev/console
+/bin/busybox ${0##*/} $*

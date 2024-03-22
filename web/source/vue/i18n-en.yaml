@@ -102,7 +102,7 @@ RTSP:
   title: RTSP
   main:
     title: Main
-    tooltip: Start Main RTSP(1080p AVC or HEVC)
+    tooltip: Start Main RTSP(1080p)
     audio:
       title: Audio
       tooltip: Activaet Audio on Main RTSP
@@ -117,7 +117,7 @@ RTSP:
         - 'AVC '
   sub:
     title: Sub
-    tooltip: Start Sub RTSP (360 HEVC)
+    tooltip: Start Sub RTSP (360p/320p)
     audio:
       title: Audio
       tooltip: Activate audio on Sub RTSP Sub
@@ -223,14 +223,14 @@ videoSpec:
     title: frameRate
     tooltip: Set the number of frames per second. (1-28FPS)
   bitrateMainAVC:
-    title: MainAVC bitrate
-    tooltip: Set the bitrate of Main H.264/AVC HD. (300-2000bps)
+    title: Main bitrate
+    tooltip: Set the bitrate of Main HD. (300-2000bps)
   bitrateMainHEVC:
     title: MainHEVC bitrate
     tooltip: Set the bitrate of Main H.265/HEVC HD. (300-2000bps)
-  bitrateSubHEVC:
-    title: SubHEVC bitrate
-    tooltip: Set the bitrate of Sub H.265/HEVC 360p. (100-500bps)
+  bitrateSub:
+    title: Sub bitrate
+    tooltip: Set the bitrate of Sub 360p/320p. (100-500bps)
 
 monitoring:
   title: Monitoring

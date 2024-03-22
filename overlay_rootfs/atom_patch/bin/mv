@@ -3,10 +3,13 @@
 # for continuous recording file
 #
 
+echo "======= $0 $* =======" > /dev/console
+
 if [ "${1%/*.mp4}" != "/tmp" -a "${1%/*.mp4}" != "/media/mmc/tmp" -o "${2##/media/mmc/record/*.mp4}" != "" ] ; then
   /bin/busybox ${0##*/} $*
   exit
 fi
+echo "-----tools" > /dev/console
 
 HACK_INI=/tmp/hack.ini
 RECORDING_LOCAL_SCHEDULE=$(awk -F "=" '/^RECORDING_LOCAL_SCHEDULE *=/ {print $2}' $HACK_INI)
@@ -80,7 +83,7 @@ if [ "$FMT" != "" ]; then
       OUTFILE="/mnt/$HOSTNAME/$CIFSFILE"
       DIR_PATH=${OUTFILE%/*}
       mkdir -p $DIR_PATH
-      cp -f $TMPFILE $OUTFILE
+      /bin/busybox cp -f $TMPFILE $OUTFILE
       STORAGE=", \"cifsFile\":\"${CIFSFILE}\""
     fi
 

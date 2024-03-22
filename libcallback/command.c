@@ -26,6 +26,7 @@ extern char *Timelapse(int fd, char *tokenPtr);
 extern char *MP4Write(int fd, char *tokenPtr);
 extern char *AlarmInterval(int fd, char *tokenPtr);
 extern char *UserConfig(int fd, char *tokenPtr);
+extern char *AlarmConfig(int fd, char *tokenPtr);
 
 char *CommandResBuf[256];
 
@@ -47,6 +48,7 @@ struct CommandTableSt CommandTable[] = {
   { "mp4write",   &MP4Write },
   { "alarm",      &AlarmInterval },
   { "config",     &UserConfig },
+  { "alarmConfig",&AlarmConfig },
 };
 
 void CommandResponse(int fd, const char *res) {
@@ -186,6 +188,23 @@ static void *CommandThread(void *arg) {
          }
       }
     }
+  }
+}
+
+void Dump(const char *str, void *start, int size) {
+  fprintf(stderr, "Dump %s\n", str);
+  for(int i = 0; i < size; i+= 16) {
+    char buf1[256];
+    char buf2[256];
+    sprintf(buf1, "%08x : ", (unsigned int)(start + i));
+    for(int j = 0; j < 16; j++) {
+      if(i + j >= size) break;
+      unsigned char d = ((unsigned char *)start)[i + j];
+      sprintf(buf1 + strlen(buf1), "%02x ", d);
+      if((d < 0x20) || (d > 0x7f)) d = '.';
+      sprintf(buf2 + j, "%c", d);
+    }
+    fprintf(stderr, "%s %s\n", buf1, buf2);
   }
 }
 

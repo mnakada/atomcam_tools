@@ -1,8 +1,8 @@
 <template>
   <div>
-    <div class="title">
+    <div class="title" :class="'title_' + distributor">
       <div>
-        ATOMCam Hack
+        {{ distributor }}Cam Hack
         <span class="version">
           Ver.{{ config.ATOMHACKVER }}
         </span>
@@ -98,7 +98,7 @@
       <SettingSwitch i18n="RTSP.main" v-model="config.RTSP_VIDEO0" />
       <SettingSwitch v-if="config.RTSP_VIDEO0 === 'on'" i18n="RTSP.main.audio" :titleOffset="2" v-model="config.RTSP_AUDIO0" />
       <SettingInput v-if="config.RTSP_VIDEO0 === 'on'" i18n="RTSP.main.URL" :titleOffset="2" :span="10" type="readonly" v-model="RtspUrl0" />
-      <SettingSwitch v-if="config.RTSP_VIDEO0 === 'on'" i18n="RTSP.main.format" :titleOffset="2" v-model="config.RTSP_MAIN_FORMAT_HEVC" />
+      <SettingSwitch v-if="(config.RTSP_VIDEO0 === 'on') && (distributor === 'ATOM')" i18n="RTSP.main.format" :titleOffset="2" v-model="config.RTSP_MAIN_FORMAT_HEVC" />
       <SettingSwitch i18n="RTSP.sub" v-model="config.RTSP_VIDEO1" />
       <SettingSwitch v-if="config.RTSP_VIDEO1 === 'on'" i18n="RTSP.sub.audio" :titleOffset="2" v-model="config.RTSP_AUDIO1" />
       <SettingInput v-if="config.RTSP_VIDEO1 === 'on'" i18n="RTSP.sub.URL" :titleOffset="2" :span="10" type="readonly" v-model="RtspUrl1" />
@@ -119,9 +119,11 @@
       <SettingSwitch v-if="config.WEBHOOK === 'on'" i18n="event.webhook.recordTimelapse" :titleOffset="2" v-model="config.WEBHOOK_TIMELAPSE_EVENT" />
       <SettingSwitch v-if="config.WEBHOOK === 'on'" i18n="event.webhook.endTimeLapse" :titleOffset="2" v-model="config.WEBHOOK_TIMELAPSE_FINISH" />
 
-      <h3 v-t="'motionDetect.title'" />
-      <SettingSwitch i18n="motionDetect.sensorPeriod" v-model="config.MINIMIZE_ALARM_CYCLE" />
-      <SettingSwitch i18n="motionDetect.uploadStop" v-model="config.AWS_VIDEO_DISABLE" />
+      <div v-if="distributor === 'ATOM'">
+        <h3 v-t="'motionDetect.title'" />
+        <SettingSwitch i18n="motionDetect.sensorPeriod" v-model="config.MINIMIZE_ALARM_CYCLE" />
+        <SettingSwitch i18n="motionDetect.uploadStop" v-model="config.AWS_VIDEO_DISABLE" />
+      </div>
 
       <div v-if="isSwing" @click="ClearCruiseSelect">
         <h3 v-t="'cruise.title'" />
@@ -133,9 +135,9 @@
 
       <h3 v-t="'videoSpec.title'" />
       <SettingInputNumber i18n="videoSpec.frameRate" :withSwitch="true" :defaultValue="20" :span="3" v-model="config.FRAMERATE" :min="1" :max="28" />
-      <SettingInputNumber i18n="videoSpec.bitrateMainAVC" :withSwitch="true" :span="3" v-model="config.BITRATE_MAIN_AVC" :min="300" :max="2000" />
-      <SettingInputNumber i18n="videoSpec.bitrateMainHEVC" :withSwitch="true" :span="3" v-model="config.BITRATE_MAIN_HEVC" :min="300" :max="2000" />
-      <SettingInputNumber i18n="videoSpec.bitrateSubHEVC" :withSwitch="true" :span="3" v-model="config.BITRATE_SUB_HEVC" :min="100" :max="500" />
+      <SettingInputNumber i18n="videoSpec.bitrateMain" :withSwitch="true" :span="3" v-model="config.BITRATE_MAIN_AVC" :min="300" :max="2000" />
+      <SettingInputNumber v-if="distributor === 'ATOM'" i18n="videoSpec.bitrateMainHEVC" :withSwitch="true" :span="3" v-model="config.BITRATE_MAIN_HEVC" :min="300" :max="2000" />
+      <SettingInputNumber i18n="videoSpec.bitrateSub" :withSwitch="true" :span="3" v-model="config.BITRATE_SUB_HEVC" :min="100" :max="500" />
 
       <h3 v-t="'monitoring.title'" />
       <SettingSwitch i18n="monitoring.network" v-model="config.MONITORING_NETWORK" />
@@ -314,6 +316,9 @@
       };
     },
     computed: {
+      distributor() {
+        return this.config.PRODUCT_MODEL.replace(/_.*$/, '') || 'ATOM';
+      },
       stillInterval() {
         return this.stillFullView ? 500 : 1000;
       },
@@ -810,9 +815,17 @@
     align-items: flex-end;
     font-size: 2.5rem;
     padding: 0px 0px 5px 30px;
+    height:60px;
+  }
+
+  .title_ATOM {
     color: white;
     background-color: #bc423a;
-    height:60px;
+  }
+
+  .title_WYZE {
+    color: white;
+    background-color: #1abadd;
   }
 
   .version {

@@ -102,7 +102,7 @@ RTSP:
   title: RTSP
   main:
     title: Main
-    tooltip: RTSP Main(1080p AVC or HEVC)を開始します
+    tooltip: RTSP Main(1080p)を開始します
     audio:
       title: 音声
       tooltip: RTSP Mainの音声を設定します
@@ -117,7 +117,7 @@ RTSP:
         - 'AVC '
   sub:
     title: Sub
-    tooltip: RTSP Sub(360 HEVC)を開始します
+    tooltip: RTSP Sub(360p or 320p)を開始します
     audio:
       title: 音声
       tooltip: RTSP Subの音声を設定します
@@ -222,15 +222,15 @@ videoSpec:
   frameRate:
     title: フレームレート
     tooltip: １秒あたりのフレーム数(1-28FPS)を設定します
-  bitrateMainAVC:
-    title: MainAVCの帯域
-    tooltip: Main H.264/AVC HDのビットレート(300-2000bps)を設定します
+  bitrateMain:
+    title: Mainの帯域
+    tooltip: Main HDのビットレート(300-2000bps)を設定します
   bitrateMainHEVC:
     title: MainHEVCの帯域
     tooltip: Main H.265/HEVC HDのビットレート(300-2000bps)を設定します
-  bitrateSubHEVC:
-    title: SubHEVCの帯域
-    tooltip: Sub H.265/HEVC 360pのビットレート(100-500bps)を設定します
+  bitrateSub:
+    title: Subの帯域
+    tooltip: Sub360p/320pのビットレート(100-500bps)を設定します
 
 monitoring:
   title: モニタリング

@@ -22,7 +22,7 @@ if lsusb | grep 'Device 002:' ; then
     sleep 0.5
     if ip link | grep eth0 > /dev/null ; then
       ifconfig eth0 up
-      udhcpc -i eth0 -x hostname:atomcam -p /var/run/udhcpc.pid -b
+      udhcpc -i eth0 -b 2> /dev/null
       for count in `seq 20` ; do
         ifconfig eth0 | grep 'inet addr' > /dev/null && exit 0
         sleep 0.5
@@ -94,8 +94,8 @@ done
 HWADDR=$(awk -F "=" '/(CONFIG_INFO|NETRELATED_MAC)=/ { print substr($2,1,2) ":" substr($2,3,2) ":" substr($2,5,2) ":" substr($2,7,2) ":" substr($2,9,2) ":" substr($2,11,2); exit;}' /atom/configs/.product_config)
 ifconfig wlan0 hw ether $HWADDR up
 wpa_supplicant -f /tmp/log/wpa_supplicant.log -D nl80211 -i wlan0 -c /configs/etc/wpa_supplicant.conf -B
-udhcpc -i wlan0 -x hostname:atomcam -p /var/run/udhcpc.pid -b &
 
+udhcpc -i wlan0 -b 2> /dev/null
 count=0
 while ! ifconfig wlan0 | grep 'inet addr' > /dev/null
 do

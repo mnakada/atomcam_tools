@@ -16,11 +16,11 @@ if [ "$STORAGE_SDCARD_DIRECT_WRITE" = "on" ] ; then
   [ "$STORAGE_SDCARD" = "on" -o "$STORAGE_SDCARD" = "record" ] && PERIODIC="sd"
   [ "$STORAGE_SDCARD" = "on" -o "$STORAGE_SDCARD" = "alarm" ] && ALARM="sd"
 fi
-/scripts/cmd mp4write $PERIODIC $ALARM
+/scripts/cmd mp4write $PERIODIC $ALARM > /dev/null
 
-[ "$MINIMIZE_ALARM_CYCLE" = "on" ] && /scripts/cmd alarm 30
-[ "$AWS_VIDEO_DISABLE" = "on" ] && /scripts/cmd curl upload disable
-[ "$FRAMERATE" = "" ] || [ "$FRAMERATE" -le 0 ] || /scripts/cmd video fps $FRAMERATE
-[ "$BITRATE_MAIN_AVC" = "" ] || [ "$BITRATE_MAIN_AVC" -le 0 ] || /scripts/cmd video bitrate 0 $BITRATE_MAIN_AVC
-[ "$BITRATE_SUB_HEVC" = "" ] || [ "$BITRATE_SUB_HEVC" -le 0 ] || /scripts/cmd video bitrate 1 $BITRATE_SUB_HEVC
-[ "$BITRATE_MAIN_HEVC" = "" ] || [ "$BITRATE_MAIN_HEVC" -le 0 ] || /scripts/cmd video bitrate 3 $BITRATE_MAIN_HEVC
+[ "$MINIMIZE_ALARM_CYCLE" = "on" ] && /scripts/cmd alarm 30 > /dev/null
+[ "$AWS_VIDEO_DISABLE" = "on" ] && /scripts/cmd curl upload disable > /dev/null
+[ "$FRAMERATE" = "" ] || [ "$FRAMERATE" -le 0 ] || /scripts/cmd video fps $FRAMERATE > /dev/null
+[ "$BITRATE_MAIN_AVC" = "" ] || [ "$BITRATE_MAIN_AVC" -le 0 ] || /scripts/cmd video bitrate 0 $BITRATE_MAIN_AVC > /dev/null
+[ "$BITRATE_SUB_HEVC" = "" ] || [ "$BITRATE_SUB_HEVC" -le 0 ] || /scripts/cmd video bitrate 1 $BITRATE_SUB_HEVC > /dev/null
+[ "$BITRATE_MAIN_HEVC" = "" ] || [ "$BITRATE_MAIN_HEVC" -le 0 ] || /scripts/cmd video bitrate 3 $BITRATE_MAIN_HEVC > /dev/null

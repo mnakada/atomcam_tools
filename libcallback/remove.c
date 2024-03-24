@@ -20,7 +20,6 @@ int remove(const char *pathname) {
     snprintf(buf, 255, "/bin/rm %s", pathname);
     return system(buf);
   }
-  fprintf(stderr, "===== remove %s =====\n", pathname);
   return original_remove(pathname);
 }
 

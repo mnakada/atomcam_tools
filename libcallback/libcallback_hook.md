@@ -16,6 +16,32 @@ port 4000でlocalhostのみに限定してsocketで通信を待ち受けてい�
 
 
 
+### alarm_config.c
+
+##### commandIF
+
+```
+usage : alarmConfig <alarmType> alarmInterval [<interval>]
+```
+
+WyzeCamのみ有効。
+
+alarmType(0~14) 毎のalarmIntervalの設定値を設定／取得する。
+
+引数が無い場合は現在の設定値を返す。
+
+intervalに30秒未満は設定できない、defaultが300秒なので30~300の範囲での設定が可能。
+
+##### hook point
+
+```c
+/system/lib/libc.so.0 : void *memset(void *s, int c, size_t n)
+```
+
+alarmConfigのテーブルアドレスを取得するため、テーブル初期化しているところをhook。
+
+
+
 ### alarm_interval.c
 
 ##### commandIF

@@ -119,11 +119,9 @@
       <SettingSwitch v-if="config.WEBHOOK === 'on'" i18n="event.webhook.recordTimelapse" :titleOffset="2" v-model="config.WEBHOOK_TIMELAPSE_EVENT" />
       <SettingSwitch v-if="config.WEBHOOK === 'on'" i18n="event.webhook.endTimeLapse" :titleOffset="2" v-model="config.WEBHOOK_TIMELAPSE_FINISH" />
 
-      <div v-if="distributor === 'ATOM'">
-        <h3 v-t="'motionDetect.title'" />
-        <SettingSwitch i18n="motionDetect.sensorPeriod" v-model="config.MINIMIZE_ALARM_CYCLE" />
-        <SettingSwitch i18n="motionDetect.uploadStop" v-model="config.AWS_VIDEO_DISABLE" />
-      </div>
+      <h3 v-t="'motionDetect.title'" />
+      <SettingSwitch i18n="motionDetect.sensorPeriod" v-model="config.MINIMIZE_ALARM_CYCLE" />
+      <SettingSwitch i18n="motionDetect.uploadStop" v-model="config.AWS_VIDEO_DISABLE" />
 
       <div v-if="isSwing" @click="ClearCruiseSelect">
         <h3 v-t="'cruise.title'" />
@@ -317,7 +315,7 @@
     },
     computed: {
       distributor() {
-        return this.config.PRODUCT_MODEL.replace(/_.*$/, '') || 'ATOM';
+        return this.config.PRODUCT_MODEL.replace(/_.*$/, '');
       },
       stillInterval() {
         return this.stillFullView ? 500 : 1000;

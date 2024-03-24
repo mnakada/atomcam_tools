@@ -141,8 +141,13 @@ CURLcode curl_easy_perform(struct SessionHandle *data) {
     struct timeval now;
     gettimeofday(&now, NULL);
     if(disable || (now.tv_sec - lastAccess < curl_minimum_alarm_cycle)) {
-      printf("[curl] Dismiss short cycle alarms.\n");
-      if(debug) fprintf(stderr, "[curl] Dismiss short cycle alarms.\n");
+      if(disable) {
+        printf("[curl] Discard by disable upload.\n");
+        if(debug) fprintf(stderr, "[curl] Discard by disable upload.\n");
+      } else {
+        printf("[curl] Discard by short cycle alarms.\n");
+        if(debug) fprintf(stderr, "[curl] Discard by short cycle alarms.\n");
+      }
       memcpy(data->out, DummyRes, strlen(DummyRes));
       goto curl_ok;
     }

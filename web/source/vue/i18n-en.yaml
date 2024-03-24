@@ -187,7 +187,7 @@ motionDetect:
     tooltip: Reduce new alarm window from 5 minutes to 30 seconds
   uploadStop:
     title: Motion Sensor Video Upload Stop
-    tooltip: Prevent upload of detection videos to AtomTech servers. This will make it so they don't appear in the app. If you're concerned about sending stuff to their servers, check this option.
+    tooltip: Prevent upload of detection videos to AtomTech/Wyze servers. This will make it so they don't appear in the app. If you're concerned about sending stuff to their servers, check this option.
 
 cruise:
   title: Cruise

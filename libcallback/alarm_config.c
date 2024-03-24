@@ -7,6 +7,7 @@
 extern void Dump(const char *str, void *start, int size);
 extern char CommandResBuf[];
 
+int SetAlarmConfigInterval(int interval);
 static void *(*original_memset)(void *s, int c, size_t n);
 
 struct AlarmConfigSt {
@@ -38,6 +39,7 @@ struct AlarmConfigSt {
 };
 static struct AlarmConfigSt *alarmConfig = NULL; // alarmConfig[14]
 static int wyze = 0;
+static int alarmInterval = 300;
 
 static void __attribute ((constructor)) memset_hook_init(void) {
 
@@ -54,6 +56,7 @@ void *memset(void *s, int c, size_t n) {
       : "=r"(s1)
     );
     if(!s1) alarmConfig = s;
+    if(s1 == 14) SetAlarmConfigInterval(alarmInterval);
   }
   // memset is called before the execution of constructor.
   if(!original_memset) original_memset = dlsym(dlopen ("/lib/libc.so.0", RTLD_LAZY), "memset");
@@ -69,6 +72,8 @@ char *AlarmConfig(int fd, char *tokenPtr) {
   if((alarmType < 0) || (alarmType > 14)) return "error";
 
   p = strtok_r(NULL, " \t\r\n", &tokenPtr);
+  if(!p) return "error";
+
   if(!strcmp(p, "alarmInterval")) {
     p = strtok_r(NULL, " \t\r\n", &tokenPtr);
     if(!p) {
@@ -90,4 +95,17 @@ char *AlarmConfig(int fd, char *tokenPtr) {
     return "ok";
   }
   return "error";
+}
+
+int SetAlarmConfigInterval(int interval) {
+
+  alarmInterval = interval;
+  if(!wyze || !alarmConfig) return -1;
+
+  for(int i = 0; i < 15; i++) {
+    if((i == 8) || (i == 11)) continue;
+    pthread_mutex_lock(&alarmConfig[i].mutex);
+    alarmConfig[i].alarmInteval = interval;
+    pthread_mutex_unlock(&alarmConfig[i].mutex);
+  }
 }

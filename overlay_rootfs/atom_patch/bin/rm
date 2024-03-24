@@ -3,17 +3,13 @@
 # for alarm record file
 #
 
-echo "======= $0 $* =======" > /dev/console
-
 [ "$1" != "" ] && [ -e $1 ] && FILE=$1
 [ "$2" != "" ] && [ -e $2 ] && FILE=$2
-if [ "${FILE##/tmp/alarm_record*.jpg}" != "" -a "${FILE##/tmp/alarm_record*.mp4}" != "" -a "${FILE##/media/mmc/tmp/alarm_record*.mp4}" != "" ] ; then
+if [ "${FILE##/tmp/alarm*.jpg}" != "" -a "${FILE##/tmp/alarm_record*.mp4}" != "" -a "${FILE##/media/mmc/tmp/alarm_record*.mp4}" != "" ] ; then
   /bin/busybox ${0##*/} $*
   exit
 fi
 SPATH=${FILE%/*}
-
-echo "-----tools" > /dev/console
 
 HACK_INI=/tmp/hack.ini
 RECORDING_LOCAL_SCHEDULE=$(awk -F "=" '/^RECORDING_LOCAL_SCHEDULE *=/ {print $2}' $HACK_INI)

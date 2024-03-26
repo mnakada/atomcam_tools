@@ -3,8 +3,7 @@
 # for alarm record file
 #
 
-[ "$1" != "" ] && [ -e $1 ] && FILE=$1
-[ "$2" != "" ] && [ -e $2 ] && FILE=$2
+FILE="${*##* }"
 if [ "${FILE##/tmp/alarm*.jpg}" != "" -a "${FILE##/tmp/alarm_record*.mp4}" != "" -a "${FILE##/media/mmc/tmp/alarm_record*.mp4}" != "" ] ; then
   /bin/busybox ${0##*/} $*
   exit
@@ -81,11 +80,11 @@ TMPFILE="${SPATH}/rm_`cat /proc/sys/kernel/random/uuid`"
 /bin/busybox mv $FILE $TMPFILE
 (
   if [ "$WEBHOOK" = "on" ] && [ "$WEBHOOK_URL" != "" ]; then
-    if [ "$WEBHOOK_ALERM_PICT" = "on" ] && [ "$FILE" = "$SPATH/alarm.jpg" ]; then
-      LD_LIBRARY_PATH=/tmp/system/lib:/tmp/system/usr/lib /tmp/system/lib/ld.so.1 /tmp/system/bin/curl -X POST -m 3 -F "image=@$TMPFILE" -F"type=image/jpeg" -F"device=${HOSTNAME}" $INSECURE_FLAG $WEBHOOK_URL > /dev/null 2>&1
+    if [ "$WEBHOOK_ALERM_PICT" = "on" ] && [ "${FILE##*.}" = "jpg" ]; then
+      LD_LIBRARY_PATH=/tmp/system/lib:/tmp/system/usr/lib /tmp/system/lib/ld.so.1 /tmp/system/bin/curl -X POST -m 3 -F "image=@$TMPFILE" -F "type=image/jpeg" -F "device=${HOSTNAME}" $INSECURE_FLAG $WEBHOOK_URL > /dev/console 2>&1
     fi
-    if [ "$WEBHOOK_ALERM_VIDEO" = "on" ] && [ "$FILE" = "$SPATH/alarm_record.mp4" ]; then
-      LD_LIBRARY_PATH=/tmp/system/lib:/tmp/system/usr/lib /tmp/system/lib/ld.so.1 /tmp/system/bin/curl -X POST -m 3 -F "video=@$TMPFILE" -F "type=video/mp4" -F"device=${HOSTNAME}" $INSECURE_FLAG $WEBHOOK_URL > /dev/null 2>&1
+    if [ "$WEBHOOK_ALERM_VIDEO" = "on" ] && [ "${FILE##*.}" = "mp4" ]; then
+      LD_LIBRARY_PATH=/tmp/system/lib:/tmp/system/usr/lib /tmp/system/lib/ld.so.1 /tmp/system/bin/curl -X POST -m 3 -F "video=@$TMPFILE" -F "type=video/mp4" -F "device=${HOSTNAME}" $INSECURE_FLAG $WEBHOOK_URL > /dev/null 2>&1
     fi
   fi
   if [ "$FMT" != "" ] ; then
@@ -108,10 +107,10 @@ TMPFILE="${SPATH}/rm_`cat /proc/sys/kernel/random/uuid`"
     fi
 
     if [ "$WEBHOOK" = "on" ] && [ "$WEBHOOK_URL" != "" ]; then
-      if [ "$WEBHOOK_ALARM_PICT_FINISH" = "on" ] && [ "$FILE" = "$SPATH/alarm.jpg" ]; then
+      if [ "$WEBHOOK_ALARM_PICT_FINISH" = "on" ] && [ "${FILE##*.}" = "jpg" ]; then
         LD_LIBRARY_PATH=/tmp/system/lib:/tmp/system/usr/lib /tmp/system/lib/ld.so.1 /tmp/system/bin/curl -X POST -m 3 -H "Content-Type: application/json" -d "{\"type\":\"uploadPictureFinish\", \"device\":\"${HOSTNAME}\"${STORAGE}}" $INSECURE_FLAG $WEBHOOK_URL > /dev/null 2>&1
       fi
-      if [ "$WEBHOOK_ALARM_VIDEO_FINISH" = "on" ] && [ "$FILE" = "$SPATH/alarm_record.mp4" ]; then
+      if [ "$WEBHOOK_ALARM_VIDEO_FINISH" = "on" ] && [ "${FILE##.}" = "mp4" ]; then
         LD_LIBRARY_PATH=/tmp/system/lib:/tmp/system/usr/lib /tmp/system/lib/ld.so.1 /tmp/system/bin/curl -X POST -m 3 -H "Content-Type: application/json" -d "{\"type\":\"uploadVideoFinish\", \"device\":\"${HOSTNAME}\"${STORAGE}}" $INSECURE_FLAG $WEBHOOK_URL > /dev/null 2>&1
       fi
     fi

@@ -51,6 +51,10 @@ BEGIN {
   if(ENV["WEBHOOK_ALARM_EVENT"] == "on") Post("alarmEvent");
 }
 
+/(alarm_event_handle).*== readly to alarm ==/ {
+  if(ENV["WEBHOOK_ALARM_EVENT"] == "on") Post("alarmEvent");
+}
+
 /\[aiAlgo\] call_TD_Human_Pet_Predict/ {
   gsub(/^.*Predict \[off:[0-9]*\] /, "");
   gsub(/tm:/, "");

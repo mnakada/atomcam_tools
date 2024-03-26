@@ -109,7 +109,7 @@
       <SettingInput v-if="config.WEBHOOK === 'on'" i18n="event.webhook.URL" :titleOffset="2" :span="10" type="text" v-model="config.WEBHOOK_URL" />
       <SettingSwitch v-if="config.WEBHOOK === 'on'" i18n="event.webhook.insecure" :titleOffset="3" v-model="config.WEBHOOK_INSECURE" />
       <SettingSwitch v-if="config.WEBHOOK === 'on'" i18n="event.webhook.alarm" :titleOffset="2" v-model="config.WEBHOOK_ALARM_EVENT" />
-      <SettingSwitch v-if="config.WEBHOOK === 'on'" i18n="event.webhook.information" :titleOffset="2" v-model="config.WEBHOOK_ALARM_INFO" />
+      <SettingSwitch v-if="(config.WEBHOOK === 'on') && (distributor === 'ATOM')" i18n="event.webhook.information" :titleOffset="2" v-model="config.WEBHOOK_ALARM_INFO" />
       <SettingSwitch v-if="config.WEBHOOK === 'on'" i18n="event.webhook.recordingEnd" :titleOffset="2" v-model="config.WEBHOOK_ALARM_VIDEO_FINISH" />
       <SettingSwitch v-if="config.WEBHOOK === 'on'" i18n="event.webhook.recordingTransfer" :titleOffset="2" tooltip="" v-model="config.WEBHOOK_ALERM_VIDEO" />
       <SettingSwitch v-if="config.WEBHOOK === 'on'" i18n="event.webhook.screenshotEnd" :titleOffset="2" v-model="config.WEBHOOK_ALARM_PICT_FINISH" />

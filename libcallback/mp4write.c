@@ -14,6 +14,7 @@ static int mp4write_periodicSD = 0;
 static int mp4write_AlarmSD = 0;
 
 extern char CommandResBuf[];
+extern int wyze;
 extern int VideoControl_UserFps;
 extern int VideoControl_AppFps;
 

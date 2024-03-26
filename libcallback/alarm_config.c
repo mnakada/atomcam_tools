@@ -38,14 +38,8 @@ struct AlarmConfigSt {
   pthread_mutex_t mutex;    // 0x142c sizeof(pthread_mutex_t) = 0x18
 };
 static struct AlarmConfigSt *alarmConfig = NULL; // alarmConfig[14]
-static int wyze = 0;
+extern int wyze;
 static int alarmInterval = 300;
-
-static void __attribute ((constructor)) memset_hook_init(void) {
-
-  char *p = getenv("PRODUCT_MODEL");
-  if(!strcmp(p, "WYZE_CAKP2JFUS")) wyze = 1;
-}
 
 void *memset(void *s, int c, size_t n) {
 

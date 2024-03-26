@@ -29,6 +29,7 @@ extern char *UserConfig(int fd, char *tokenPtr);
 extern char *AlarmConfig(int fd, char *tokenPtr);
 
 char *CommandResBuf[256];
+int wyze = 0;
 
 struct CommandTableSt {
   const char *cmd;
@@ -211,6 +212,9 @@ void Dump(const char *str, void *start, int size) {
 static void __attribute ((constructor)) command_init(void) {
 
   unsetenv("LD_PRELOAD");
+  char *p = getenv("PRODUCT_MODEL");
+  if(!strcmp(p, "WYZE_CAKP2JFUS")) wyze = 1;
+
   if(pipe(SelfPipe)) {
     fprintf(stderr, "pipe error\n");
     return;

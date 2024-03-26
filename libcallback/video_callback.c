@@ -110,11 +110,11 @@ static struct video_capture_st video_capture_wyzecam[] = {
 static struct video_capture_st *video_capture = video_capture_atomcam;
 static int VideoChNum = 3;
 extern int AudioBitrate;
+extern int wyze;
 
 static void __attribute ((constructor)) video_callback_init(void) {
 
-  char *p = getenv("PRODUCT_MODEL");
-  if(!strcmp(p, "WYZE_CAKP2JFUS")) {
+  if(wyze) {
     VideoChNum = 2;
     video_capture = video_capture_wyzecam;
   }

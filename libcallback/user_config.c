@@ -6,6 +6,7 @@
 
 extern char CommandResBuf[];
 extern void CommandResponse(int fd, const char *res);
+extern int wyze;
 
 static int (*original_strncmp)(const char *s1, const char *s2, size_t size);
 static const int ConfigMax = 256;
@@ -38,8 +39,7 @@ static void __attribute ((constructor)) alarmInterval_init(void) {
 int strncmp(const char *s1, const char *s2, size_t size) {
 
   if(!configData && !configDataWyze && !strcmp(s1, "indicator")) {
-    char *p = getenv("PRODUCT_MODEL");
-    if(!strcmp(p, "WYZE_CAKP2JFUS")) {
+    if(wyze) {
       configDataWyze = (struct configDataWyzeSt *)(s1 - 4) - 1;
       fprintf(stderr, "configDataWyze %08x\n", configDataWyze);
     } else {

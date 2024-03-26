@@ -10,6 +10,8 @@
 #include <sys/time.h>
 #include <tinyalsa/pcm.h>
 
+extern int wyze;
+
 struct frames_st {
   void *buf;
   size_t length;
@@ -167,8 +169,7 @@ int local_sdk_audio_set_pcm_frame_callback(int ch, void *callback) {
 
 static void __attribute ((constructor)) audio_callback_init(void) {
 
-  char *p = getenv("PRODUCT_MODEL");
-  if(!strcmp(p, "WYZE_CAKP2JFUS")) AudioConfig = AudioConfig_wyzecam;
+  if(wyze) AudioConfig = AudioConfig_wyzecam;
 
   real_local_sdk_audio_set_pcm_frame_callback = dlsym(dlopen("/system/lib/liblocalsdk.so", RTLD_LAZY), "local_sdk_audio_set_pcm_frame_callback");
 }

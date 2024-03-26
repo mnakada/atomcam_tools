@@ -6,6 +6,7 @@
 
 extern void Dump(const char *str, void *start, int size);
 extern char CommandResBuf[];
+extern int wyze;
 
 typedef void CURL;
 typedef int CURLcode;
@@ -69,12 +70,8 @@ static CURLcode (*original_curl_easy_perform)(CURL *curl);
 int curl_minimum_alarm_cycle = 0;
 static int disable = 0;
 static int debug = 0;
-static int wyze = 0;
 
 static void __attribute ((constructor)) curl_hook_init(void) {
-
-  char *p = getenv("PRODUCT_MODEL");
-  if(!strcmp(p, "WYZE_CAKP2JFUS")) wyze = 1;
 
   original_curl_easy_perform = dlsym(dlopen("/thirdlib/libcurl.so", RTLD_LAZY), "curl_easy_perform");
 }

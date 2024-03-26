@@ -193,11 +193,11 @@ static void *CommandThread(void *arg) {
 }
 
 void Dump(const char *str, void *start, int size) {
-  fprintf(stderr, "Dump %s\n", str);
+  fprintf(stderr, "Dump %08x %s\n", (unsigned int)start, str);
   for(int i = 0; i < size; i+= 16) {
     char buf1[256];
     char buf2[256];
-    sprintf(buf1, "%08x : ", (unsigned int)(start + i));
+    sprintf(buf1, "%08x : ", (unsigned int)i);
     for(int j = 0; j < 16; j++) {
       if(i + j >= size) break;
       unsigned char d = ((unsigned char *)start)[i + j];

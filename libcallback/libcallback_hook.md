@@ -271,11 +271,14 @@ defaultはRAMDisk。
 
 ```C
 /system/lib/libmp4rw.so : int mp4write_start_handler(void *handler, char *file, struct Mp4StartConfig *config)
+/lib/libc.so.0 : int snprintf(char *str, size_t size, const char *format, ...)
 ```
 
 alarmかrecordのファイルを/tmp/のRAMDiskに作成してからSD-Cardに移動するのがiCamera_appの標準動作。
 
 これを直接SD-Cardの/media/mmc/tmp/に記録して、同じファイルシステム内で移動するこで負荷を低減させる処理。
+
+snprintfはWyzeCamではmp4write_start_handler実行後に再度pathが設定されてremoveされなくなるため、設定をさせないための処理。
 
 
 

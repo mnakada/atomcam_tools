@@ -43,5 +43,5 @@ do
 done
 /system/bin/assis >> $ASSIS_LOG 2>&1 &
 /system/bin/hl_client >> /dev/null 2>&1 &
-/system/bin/sinker &
+/system/bin/sinker >> /dev/null 2>&1 &
 LD_PRELOAD=/tmp/system/lib/modules/libcallback.so /system/bin/iCamera >> /var/run/atomapp 2>> /$TOOLS_LOG &

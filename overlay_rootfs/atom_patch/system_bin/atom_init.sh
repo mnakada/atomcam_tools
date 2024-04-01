@@ -13,7 +13,7 @@ else
   export TOOLS_LOG="/dev/console"
 fi
 
-insmod /system/driver/tx-isp-t31.ko isp_clk=100000000
+insmod /system/driver/tx-isp-t31.ko isp_clk=220000000
 if [ "ATOM_CAKP1JZJP" = "$PRODUCT_MODEL" ] ; then
   insmod /system/driver/audio.ko spk_gpio=-1 alc_mode=0 mic_gain=0
 else

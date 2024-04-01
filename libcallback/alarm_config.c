@@ -145,7 +145,7 @@ int SetAlarmConfigInterval(int interval) {
     if(!alarmConfigWyze) return -1;
     for(int i = 0; i < 15; i++) {
       pthread_mutex_lock(&alarmConfigWyze[i].mutex);
-      if(alarmConfigAtom[i].alarmInterval >= 30) alarmConfigWyze[i].alarmInterval = interval;
+      if(alarmConfigWyze[i].alarmInterval >= 30) alarmConfigWyze[i].alarmInterval = interval;
       pthread_mutex_unlock(&alarmConfigWyze[i].mutex);
     }
   } else {

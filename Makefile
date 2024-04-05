@@ -22,4 +22,5 @@ login:
 	docker-compose exec builder bash
 
 lima:
-	[ `uname -s` = "Darwin" ] && limactl start lima-docker.yml
+	[ `uname -s` = "Darwin" -a -d ~/.lima/lima-docker ] && limactl start lima-docker && exit 0
+	[ `uname -s` = "Darwin" -a ! -d ~/.lima/lima-docker ] && limactl start lima-docker.yml && exit 0

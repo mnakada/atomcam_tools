@@ -84,7 +84,7 @@ audioのPCMデータを横取りするため、callback設定関数で設定さ�
 
 
 
-### audio_callback.c
+### audio_control.c
 
 ##### commandIF
 

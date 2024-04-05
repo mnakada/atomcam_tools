@@ -64,7 +64,7 @@ case "$1" in
         sync
         sync
         reboot
-        break
+        exit 1
       fi
     done
     /scripts/set_icamera_config.sh

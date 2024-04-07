@@ -75,7 +75,7 @@ int snprintf(char *str, size_t size, const char *format, ...) {
   va_start(args, format);
 
   const char *fmt = format;
-  if(wyze && mp4write_AlarmSD && (size = 0xd7) && !strcmp(format, "/tmp/alarm_record_%d.mp4")) {
+  if(wyze && mp4write_AlarmSD && (size == 0xd7) && !strcmp(format, "/tmp/alarm_record_%d.mp4")) {
     fmt = "/media/mmc/tmp/alarm_record_%d.mp4";
   }
   int ret = vsnprintf(str, size, fmt, args);

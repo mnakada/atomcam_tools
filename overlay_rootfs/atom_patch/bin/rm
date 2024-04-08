@@ -110,7 +110,7 @@ TMPFILE="${SPATH}/rm_`cat /proc/sys/kernel/random/uuid`"
       if [ "$WEBHOOK_ALARM_PICT_FINISH" = "on" ] && [ "${FILE##*.}" = "jpg" ]; then
         LD_LIBRARY_PATH=/tmp/system/lib:/tmp/system/usr/lib /tmp/system/lib/ld.so.1 /tmp/system/bin/curl -X POST -m 3 -H "Content-Type: application/json" -d "{\"type\":\"uploadPictureFinish\", \"device\":\"${HOSTNAME}\"${STORAGE}}" $INSECURE_FLAG $WEBHOOK_URL > /dev/null 2>&1
       fi
-      if [ "$WEBHOOK_ALARM_VIDEO_FINISH" = "on" ] && [ "${FILE##.}" = "mp4" ]; then
+      if [ "$WEBHOOK_ALARM_VIDEO_FINISH" = "on" ] && [ "${FILE##*.}" = "mp4" ]; then
         LD_LIBRARY_PATH=/tmp/system/lib:/tmp/system/usr/lib /tmp/system/lib/ld.so.1 /tmp/system/bin/curl -X POST -m 3 -H "Content-Type: application/json" -d "{\"type\":\"uploadVideoFinish\", \"device\":\"${HOSTNAME}\"${STORAGE}}" $INSECURE_FLAG $WEBHOOK_URL > /dev/null 2>&1
       fi
     fi

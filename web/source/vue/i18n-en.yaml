@@ -17,55 +17,27 @@ basicSettings:
     title: Password
     tooltip: set login password
 
-recording:
+record:
   title: Recording
-  localRecordingSchedule:
-    title: Local Recording Schedule
-    tooltip: SD-Card/NAS Recording Time Window
-    text:
-      - Schedule
-      - Constant Recoring
-
+  periodicRec:
+    title: Periodic Recording
+  alarmRec:
+    title: Motion Sensor Recording
   SDCard:
     title: SD-Card Recording
     tooltip: Record to a directory on the SD-Card
-    motionRecording:
-      title: SD-Card Motion Sensor Recording
-      tooltip: Record to SD-Card alarm_record directory
-    networkAccess:
-      title: Network Access
-      tooltip: Broadcast ATOMCam SD-Card CIFS(smb) server on local network
     savePath:
       title: Save PATH
-      tooltip: Describes the PATH to be recorded in the format specification of strftime. valid only for alarm_record
-    directWrite:
-      title: Direct Recording
-      tooltip: Normally, the recording is made once on the RAM-DISK and then copied to the SD-Card, but to save RAM, the recording is made directly on the SD-Card.
+      tooltip: enter the storage PATH in strftime format ending with the file extension.
     automaticDeletion:
       title: Automatic Recording Deletion
       tooltip: Automatically delete recordings from SD card
     daysToKeep:
       title: Number of Days to Keep
-      tooltip: Specify how much to delete
-    seeAllFiles:
-      title: See all files on SD card
-      tooltip: Show SD Card contents
-
+      tooltip: Indicate the number of days to keep
   NAS:
     title: NAS Recording
     tooltip: Record to NAS(CIFS Server)
-    motionRecording:
-      title: NAS Motion Sensor Recording
-      tooltip: Record to  alarm_record folder on NAS(CIFS Server)
-    networkPath:
-      title: Network PATH
-      tooltip: enter the path of NAS Server (use //server/folder/ format)
-    account:
-      title: Account
-      tooltip: Set NAS username
-    password:
-      title: Password
-      tooltip: set NAS password
     savePath:
       title: Save PATH
       tooltip: enter the storage PATH after the network name in strftime format ending with the file extension.
@@ -75,28 +47,56 @@ recording:
     daysToKeep:
       title: Number of Days to Keep
       tooltip: Indicate the number of days to keep
+  recordingSchedule:
+    title: Recording Schedule
+    tooltip: SD-Card/NAS Recording Time Window
+    text:
+      - Schedule
+      - Constant Recoring
 
-  timelapse:
-    title: timelapse Recording
-    tooltip: Record timelapses. Will record to directed location on SD-Card/NAS.
-    savePath:
-      title: Save PATH
-      tooltip: Enter the recording PATH in strftime format ending with the file extension.
-    fps:
-      title: output fps
-      tooltip: Frame rate of output file
-    note:
-      comment: |
-        Allow at least 5 minutes for processing between time lapse recordings.
-        If the time overlaps, errors will occur and the recordings will fail.
-    start:
-      title: progress
-      tooltip: timelapse in progress.
-    stop:
-      title: stop
-      tooltip: abort timelapse.
-      button: stop
-      comment: 'Processing aborted: presently writing file.'
+timelapse:
+  title: Timelapse Recording
+  setting:
+    title: Sampling Setting
+  note:
+    comment: |
+      Allow at least 5 minutes for processing between time lapse recordings.
+      If the time overlaps, errors will occur and the recordings will fail.
+  start:
+    title: progress
+    tooltip: timelapse in progress.
+  stop:
+    title: stop
+    tooltip: abort timelapse.
+    button: stop
+    comment: 'Processing aborted: presently writing file.'
+  fps:
+    title: output fps
+    tooltip: Frame rate of output file
+
+SDCard:
+  title: SD-Card setting
+  webAccess:
+    title: Web Access
+    tooltip: Show SD Card contents
+  smbAccess:
+    title: smb Access
+    tooltip: Broadcast SD-Card CIFS(smb) server on local network
+  directWrite:
+    title: Direct Recording
+    tooltip: Normally, the recording is made once on the RAM-DISK and then copied to the SD-Card, but to save RAM, the recording is made directly on the SD-Card.
+
+NAS:
+  title: NAS setting
+  networkPath:
+    title: Network PATH
+    tooltip: enter the path of NAS Server (use //server/folder/ format)
+  account:
+    title: Account
+    tooltip: Set NAS username
+  password:
+    title: Password
+    tooltip: set NAS password
 
 RTSP:
   title: RTSP

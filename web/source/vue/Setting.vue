@@ -59,40 +59,94 @@
       <SettingInput v-if="loginAuth==='on'" i18n="basicSettings.account" type="text" v-model="account" />
       <SettingInput v-if="loginAuth==='on'" i18n="basicSettings.password" type="password" v-model="password" />
 
-      <h3 v-t="'recording.title'" />
-      <SettingSwitch i18n="recording.localRecordingSchedule" v-model="config.RECORDING_LOCAL_SCHEDULE" @change="(config.RECORDING_LOCAL_SCHEDULE === 'on') && !schedule.length && AddSchedule()" />
-      <div v-if="config.RECORDING_LOCAL_SCHEDULE === 'on'">
-        <SettingSchedule v-for="(timeTable, idx) of schedule" :key="'timetable'+idx" :timeRange="true" v-model="schedule[idx]" @add="AddSchedule" @remove="DeleteSchedule(idx)" />
+      <h3 v-t="'record.title'" />
+      <ElCol :offset="1">
+        <h4 v-t="'record.periodicRec.title'" />
+      </ElCol>
+      <SettingSwitch i18n="record.SDCard" v-model="config.PERIODICREC_SDCARD" :titleOffset="2" />
+      <div v-if="config.PERIODICREC_SDCARD === 'on'">
+        <SettingSwitch i18n="record.SDCard.automaticDeletion" :titleOffset="3" v-model="config.PERIODICREC_SDCARD_REMOVE" />
+        <SettingInputNumber v-if="config.PERIODICREC_SDCARD_REMOVE === 'on'" i18n="record.SDCard.daysToKeep" :titleOffset="3" :span="3" v-model="config.PERIODICREC_SDCARD_REMOVE_DAYS" :min="1" />
       </div>
-      <SettingSwitch i18n="recording.SDCard" v-model="storage_sdcard_record" :onOff="false" />
-      <SettingSwitch i18n="recording.SDCard.motionRecording" v-model="storage_sdcard_alarm" :onOff="false" />
-      <SettingSwitch v-if="storage_sdcard" i18n="recording.SDCard.networkAccess" :titleOffset="2" v-model="config.STORAGE_SDCARD_PUBLISH" />
-      <SettingInput v-if="storage_sdcard" i18n="recording.SDCard.savePath" :titleOffset="2" :span="10" type="text" v-model="config.STORAGE_SDCARD_PATH" @input="FixPath('STORAGE_SDCARD_PATH')" />
-      <SettingSwitch v-if="storage_sdcard" i18n="recording.SDCard.directWrite" :titleOffset="2" v-model="config.STORAGE_SDCARD_DIRECT_WRITE" />
-      <SettingSwitch v-if="storage_sdcard" i18n="recording.SDCard.automaticDeletion" :titleOffset="2" v-model="config.STORAGE_SDCARD_REMOVE" />
-      <SettingInputNumber v-if="storage_sdcard && config.STORAGE_SDCARD_REMOVE === 'on'" i18n="recording.SDCard.daysToKeep" :titleOffset="2" :span="3" v-model="config.STORAGE_SDCARD_REMOVE_DAYS" :min="1" />
-      <SettingButton v-if="storage_sdcard" i18n="recording.SDCard.seeAllFiles" :span="4">
-        <a href="/sdcard" target="_blank" class="el-button el-button--primary el-button--mini link-button">SD Card</a>
-      </SettingButton>
+      <SettingSwitch i18n="record.NAS" v-model="config.PERIODICREC_CIFS" :titleOffset="2" />
+      <div v-if="config.PERIODICREC_CIFS === 'on'">
+        <SettingInput i18n="NAS.savePath" :titleOffset="3" :span="10" type="text" v-model="config.PERIODICREC_CIFS_PATH" @input="FixPath('PERIODICREC_CIFS_PATH')" />
+        <SettingSwitch i18n="record.NAS.automaticDeletion" :titleOffset="3" v-model="config.PERIODICREC_CIFS_REMOVE" />
+        <SettingInputNumber v-if="config.PERIODICREC_CIFS_REMOVE === 'on'" i18n="record.NAS.daysToKeep" :titleOffset="3" :span="3" v-model="config.PERIODICREC_CIFS_REMOVE_DAYS" :min="1" />
+      </div>
+      <div v-if="config.PERIODICREC_SDCARD === 'on' || config.PERIODICREC_CIFS === 'on'">
+        <SettingSwitch i18n="record.recordingSchedule" v-model="config.PERIODICREC_SCHEDULE" @change="(config.PERIODICREC_SCHEDULE === 'on') && !periodicRecSchedule.length && AddSchedule('periodicRecSchedule')" :titleOffset="2" />
+        <div v-if="config.PERIODICREC_SCHEDULE === 'on'">
+          <SettingSchedule v-for="(timeTable, idx) of periodicRecSchedule" :key="'timetable'+idx" :timeRange="true" v-model="periodicRecSchedule[idx]" @add="AddSchedule('periodicRecSchedule')" @remove="DeleteSchedule('periodicRecSchedule', idx, 'PERIODICREC_SCHEDULE')" />
+        </div>
+      </div>
 
-      <SettingSwitch i18n="recording.NAS" v-model="storage_cifs_record" :onOff="false" />
-      <SettingSwitch i18n="recording.NAS.motionRecording" v-model="storage_cifs_alarm" :onOff="false" />
-      <SettingInput v-if="storage_cifs" i18n="recording.NAS.networkPath" :titleOffset="2" :span="10" type="text" v-model="config.STORAGE_CIFSSERVER" @input="FixPath('STORAGE_CIFSSERVER')" />
-      <SettingInput v-if="storage_cifs" i18n="recording.NAS.account" :titleOffset="2" type="text" v-model="config.STORAGE_CIFSUSER" />
-      <SettingInput v-if="storage_cifs" i18n="recording.NAS.password" :titleOffset="2" type="password" v-model="config.STORAGE_CIFSPASSWD" show-password />
-      <SettingInput v-if="storage_cifs" i18n="recording.NAS.savePath" :titleOffset="2" :span="10" type="text" v-model="config.STORAGE_CIFS_PATH" @input="FixPath('STORAGE_CIFS_PATH')" />
-      <SettingSwitch v-if="storage_cifs" i18n="recording.NAS.automaticDeletion" :titleOffset="2" v-model="config.STORAGE_CIFS_REMOVE" />
-      <SettingInputNumber v-if="storage_cifs && config.STORAGE_CIFS_REMOVE === 'on'" i18n="recording.NAS.daysToKeep" :titleOffset="2" :span="3" v-model="config.STORAGE_CIFS_REMOVE_DAYS" :min="1" />
+      <ElCol :offset="1">
+        <h4 v-t="'record.alarmRec.title'" />
+      </ElCol>
+      <SettingSwitch i18n="record.SDCard" v-model="config.ALARMREC_SDCARD" :titleOffset="2" />
+      <div v-if="config.ALARMREC_SDCARD === 'on'">
+        <SettingInput i18n="record.SDCard.savePath" :titleOffset="3" :span="10" type="text" v-model="config.ALARMREC_SDCARD_PATH" @input="FixPath('ALARMREC_SDCARD_PATH')" />
+        <SettingSwitch i18n="record.SDCard.automaticDeletion" :titleOffset="3" v-model="config.ALARMREC_SDCARD_REMOVE" />
+        <SettingInputNumber v-if="config.ALARMREC_SDCARD_REMOVE === 'on'" i18n="record.SDCard.daysToKeep" :titleOffset="3" :span="3" v-model="config.ALARMREC_SDCARD_REMOVE_DAYS" :min="1" />
+      </div>
+      <SettingSwitch i18n="record.NAS" v-model="config.ALARMREC_CIFS" :titleOffset="2" />
+      <div v-if="config.ALARMREC_CIFS === 'on'">
+        <SettingInput i18n="record.NAS.savePath" :titleOffset="3" :span="10" type="text" v-model="config.ALARMREC_CIFS_PATH" @input="FixPath('ALARMREC_CIFS_PATH')" />
+        <SettingSwitch i18n="record.NAS.automaticDeletion" :titleOffset="3" v-model="config.ALARMREC_CIFS_REMOVE" />
+        <SettingInputNumber v-if="config.ALARMREC_CIFS_REMOVE === 'on'" i18n="record.NAS.daysToKeep" :titleOffset="3" :span="3" v-model="config.ALARMREC_CIFS_REMOVE_DAYS" :min="1" />
+      </div>
+      <div v-if="config.ALARMREC_SDCARD === 'on' || config.ALARMREC_CIFS === 'on'">
+        <SettingSwitch i18n="record.recordingSchedule" v-model="config.ALARMREC_SCHEDULE" @change="(config.ALARMREC_SCHEDULE === 'on') && !alarmRecSchedule.length && AddSchedule('alarmRecSchedule')" :titleOffset="2" />
+        <div v-if="config.ALARMREC_SCHEDULE === 'on'">
+          <SettingSchedule v-for="(timeTable, idx) of alarmRecSchedule" :key="'timetable'+idx" :timeRange="true" v-model="alarmRecSchedule[idx]" @add="AddSchedule('alarmRecSchedule')" @remove="DeleteSchedule('alarmRecSchedule', idx, 'ALARMREC_SCHEDULE')" />
+        </div>
+      </div>
 
-      <SettingSwitch i18n="recording.timelapse" v-model="config.TIMELAPSE" />
-      <SettingInput v-if="config.TIMELAPSE === 'on'" i18n="recording.timelapse.savePath" :titleOffset="2" :span="10" type="text" v-model="config.TIMELAPSE_PATH" @input="FixPath('TIMELAPSE_PATH')" />
-      <SettingInputNumber v-if="config.TIMELAPSE === 'on'" i18n="recording.timelapse.fps" :titleOffset="2" :span="3" v-model="config.TIMELAPSE_FPS" :min="1" :max="60" />
-      <SettingSchedule v-if="config.TIMELAPSE === 'on'" v-model="timelapse" :timelapse="true" />
-      <SettingComment v-if="config.TIMELAPSE === 'on'" i18n="recording.timelapse.note" />
-      <SettingProgress v-if="timelapseInfo.busy" i18n="recording.timelapse.start" :titleOffset="2" :percentage="timelapseInfo.count * 100 / timelapseInfo.max" :label="timelapseInfo.count.toString() + '/' + timelapseInfo.max.toString()" />
-      <SettingDangerButton v-if="timelapseInfo.busy" i18n="recording.timelapse.stop" :titleOffset="2" icon="el-icon-refresh-left" @click="TimelapseAbort">
-        <span v-if="timelapseInfo.abort" v-t="recording.timelapse.stop.comment" />
-      </SettingDangerButton>
+      <ElCol :offset="1">
+        <h4 v-t="'timelapse.title'" />
+      </ElCol>
+      <SettingSwitch i18n="record.SDCard" v-model="config.TIMELAPSE_SDCARD" :titleOffset="2" />
+      <div v-if="config.TIMELAPSE_SDCARD === 'on'">
+        <SettingInput i18n="record.SDCard.savePath" :titleOffset="3" :span="10" type="text" v-model="config.TIMELAPSE_SDCARD_PATH" @input="FixPath('TIMELAPSE_SDCARD_PATH')" />
+        <SettingSwitch i18n="record.SDCard.automaticDeletion" :titleOffset="3" v-model="config.TIMELAPSE_SDCARD_REMOVE" />
+        <SettingInputNumber v-if="config.TIMELAPSE_SDCARD_REMOVE === 'on'" i18n="record.SDCard.daysToKeep" :titleOffset="3" :span="3" v-model="config.TIMELAPSE_SDCARD_REMOVE_DAYS" :min="1" />
+      </div>
+      <SettingSwitch i18n="record.NAS" v-model="config.TIMELAPSE_CIFS" :titleOffset="2" />
+      <div v-if="config.TIMELAPSE_CIFS === 'on'">
+        <SettingInput i18n="record.NAS.savePath" :titleOffset="3" :span="10" type="text" v-model="config.TIMELAPSE_CIFS_PATH" @input="FixPath('TIMELAPSE_CIFS_PATH')" />
+        <SettingSwitch i18n="record.NAS.automaticDeletion" :titleOffset="3" v-model="config.TIMELAPSE_CIFS_REMOVE" />
+        <SettingInputNumber v-if="config.TIMELAPSE_CIFS_REMOVE === 'on'" i18n="record.NAS.daysToKeep" :titleOffset="3" :span="3" v-model="config.TIMELAPSE_CIFS_REMOVE_DAYS" :min="1" />
+      </div>
+      <div v-if="config.TIMELAPSE_SDCARD === 'on' || config.TIMELAPSE_CIFS === 'on'">
+        <SettingSchedule v-model="timelapse" :timelapse="true" :titleOffset="2" i18n="timelapse.setting" />
+        <SettingComment i18n="timelapse.note" />
+        <SettingInputNumber i18n="timelapse.fps" :titleOffset="2" :span="3" v-model="config.TIMELAPSE_FPS" :min="1" :max="60" />
+        <SettingProgress v-if="timelapseInfo.busy" i18n="timelapse.start" :titleOffset="2" :percentage="timelapseInfo.count * 100 / timelapseInfo.max" :label="timelapseInfo.count.toString() + '/' + timelapseInfo.max.toString()" />
+        <SettingDangerButton v-if="timelapseInfo.busy" i18n="timelapse.stop" :titleOffset="2" icon="el-icon-refresh-left" @click="TimelapseAbort">
+          <span v-if="timelapseInfo.abort" v-t="timelapse.stop.comment" />
+        </SettingDangerButton>
+      </div>
+
+      <div v-if="config.PERIODICREC_SDCARD === 'on' || config.ALARMREC_SDCARD === 'on' || config.TIMELAPSE_SDCARD === 'on'">
+        <ElCol :offset="1">
+          <h4 v-t="'SDCard.title'" />
+        </ElCol>
+        <SettingButton i18n="SDCard.webAccess" :titleOffset="2" :span="4">
+          <a href="/sdcard" target="_blank" class="el-button el-button--primary el-button--mini link-button">SD Card</a>
+        </SettingButton>
+        <SettingSwitch i18n="SDCard.smbAccess" :titleOffset="2" v-model="config.STORAGE_SDCARD_PUBLISH" />
+        <SettingSwitch i18n="SDCard.directWrite" :titleOffset="2" v-model="config.STORAGE_SDCARD_DIRECT_WRITE" />
+      </div>
+
+      <div v-if="config.PERIODICREC_CIFS === 'on' || config.ALARMREC_CIFS === 'on' || config.TIMELAPSE_CIFS === 'on'">
+        <ElCol :offset="1">
+          <h4 v-t="'NAS.title'" />
+        </ElCol>
+        <SettingInput i18n="NAS.networkPath" :titleOffset="2" :span="10" type="text" v-model="config.STORAGE_CIFSSERVER" @input="FixPath('STORAGE_CIFSSERVER')" />
+        <SettingInput i18n="NAS.account" :titleOffset="2" type="text" v-model="config.STORAGE_CIFSUSER" />
+        <SettingInput i18n="NAS.password" :titleOffset="2" type="password" v-model="config.STORAGE_CIFSPASSWD" show-password />
+      </div>
 
       <h3 v-t="'RTSP.title'" />
       <SettingSwitch i18n="RTSP.main" v-model="config.RTSP_VIDEO0" />
@@ -209,6 +263,7 @@
     data() {
       return {
         config: {
+          CONFIG_VER: '1.0.0',
           appver: '', // ATOMCam app_ver (/atom/config/app.ver)
           ATOMHACKVER: '', // AtomHack Ver (/etc/atomhack.ver)
           PRODUCT_MODEL: '', // ATOMCam Model (/atom/configs/.product_config)
@@ -216,33 +271,48 @@
           DIGEST: '',
           REBOOT: 'off',
           REBOOT_SCHEDULE: '0 2 * * 7', // -> /var/spool/crontabs/root
-          RECORDING_LOCAL_SCHEDULE: 'off',
-          RECORDING_LOCAL_SCHEDULE_LIST: '', // -> /media/mmc/local_schedule
           RTSP_VIDEO0: 'off',
           RTSP_AUDIO0: 'off',
           RTSP_MAIN_FORMAT_HEVC: 'off',
           RTSP_VIDEO1: 'off',
           RTSP_AUDIO1: 'off',
           RTSP_OVER_HTTP: 'off',
-          STORAGE_SDCARD: 'on', // on(alarm & record), alarm, record, off
-          STORAGE_SDCARD_PUBLISH: 'off',
-          STORAGE_SDCARD_PATH: '%Y%m%d/%H%M%S',
-          STORAGE_SDCARD_REMOVE: 'off',
-          STORAGE_SDCARD_REMOVE_DAYS: 30,
-          STORAGE_SDCARD_DIRECT_WRITE: 'off',
-          STORAGE_CIFS: 'off', // on(alarm & record), alarm, record, off
-          STORAGE_CIFS_PATH: '%Y%m%d/%H%M%S',
-          STORAGE_CIFS_REMOVE: 'off',
-          STORAGE_CIFS_REMOVE_DAYS: 30,
-          STORAGE_CIFSSERVER: '',
-          STORAGE_CIFSUSER: '',
-          STORAGE_CIFSPASSWD: '',
-          TIMELAPSE: 'off',
+          PERIODICREC_SDCARD: 'on',
+          PERIODICREC_SDCARD_REMOVE: 'off',
+          PERIODICREC_SDCARD_REMOVE_DAYS: 30,
+          PERIODICREC_CIFS: 'off',
+          PERIODICREC_CIFS_PATH: '%Y%m%d/%H%M%S',
+          PERIODICREC_CIFS_REMOVE: 'off',
+          PERIODICREC_CIFS_REMOVE_DAYS: 30,
+          PERIODICREC_SCHEDULE: 'off',
+          PERIODICREC_SCHEDULE_LIST: '',
+          ALARMREC_SDCARD: 'on',
+          ALARMREC_SDCARD_PATH: '%Y%m%d/%H%M%S',
+          ALARMREC_SDCARD_REMOVE: 'off',
+          ALARMREC_SDCARD_REMOVE_DAYS: 30,
+          ALARMREC_CIFS: 'off',
+          ALARMREC_CIFS_PATH: '%Y%m%d/%H%M%S',
+          ALARMREC_CIFS_REMOVE: 'off',
+          ALARMREC_CIFS_REMOVE_DAYS: 30,
+          ALARMREC_SCHEDHULE: 'off',
+          ALARMREC_SCHEDULE_LIST: '',
+          TIMELAPSE_SDCARD: 'off',
+          TIMELAPSE_SDCARD_PATH: '%Y%m%d%H%M',
+          TIMELAPSE_SDCARD_REMOVE: 'off',
+          TIMELAPSE_SDCARD_REMOVE_DAYS: 30,
+          TIMELAPSE_CIFS: 'off',
+          TIMELAPSE_CIFS_PATH: '%Y%m%d%H%M',
+          TIMELAPSE_CIFS_REMOVE: 'off',
+          TIMELAPSE_CIFS_REMOVE_DAYS: 30,
           TIMELAPSE_SCHEDULE: '0 4 * * 0:1:2:3:4:5:6', // -> /var/spool/crontabs/root
-          TIMELAPSE_PATH: '%Y%m%d%H%M',
           TIMELAPSE_INTERVAL: 60,
           TIMELAPSE_COUNT: 960,
           TIMELAPSE_FPS: 20,
+          STORAGE_SDCARD_PUBLISH: 'off',
+          STORAGE_SDCARD_DIRECT_WRITE: 'off',
+          STORAGE_CIFSSERVER: '',
+          STORAGE_CIFSUSER: '',
+          STORAGE_CIFSPASSWD: '',
           WEBHOOK: 'off',
           WEBHOOK_URL: '',
           WEBHOOK_INSECURE: 'off',
@@ -280,11 +350,8 @@
         intervalValue: {
           TIMESTAMP: '',
         },
-        storage_sdcard_record: true,
-        storage_sdcard_alarm: true,
-        storage_cifs_record: false,
-        storage_cifs_alarm: false,
-        schedule: [],
+        alarmRecSchedule: [],
+        periodicRecSchedule: [],
         timelapse: {
           dayOfWeekSelect: [0, 1, 2, 3, 4, 5, 6],
           startTime: '04:00',
@@ -385,60 +452,37 @@
         this.account = this.config.DIGEST.replace(/:.*$/, '');
       }
 
-      if(this.config.STORAGE_SDCARD === 'on') {
-        this.storage_sdcard_record = true;
-        this.storage_sdcard_alarm = true;
-      } else if(this.config.STORAGE_SDCARD === 'record') {
-        this.storage_sdcard_record = true;
-        this.storage_sdcard_alarm = false;
-      } else if(this.config.STORAGE_SDCARD === 'alarm') {
-        this.storage_sdcard_record = false;
-        this.storage_sdcard_alarm = true;
-      } else {
-        this.storage_sdcard_record = false;
-        this.storage_sdcard_alarm = false;
-      }
+      for(let schedule in ['periodicRec', 'alarmRec']) {
+        const confKey = schedule.toUpperCase() + '_SCHEDULE_LIST';
+        const innerKey = schedule + 'Schedule';
+        if(this.config[confKey]) {
+          let index = -1;
 
-      if(this.config.STORAGE_CIFS === 'on') {
-        this.storage_cifs_record = true;
-        this.storage_cifs_alarm = true;
-      } else if(this.config.STORAGE_CIFS === 'record') {
-        this.storage_cifs_record = true;
-        this.storage_cifs_alarm = false;
-      } else if(this.config.STORAGE_CIFS === 'alarm') {
-        this.storage_cifs_record = false;
-        this.storage_cifs_alarm = true;
-      } else {
-        this.storage_cifs_record = false;
-        this.storage_cifs_alarm = false;
-      }
-
-      if(this.config.RECORDING_LOCAL_SCHEDULE_LIST) {
-        let index = -1;
-        this.schedule = this.config.RECORDING_LOCAL_SCHEDULE_LIST.split(';').reduce((d, l) => {
-          if(l.search(/\[index_.*\]/) >= 0) {
-            index = l.replace(/^.*_(\d*).*$/, '$1') - 1;
-            d[index] = {};
-            return d;
-          }
-          const ll = l.split(/=/);
-          if(ll[0] === 'Rule') {
-            d[index].dayOfWeekSelect = [];
-            for(let i = 0; i < 7; i++) {
-              if(ll[1] & (2 << i)) d[index].dayOfWeekSelect.push(i);
+          this.$set(this, innerKey, this.config[confKey].split(';').reduce((d, l) => {
+            if(l.search(/\[index_.*\]/) >= 0) {
+              index = l.replace(/^.*_(\d*).*$/, '$1') - 1;
+              d[index] = {};
+              return d;
             }
-          }
-          if(ll[0] === 'ContinueTime') d[index].continueTimeNum = parseInt(ll[1]);
-          if(ll[0] === 'StartTime') d[index].startTimeNum = parseInt(ll[1]);
-          if((d[index].continueTimeNum != null) && (d[index].startTimeNum != null)) {
-            d[index].startTime = parseInt(d[index].startTimeNum / 60).toString().padStart(2, '0') + ':' + (d[index].startTimeNum % 60).toString().padStart(2, '0');
-            const endTime = d[index].startTimeNum + d[index].continueTimeNum - 1;
-            d[index].endTime = parseInt(endTime / 60).toString().padStart(2, '0') + ':' + (endTime % 60).toString().padStart(2, '0');
-            delete(d[index].continueTimeNum);
-            delete(d[index].startTimeNum);
-          }
-          return d;
-        }, []);
+            const ll = l.split(/=/);
+            if(ll[0] === 'Rule') {
+              d[index].dayOfWeekSelect = [];
+              for(let i = 0; i < 7; i++) {
+                if(ll[1] & (2 << i)) d[index].dayOfWeekSelect.push(i);
+              }
+            }
+            if(ll[0] === 'ContinueTime') d[index].continueTimeNum = parseInt(ll[1]);
+            if(ll[0] === 'StartTime') d[index].startTimeNum = parseInt(ll[1]);
+            if((d[index].continueTimeNum != null) && (d[index].startTimeNum != null)) {
+              d[index].startTime = parseInt(d[index].startTimeNum / 60).toString().padStart(2, '0') + ':' + (d[index].startTimeNum % 60).toString().padStart(2, '0');
+              const endTime = d[index].startTimeNum + d[index].continueTimeNum - 1;
+              d[index].endTime = parseInt(endTime / 60).toString().padStart(2, '0') + ':' + (endTime % 60).toString().padStart(2, '0');
+              delete(d[index].continueTimeNum);
+              delete(d[index].startTimeNum);
+            }
+            return d;
+          }, []));
+        }
       }
 
       if(this.config.TIMELAPSE_SCHEDULE) {
@@ -570,17 +614,17 @@
         if(this.imageTimeout) clearTimeout(this.imageTimeout);
         this.imageTimeout = setTimeout(this.StillImageInterval.bind(this), this.stillInterval);
       },
-      AddSchedule() {
-        this.schedule.push({
+      AddSchedule(schedule) {
+        this[schedule].push({
           allDay: true,
           startTime: '00:00',
           endTime: '23:59',
           dayOfWeekSelect: [0, 1, 2, 3, 4, 5, 6],
         });
       },
-      DeleteSchedule(i) {
-        this.schedule.splice(i, 1);
-        if(!this.schedule.length) this.config.RECORDING_LOCAL_SCHEDULE = false;
+      DeleteSchedule(schedule, i, confKey) {
+        this[schedule].splice(i, 1);
+        if(!this[schedule].length) this.$set(this.config, confKey, 'off');
       },
       AddCruise() {
         this.cruiseList.push({
@@ -645,49 +689,33 @@
           this.config.DIGEST='';
         }
 
-        let str = '';
-        for(const i in this.schedule) {
-          const timeTable = this.schedule[i];
-          str += `[index_${(i - 0 + 1).toString().padStart(2, '0')}];`;
-          const val = timeTable.dayOfWeekSelect.reduce((v, d) => v | (2 << d), 0);
-          str += `Rule=${val};`;
-          const stime = parseInt(timeTable.startTime.slice(0, 2)) * 60 + parseInt(timeTable.startTime.slice(-2));
-          const etime = parseInt(timeTable.endTime.slice(0, 2)) * 60 + parseInt(timeTable.endTime.slice(-2)) + 1;
-          str += `ContinueTime=${etime - stime};`;
-          str += `StartTime=${stime};`;
-          str += `Status=1;`;
-          str += `DelFlags=1;`;
+        for(let schedule in ['periodicRec', 'alarmRec']) {
+          const confKey = schedule.toUpperCase() + '_SCHEDULE_LIST';
+          const innerKey = schedule + 'Schedule';
+          let str = '';
+          for(const i in this[innerKey]) {
+            const timeTable = this[innerKey][i];
+            str += `[index_${(i - 0 + 1).toString().padStart(2, '0')}];`;
+            const val = timeTable.dayOfWeekSelect.reduce((v, d) => v | (2 << d), 0);
+            str += `Rule=${val};`;
+            const stime = parseInt(timeTable.startTime.slice(0, 2)) * 60 + parseInt(timeTable.startTime.slice(-2));
+            const etime = parseInt(timeTable.endTime.slice(0, 2)) * 60 + parseInt(timeTable.endTime.slice(-2)) + 1;
+            str += `ContinueTime=${etime - stime};`;
+            str += `StartTime=${stime};`;
+            str += `Status=1;`;
+            str += `DelFlags=1;`;
+          }
+          this.$set(this.config, confKey, str);
         }
-        this.config.RECORDING_LOCAL_SCHEDULE_LIST = str;
 
-        if(this.storage_sdcard_record && this.storage_sdcard_alarm) {
-          this.config.STORAGE_SDCARD = 'on';
-        } else if(this.storage_sdcard_record) {
-          this.config.STORAGE_SDCARD = 'record';
-        } else if(this.storage_sdcard_alarm) {
-          this.config.STORAGE_SDCARD = 'alarm';
-        } else {
-          this.config.STORAGE_SDCARD = 'off';
-        }
-        if(!this.storage_sdcard) this.config.STORAGE_SDCARD_PUBLISH = 'off';
-
-        if(this.storage_cifs_record && this.storage_cifs_alarm) {
-          this.config.STORAGE_CIFS = 'on';
-        } else if(this.storage_cifs_record) {
-          this.config.STORAGE_CIFS = 'record';
-        } else if(this.storage_cifs_alarm) {
-          this.config.STORAGE_CIFS = 'alarm';
-        } else {
-          this.config.STORAGE_CIFS = 'off';
-        }
+        if(this.config.PERIODICREC_SDCARD !== 'on' && this.config.ALARMREC_SDCARD !== 'on' && this.config.TIMELAPSE_SDCARD !== 'on') this.config.STORAGE_SDCARD_PUBLISH = 'off';
 
         this.config.LOCALE = this.$i18n.locale;
         this.config.TIMELAPSE_INTERVAL = this.timelapse.interval;
         this.config.TIMELAPSE_COUNT = this.timelapse.count;
-        str = parseInt(this.timelapse.startTime.slice(-2)) + ' ';
-        str += parseInt(this.timelapse.startTime.slice(0, 2)) + ' * * ';
-        str += this.timelapse.dayOfWeekSelect.sort((a, b) => a - b).reduce((v, d) => v + (v.length ? ':' : '') + ((d + 1) % 7).toString(), '');
-        this.config.TIMELAPSE_SCHEDULE = str;
+        this.config.TIMELAPSE_SCHEDULE = parseInt(this.timelapse.startTime.slice(-2)) + ' ' +
+          parseInt(this.timelapse.startTime.slice(0, 2)) + ' * * ' +
+          this.timelapse.dayOfWeekSelect.sort((a, b) => a - b).reduce((v, d) => v + (v.length ? ':' : '') + ((d + 1) % 7).toString(), '');
 
         this.config.CRUISE_LIST = this.cruiseList.reduce((str, cruise) => {
           str += `move ${cruise.pan} ${cruise.tilt} ${cruise.speed};`;
@@ -700,10 +728,9 @@
         }, '');
         this.ClearCruiseSelect();
 
-        str = parseInt(this.reboot.startTime.slice(-2)) + ' ';
-        str += parseInt(this.reboot.startTime.slice(0, 2)) + ' * * ';
-        str += this.reboot.dayOfWeekSelect.sort((a, b) => a - b).reduce((v, d) => v + (v.length ? ':' : '') + ((d + 1) % 7).toString(), '');
-        this.config.REBOOT_SCHEDULE = str;
+        this.config.REBOOT_SCHEDULE = parseInt(this.reboot.startTime.slice(-2)) + ' ' +
+          parseInt(this.reboot.startTime.slice(0, 2)) + ' * * ' +
+          this.reboot.dayOfWeekSelect.sort((a, b) => a - b).reduce((v, d) => v + (v.length ? ':' : '') + ((d + 1) % 7).toString(), '');
 
         await axios.post('./cgi-bin/hack_ini.cgi', this.config).catch(err => {
           // eslint-disable-next-line no-console

@@ -3,12 +3,14 @@
 
 LOCKFILE=/tmp/mount_cifs.lock
 HACK_INI=/tmp/hack.ini
-STORAGE_CIFS=$(awk -F "=" '/^STORAGE_CIFS *=/ {print $2}' $HACK_INI)
+ALARMREC_CIFS=$(awk -F "=" '/^ALARMREC_CIFS *=/ { gsub(/^\/*/, "", $2);print $2}' $HACK_INI)
+PERIODICREC_CIFS=$(awk -F "=" '/^PERIODICREC_CIFS *=/ { gsub(/^\/*/, "", $2);print $2}' $HACK_INI)
+TIMELAPSE_CIFS=$(awk -F "=" '/^TIMELAPSE_CIFS *=/ { gsub(/^\/*/, "", $2);print $2}' $HACK_INI)
 STORAGE_CIFSSERVER=$(awk -F "=" '/^STORAGE_CIFSSERVER *=/ {gsub(/\/$/, "", $2); print $2}' $HACK_INI)
 STORAGE_CIFSUSER=$(awk -F "=" '/^STORAGE_CIFSUSER *=/ {print $2}' $HACK_INI)
 STORAGE_CIFSPASSWD=$(awk -F "=" '/^STORAGE_CIFSPASSWD *=/ {print $2}' $HACK_INI)
 
-if [ "$STORAGE_CIFS" = "on" -o "$STORAGE_CIFS" = "alarm" -o "$STORAGE_CIFS" = "record" ] && [ "$STORAGE_CIFSSERVER" != "" ]; then
+if [ "$ALARMREC_CIFS" = "on" -o "$PERIODICREC_CIFS" = "on" -o "$TIMELAPSE_CIFS" = "on" ] && [ "$STORAGE_CIFSSERVER" != "" ]; then
   mount | grep "$STORAGE_CIFSSERVER" > /dev/null && exit
   while [ -f $LOCKFILE ] ; do
     sleep 0.5

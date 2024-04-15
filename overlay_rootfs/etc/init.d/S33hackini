@@ -5,6 +5,7 @@
 
 case "$1" in
   start)
+    /scripts/hack_ini_reconfig.sh
     [ -f /media/mmc/hack.ini ] || touch /media/mmc/hack.ini
     cp /media/mmc/hack.ini /tmp/hack.ini
     chmod 666 /tmp/hack.ini

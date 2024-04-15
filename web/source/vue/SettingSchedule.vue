@@ -1,6 +1,12 @@
 <template>
   <ElRow>
-    <ElCol :offset="9" :span="12">
+    <ElCol :offset="titleOffset" :span="9 - titleOffset">
+      <h4 v-if="$te(i18n + '.title')" v-t="i18n+'.title'" />
+      <h4 v-else>
+        {{ title }}
+      </h4>
+    </ElCol>
+    <ElCol :span="12">
       <div class="well schedule">
         <div class="schedule-week">
           <ElCheckboxGroup v-model="innerValue.dayOfWeekSelect" size="small" :min="1" @input="TimeSet">
@@ -58,6 +64,18 @@
       ElInputNumber: InputNumber,
     },
     props: {
+      titleOffset: {
+        type: Number,
+        default: 1,
+      },
+      title: {
+        type: String,
+        default: '',
+      },
+      i18n: {
+        type: String,
+        default: '',
+      },
       timeRange: {
         type: Boolean,
         default: false,

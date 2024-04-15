@@ -1,7 +1,8 @@
 #!/bin/sh
 
 HACK_INI=/tmp/hack.ini
-STORAGE_SDCARD=$(awk -F "=" '/^STORAGE_SDCARD *=/ {print $2}' $HACK_INI)
+ALARMREC_SDCARD=$(awk -F "=" '/^ALARMREC_SDCARD *=/ {print $2}' $HACK_INI)
+PERIODICREC_SDCARD=$(awk -F "=" '/^PERIODICREC_SDCARD *=/ {print $2}' $HACK_INI)
 STORAGE_SDCARD_DIRECT_WRITE=$(awk -F "=" '/^STORAGE_SDCARD_DIRECT_WRITE *=/ {print $2}' $HACK_INI)
 FRAMERATE=$(awk -F "=" '/^FRAMERATE *=/ {print $2}' $HACK_INI)
 BITRATE_MAIN_AVC=$(awk -F "=" '/^BITRATE_MAIN_AVC *=/ {print $2}' $HACK_INI)
@@ -13,8 +14,8 @@ AWS_VIDEO_DISABLE=$(awk -F "=" '/^AWS_VIDEO_DISABLE *=/ {print $2}' $HACK_INI)
 PERIODIC="ram"
 ALARM="ram"
 if [ "$STORAGE_SDCARD_DIRECT_WRITE" = "on" ] ; then
-  [ "$STORAGE_SDCARD" = "on" -o "$STORAGE_SDCARD" = "record" ] && PERIODIC="sd"
-  [ "$STORAGE_SDCARD" = "on" -o "$STORAGE_SDCARD" = "alarm" ] && ALARM="sd"
+  [ "$PERIODICREC_SDCARD" = "on" ] && PERIODIC="sd"
+  [ "$ALARMREC_SDCARD" = "on"] && ALARM="sd"
 fi
 /scripts/cmd mp4write $PERIODIC $ALARM > /dev/null
 

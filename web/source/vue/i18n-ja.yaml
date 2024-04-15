@@ -17,86 +17,87 @@ basicSettings:
     title: パスワード
     tooltip: ログインのためのパスワードを設定します
 
-recording:
+record:
   title: 録画
-  localRecordingSchedule:
-    title: ローカル録画スケジュール
-    tooltip: SD-Card/NASに録画される時間帯を設定します
-    text:
-      - スケジュール
-      - 常時録画
-
+  periodicRec:
+    title: 連続録画
+  alarmRec:
+    title: モーション検知録画
   SDCard:
     title: SD-Card録画
-    tooltip: SD-Cardのrecordフォルダへの記録をします
-    motionRecording:
-      title: SD-Cardモーション検知録画
-      tooltip: SD-Cardのalarm_recordフォルダへの記録をします
-    networkAccess:
-      title: ネットワークアクセス
-      tooltip: ATOMCamのSD-CardをCIFS(smb) serverとしてLAN内に公開します
-    directWrite:
-      title: 録画をSD-Cardに直接記録
-      tooltip: 通常は一旦RAM-DISKに録画した後SD-Cardにコピーしますが、RAMの節約のため直接SD-Cardに記録します
+    tooltip: SD-Cardへの記録をします
     savePath:
       title: 保存するPATH
-      tooltip: 録画するPATHをstrftimeの書式指定で記述します。最後に拡張子が付加されます。alarm_recordのみに有効
+      tooltip: 録画するPATHをstrftimeの書式指定で記述します。最後に拡張子が付加されます
     automaticDeletion:
       title: ファイルの自動削除
       tooltip: SD-Cardに録画したファイルを自動的に削除します
     daysToKeep:
       title: 保存日数
       tooltip: 指定日数後に削除します
-    seeAllFiles:
-      title: SD-Cardファイル表示
-      tooltip: SD-Card内のファイルを表示します
-
   NAS:
     title: NAS録画
-    tooltip: NAS(CIFS Server)のrecordフォルダへの記録をします
-    motionRecording:
-      title: NASモーション検知録画
-      tooltip: NAS(CIFS Server)のalarm_recordフォルダへの記録をします
-    networkPath:
-      title: ネットワークPATH
-      tooltip: NASのパスを設定。(//server/folder/の形式で指定)
-    account:
-      title: アカウント
-      tooltip: NASのユーザー名を設定します
-    password:
-      title: パスワード
-      tooltip: NASのパスワードを設定します
+    tooltip: NAS(CIFS Server)への記録をします
     savePath:
       title: 保存するPATH
       tooltip: ネットワークPATH以降の録画するPATHをstrftimeの書式指定で記述します。最後に拡張子が付加されます
     automaticDeletion:
       title: ファイルの自動削除
-      tooltip: CIFS Serverに録画したファイルを自動的に削除します
+      tooltip: NAS(CIFS Server)に録画したファイルを自動的に削除します
     daysToKeep:
       title: 保存日数
       tooltip: 指定日数後に削除します
 
-  timelapse:
-    title: timelapse録画
-    tooltip: timelapse録画をします。SD-Card/NAS録画で指定しているメディアに記録されます。
-    savePath:
-      title: 保存するPATH
-      tooltip: 録画するPATHをstrftimeの書式指定で記述します。最後に拡張子が付加されます。
-    fps:
-      title: 出力fps
-      tooltip: 出力ファイルのフレームレート
-    note:
-      comment: |
-        録画の間は記録後の変換処理のため５分以上空けてください。
-        時間が重なるとエラーで記録されない事があります。
-    start:
-      title: 動作状態
-      tooltip: timelapse動作中です。
-    stop:
-      title: 中止
-      tooltip: timelapseを中止します。
-      button: 中止
-      comment: 停止処理：ファイル書き込み中
+  recordingSchedule:
+    title: 録画スケジュール
+    tooltip: SD-Card/NASに録画される時間帯を設定します
+    text:
+      - スケジュール
+      - 常時録画
+
+timelapse:
+  title: timelapse録画
+  setting:
+    title: サンプリング設定
+  note:
+    comment: |
+      録画の間は記録後の変換処理のため５分以上空けてください。
+      時間が重なるとエラーで記録されない事があります。
+  start:
+    title: 動作状態
+    tooltip: timelapse動作中です。
+  stop:
+    title: 中止
+    tooltip: timelapseを中止します。
+    button: 中止
+    comment: 停止処理：ファイル書き込み中
+  fps:
+    title: 出力fps
+    tooltip: 出力ファイルのフレームレート
+
+SDCard:
+  title: SD-Card設定
+  webAccess:
+    title: Webアクセス
+    tooltip: SD-Card内のファイルを表示します
+  smbAccess:
+    title: smbクアクセス
+    tooltip: SD-CardをCIFS(smb) serverとしてLAN内に公開します
+  directWrite:
+    title: 録画を直接記録
+    tooltip: 通常は一旦RAM-DISKに録画した後SD-Cardにコピーしますが、RAMの節約のため直接SD-Cardに記録します
+
+NAS:
+  title: NAS設定
+  networkPath:
+    title: ネットワークPATH
+    tooltip: NASのパスを設定。(//server/folder/の形式で指定)
+  account:
+    title: アカウント
+    tooltip: NASのユーザー名を設定します
+  password:
+    title: パスワード
+    tooltip: NASのパスワードを設定します
 
 RTSP:
   title: RTSP

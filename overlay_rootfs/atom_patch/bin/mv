@@ -13,7 +13,6 @@ PERIODICREC_SCHEDULE=$(awk -F "=" '/^PERIODICREC_SCHEDULE *=/ {print $2}' $HACK_
 PERIODICREC_CIFS=$(awk -F "=" '/^PERIODICREC_CIFS *=/ { gsub(/^\/*/, "", $2);print $2}' $HACK_INI)
 PERIODICREC_CIFS_PATH=$(awk -F "=" '/^PERIODICREC_CIFS_PATH *=/ { gsub(/^\/*/, "", $2);print $2}' $HACK_INI)
 PERIODICREC_SDCARD=$(awk -F "=" '/^PERIODICREC_SDCARD *=/ {print $2}' $HACK_INI)
-WEBHOOK=$(awk -F "=" '/^WEBHOOK *=/ {print $2}' $HACK_INI)
 WEBHOOK_URL=$(awk -F "=" '/^WEBHOOK_URL *=/ {print $2}' $HACK_INI)
 [ "$(awk -F "=" '/^WEBHOOK_INSECURE *=/ {print $2}' $HACK_INI)" = "on" ] && INSECURE_FLAG="-k "
 WEBHOOK_RECORD_EVENT=$(awk -F "=" '/^WEBHOOK_RECORD_EVENT *=/ {print $2}' $HACK_INI)
@@ -102,7 +101,7 @@ if [ "$FMT" != "" ]; then
       /bin/busybox rm $TMPFILE
       LD_LIBRARY_PATH=/tmp/system/lib:/tmp/system/usr/lib /tmp/system/lib/ld.so.1 /tmp/system/bin/find /media/mmc/record -depth -type d -empty -delete
     fi
-    if [ "$WEBHOOK" = "on" ] && [ "$WEBHOOK_URL" != "" ] && [ "$WEBHOOK_RECORD_EVENT" = "on" ]; then
+    if [ "$WEBHOOK_URL" != "" ] && [ "$WEBHOOK_RECORD_EVENT" = "on" ]; then
       LD_LIBRARY_PATH=/tmp/system/lib:/tmp/system/usr/lib /tmp/system/lib/ld.so.1 /tmp/system/bin/curl -X POST -m 3 -H "Content-Type: application/json" -d "{\"type\":\"recordEvent\", \"device\":\"${HOSTNAME}\"${STORAGE}}" $INSECURE_FLAG $WEBHOOK_URL > /dev/null 2>&1
     fi
   ) &

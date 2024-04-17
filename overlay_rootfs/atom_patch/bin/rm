@@ -16,7 +16,6 @@ ALARMREC_CIFS=$(awk -F "=" '/^ALARMREC_CIFS *=/ { gsub(/^\/*/, "", $2);print $2}
 ALARMREC_CIFS_PATH=$(awk -F "=" '/^ALARMREC_CIFS_PATH *=/ { gsub(/^\/*/, "", $2);print $2}' $HACK_INI)
 ALARMREC_SDCARD_PATH=$(awk -F "=" '/^ALARMREC_SDCARD_PATH *=/ { gsub(/^\/*/, "", $2);print $2}' $HACK_INI)
 ALARMREC_SDCARD=$(awk -F "=" '/^ALARMREC_SDCARD *=/ {print $2}' $HACK_INI)
-WEBHOOK=$(awk -F "=" '/^WEBHOOK *=/ {print $2}' $HACK_INI)
 WEBHOOK_URL=$(awk -F "=" '/^WEBHOOK_URL *=/ {print $2}' $HACK_INI)
 [ "$(awk -F "=" '/^WEBHOOK_INSECURE *=/ {print $2}' $HACK_INI)" = "on" ] && INSECURE_FLAG="-k "
 WEBHOOK_ALERM_PICT=$(awk -F "=" '/^WEBHOOK_ALERM_PICT *=/ {print $2}' $HACK_INI)
@@ -89,7 +88,7 @@ fi
 TMPFILE="${SPATH}/rm_`cat /proc/sys/kernel/random/uuid`"
 /bin/busybox mv $FILE $TMPFILE
 (
-  if [ "$WEBHOOK" = "on" ] && [ "$WEBHOOK_URL" != "" ]; then
+  if [ "$WEBHOOK_URL" != "" ]; then
     if [ "$WEBHOOK_ALERM_PICT" = "on" ] && [ "${FILE##*.}" = "jpg" ]; then
       LD_LIBRARY_PATH=/tmp/system/lib:/tmp/system/usr/lib /tmp/system/lib/ld.so.1 /tmp/system/bin/curl -X POST -m 3 -F "image=@$TMPFILE" -F "type=image/jpeg" -F "device=${HOSTNAME}" $INSECURE_FLAG $WEBHOOK_URL > /dev/console 2>&1
     fi
@@ -116,7 +115,7 @@ TMPFILE="${SPATH}/rm_`cat /proc/sys/kernel/random/uuid`"
       STORAGE="${STORAGE}, \"sdcardFile\":\"${SDCARDFILE}\""
     fi
 
-    if [ "$WEBHOOK" = "on" ] && [ "$WEBHOOK_URL" != "" ]; then
+    if [ "$WEBHOOK_URL" != "" ]; then
       if [ "$WEBHOOK_ALARM_PICT_FINISH" = "on" ] && [ "${FILE##*.}" = "jpg" ]; then
         LD_LIBRARY_PATH=/tmp/system/lib:/tmp/system/usr/lib /tmp/system/lib/ld.so.1 /tmp/system/bin/curl -X POST -m 3 -H "Content-Type: application/json" -d "{\"type\":\"uploadPictureFinish\", \"device\":\"${HOSTNAME}\"${STORAGE}}" $INSECURE_FLAG $WEBHOOK_URL > /dev/null 2>&1
       fi

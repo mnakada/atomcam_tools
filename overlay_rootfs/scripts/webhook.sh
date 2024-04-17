@@ -39,7 +39,6 @@ BEGIN {
     }
     if(!logPause) print >> "/tmp/log/atom.log";
   }
-  if(ENV["WEBHOOK"] != "on") next;
   if(ENV["WEBHOOK_URL"] == "") next;
 }
 

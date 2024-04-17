@@ -1,24 +1,11 @@
-imageFrame:
-  clickToShrink: clickで縮小します
-  clickToExpand: clickで拡大します
+camera:
+  tab: カメラ画像
 
-basicSettings:
-  title: 基本設定
-  deviceName:
-    title: デバイス名
-    tooltip: NASの保存フォルダ名やリモートアクセスのための名前を設定します
-  loginAuthentication:
-    title: ログイン認証
-    tooltip: このページへのアクセスのためのログイン認証を有効にします
-  account:
-    title: アカウント
-    tooltip: ログインのためのユーザーアカウントを設定します
-  password:
-    title: パスワード
-    tooltip: ログインのためのパスワードを設定します
+SDCard:
+  tab: SD Card
 
 record:
-  title: 録画
+  tab: 録画設定
   periodicRec:
     title: 連続録画
   alarmRec:
@@ -56,7 +43,8 @@ record:
       - 常時録画
 
 timelapse:
-  title: timelapse録画
+  tab: タイムラプス設定
+  title: タイムラプス
   setting:
     title: サンプリング設定
   note:
@@ -75,19 +63,22 @@ timelapse:
     title: 出力fps
     tooltip: 出力ファイルのフレームレート
 
-SDCard:
+media:
+  tab: メディア設定
+SDCardSettings:
   title: SD-Card設定
-  webAccess:
-    title: Webアクセス
-    tooltip: SD-Card内のファイルを表示します
   smbAccess:
-    title: smbクアクセス
+    title: smbアクセス
     tooltip: SD-CardをCIFS(smb) serverとしてLAN内に公開します
   directWrite:
     title: 録画を直接記録
     tooltip: 通常は一旦RAM-DISKに録画した後SD-Cardにコピーしますが、RAMの節約のため直接SD-Cardに記録します
+  eraseSDCard:
+    title: SD-Card消去
+    tooltip: SD-Cardの録画フォルダを消去します
+    button: Erase
 
-NAS:
+NASSettings:
   title: NAS設定
   networkPath:
     title: ネットワークPATH
@@ -100,6 +91,7 @@ NAS:
     tooltip: NASのパスワードを設定します
 
 RTSP:
+  tab:  配信設定
   title: RTSP
   main:
     title: Main
@@ -130,10 +122,9 @@ RTSP:
     tooltip: RTSPをHTTP経由で配信します
 
 event:
-  title: イベント通知
+  tab: イベント通知
   webhook:
     title: WebHook
-    tooltip: WebHookを設定します
     URL:
       title: 通知URL
       tooltip: WebHookのイベント発生時にpostするURL
@@ -181,17 +172,13 @@ event:
       tooltip: タイムラプス録画完了を通知します
       comment: 'type: timelapseFinish'
 
-motionDetect:
-  title: 動体検知
-  sensorPeriod:
-    title: 動体検知周期の短縮
-    tooltip: Alarmの無検知時間5分を30秒に短縮します
-  uploadStop:
-    title: 動体検知録画upload停止
-    tooltip: AtomTechサーバーへの検知動画転送を停止します。アプリから確認できなくなります。サーバーへの転送が気になる場合は設定してください。
-
 cruise:
+  tab: クルーズ設定
   title: クルーズ
+  initialPosition:
+    title: Swing座標初期化
+    tooltip: Swingの座標を両側の端点当てで修正します
+    button: 初期化
   cameraMotion:
     title: クルーズ動作
     tooltip: クルーズ軌道を設定し、巡回動作をします
@@ -218,6 +205,33 @@ cruise:
     title: 追尾速度
     tooltip: 追尾時の速度です。9が高速、1が低速です。
 
+systemSettings:
+  tab: システム設定
+
+deviceSettings:
+  title: デバイス設定
+  deviceName:
+    title: デバイス名
+    tooltip: NASの保存フォルダ名やリモートアクセスのための名前を設定します
+  loginAuthentication:
+    title: ログイン認証
+    tooltip: このページへのアクセスのためのログイン認証を有効にします
+  account:
+    title: アカウント
+    tooltip: ログインのためのユーザーアカウントを設定します
+  password:
+    title: パスワード
+    tooltip: ログインのためのパスワードを設定します
+
+motionDetect:
+  title: 動体検知
+  sensorPeriod:
+    title: 動体検知周期の短縮
+    tooltip: Alarmの無検知時間5分を30秒に短縮します
+  uploadStop:
+    title: 動体検知録画upload停止
+    tooltip: AtomTechサーバーへの検知動画転送を停止します。アプリから確認できなくなります。サーバーへの転送が気になる場合は設定してください。
+
 videoSpec:
   title: ビデオ設定
   frameRate:
@@ -232,6 +246,9 @@ videoSpec:
   bitrateSub:
     title: Subの帯域
     tooltip: Sub360p/320pのビットレート(100-500bps)を設定します
+
+maintenance:
+  tab: メンテナンス
 
 monitoring:
   title: モニタリング
@@ -248,24 +265,9 @@ monitoring:
     title: 通知URL
     tooltip: 指定されたURLに１分毎にhttp getする
 
-maintenance:
-  title: メンテナンス
-  initialPosition:
-    title: Swing座標初期化
-    tooltip: Swingの座標を両側の端点当てで修正します
-    button: 初期化
-  periodicRestart:
-    title: 定期リスタート
-    tooltip: 定期的に再起動する設定をします
-  reboot:
-    title: リブート
-    tooltip: 再起動します
-    button: Reboot
-  eraseSDCard:
-    title: SD-Card消去
-    tooltip: SD-Cardの録画フォルダを消去します
-    button: Erase
-  update:
+update:
+  title: Update
+  toolsUpdate:
     title: Update
     tooltip: このtoolのupdateをします
   customZip:
@@ -274,6 +276,16 @@ maintenance:
     URL:
       title: URL
       tooltip: カスタム更新ZIPファイルの読み込みURLを指定します
+
+reboot:
+  title: 再起動
+  periodicRestart:
+    title: 定期リスタート
+    tooltip: 定期的に再起動する設定をします
+  reboot:
+    title: リブート
+    tooltip: 再起動します
+    button: Reboot
 
 schedule:
   allDay: 終日

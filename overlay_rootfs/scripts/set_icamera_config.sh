@@ -15,7 +15,7 @@ PERIODIC="ram"
 ALARM="ram"
 if [ "$STORAGE_SDCARD_DIRECT_WRITE" = "on" ] ; then
   [ "$PERIODICREC_SDCARD" = "on" ] && PERIODIC="sd"
-  [ "$ALARMREC_SDCARD" = "on"] && ALARM="sd"
+  [ "$ALARMREC_SDCARD" = "on" ] && ALARM="sd"
 fi
 /scripts/cmd mp4write $PERIODIC $ALARM > /dev/null
 

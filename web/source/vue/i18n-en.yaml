@@ -1,24 +1,11 @@
-imageFrame:
-  clickToShrink: click to shrink
-  clickToExpand: click to expand
+camera:
+  tab: Camera image
 
-basicSettings:
-  title: Basic Settings
-  deviceName:
-    title: Display Name
-    tooltip: NAS Folder Name and Hostname for remote access
-  loginAuthentication:
-    title: Login Authentication
-    tooltip: Require Authentication to Login
-  account:
-    title: Account
-    tooltip: set login username
-  password:
-    title: Password
-    tooltip: set login password
+SDCard:
+  title: SD Card
 
 record:
-  title: Recording
+  tab: Recording
   periodicRec:
     title: Periodic Recording
   alarmRec:
@@ -55,6 +42,7 @@ record:
       - Constant Recoring
 
 timelapse:
+  tab: Timelapse
   title: Timelapse Recording
   setting:
     title: Sampling Setting
@@ -74,7 +62,9 @@ timelapse:
     title: output fps
     tooltip: Frame rate of output file
 
-SDCard:
+media:
+  tab: Media setting
+SDCardSettings:
   title: SD-Card setting
   webAccess:
     title: Web Access
@@ -86,7 +76,7 @@ SDCard:
     title: Direct Recording
     tooltip: Normally, the recording is made once on the RAM-DISK and then copied to the SD-Card, but to save RAM, the recording is made directly on the SD-Card.
 
-NAS:
+NASSettings:
   title: NAS setting
   networkPath:
     title: Network PATH
@@ -99,6 +89,7 @@ NAS:
     tooltip: set NAS password
 
 RTSP:
+  tab: Streaming
   title: RTSP
   main:
     title: Main
@@ -129,7 +120,8 @@ RTSP:
     tooltip: Use HTTP for RTSP streaming 
 
 event:
-  title: Notification
+  tab: Notification
+  title: WebHook
   webhook:
     title: WebHook
     tooltip: Set a Webhook
@@ -180,17 +172,13 @@ event:
       tooltip: Notify when time lapse event ends
       comment: 'type: timelapseFinish'
 
-motionDetect:
-  title: MotionDetect
-  sensorPeriod:
-    title: Motion Sensor Period
-    tooltip: Reduce new alarm window from 5 minutes to 30 seconds
-  uploadStop:
-    title: Motion Sensor Video Upload Stop
-    tooltip: Prevent upload of detection videos to AtomTech/Wyze servers. This will make it so they don't appear in the app. If you're concerned about sending stuff to their servers, check this option.
-
 cruise:
+  tab: Cruise
   title: Cruise
+  initialPosition:
+    title: Swing Return to Original Position
+    tooltip: Return the Swing to the original position
+    button: Home
   cameraMotion:
     title: Camera Motion
     tooltip: Make a full circuit cruise.
@@ -217,6 +205,33 @@ cruise:
     title: speed
     tooltip: 'Set the following speed.(1: low speed, 9: high speed)'
 
+systemSettings:
+  tab: System Settings
+
+deviceSettings:
+  title: Device Settings
+  deviceName:
+    title: Display Name
+    tooltip: NAS Folder Name and Hostname for remote access
+  loginAuthentication:
+    title: Login Authentication
+    tooltip: Require Authentication to Login
+  account:
+    title: Account
+    tooltip: set login username
+  password:
+    title: Password
+    tooltip: set login password
+
+motionDetect:
+  title: MotionDetect
+  sensorPeriod:
+    title: Motion Sensor Period
+    tooltip: Reduce new alarm window from 5 minutes to 30 seconds
+  uploadStop:
+    title: Motion Sensor Video Upload Stop
+    tooltip: Prevent upload of detection videos to AtomTech/Wyze servers. This will make it so they don't appear in the app. If you're concerned about sending stuff to their servers, check this option.
+
 videoSpec:
   title: video config
   frameRate:
@@ -231,6 +246,9 @@ videoSpec:
   bitrateSub:
     title: Sub bitrate
     tooltip: Set the bitrate of Sub 360p/320p. (100-500bps)
+
+maintenance:
+  tab: Maintenance
 
 monitoring:
   title: Monitoring
@@ -247,12 +265,20 @@ monitoring:
     title: Notification URL
     tooltip: Send an http get requiest at one minute intervals to this url
 
-maintenance:
-  title: Maintenance
-  initialPosition:
-    title: Swing Return to Original Position
-    tooltip: Return the Swing to the original position
-    button: Home
+update:
+  title: Update
+  toolsUpdate:
+    title: Update
+    tooltip: Update the atomcam tools
+  customZip:
+    title: Custom File URL
+    tooltip: use a custom zip to update the atomcam tool
+    URL:
+      title: URL
+      tooltip: the url of the custom zipfile
+
+reboot:
+  title: Reboot
   periodicRestart:
     title: Periodic Restart
     tooltip: Set the camera to restart on a schedule.
@@ -264,15 +290,6 @@ maintenance:
     title: Erase SD-Card
     tooltip: Erase the video contents from the SD-Card
     button: Erase
-  update:
-    title: Update
-    tooltip: Update the atomcam tools
-  customZip:
-    title: Custom File URL
-    tooltip: use a custom zip to update the atomcam tool
-    URL:
-      title: URL
-      tooltip: the url of the custom zipfile
 
 schedule:
   allDay: AllDay

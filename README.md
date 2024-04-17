@@ -12,6 +12,8 @@
 >
 > **Ver.2.3.xからVer.2.4.xのVer. Upは設定を記録しているhack.iniが変換されます**。  
 > Ver. Downする場合はSD-Cardに保存されている```hack.ini_0_9_9.bak```ファイルを```hack.ini```に上書きしてください。
+>
+> 設定項目が増えてきて分かりにくくなってきたのでVer.2.4.0からメニュー構成を変更しました。
 
 
 
@@ -170,44 +172,47 @@ AtomCamのu-bootがexFATに対応していないため、exFATだとhackが認�
 
  http://atomcam.local を開くと設定画面にアクセスできます。
 
-<img src="https://github.com/mnakada/atomcam_tools/blob/main/images/local_web.png">
+<img src="https://github.com/mnakada/atomcam_tools/blob/main/images/camra.jpg">
 
 mDNS未対応で開けない場合は、ATOMCam純正アプリや、IPアドレス確認ツールなどでATOMCamのIPアドレスを確認し、 ブラウザで http://[ATOMCamのIPアドレス] を開きます。
 
 この設定画面で行った設定は microSDカード内、hack.ini　に保存され、次回再起動後からは自動的に読み込まれます。  
 
+### カメラ画像
 
-### 基本設定
+<img src="https://github.com/mnakada/atomcam_tools/blob/main/images/camra.jpg">
 
-#### デバイス名
+上のタイトル帯には左にタイトルとtoolsのVer.、真ん中にCameraの種類とVer.、その右にカメラ内の時間、右端に言語設定とこのページへのlinkボタンがあります。
 
-カメラのデバイス名を設定します。
-ここで設定した名前はCIFS(Samba) / mDNS(avahi) / NASのフォルダー名に使用されます。
+左側にはページ切り替えのタブがあります。ここを選択する事で各ページに切り替わります。
 
-#### ログイン認証
+その右側は各ページの内容です。カメラ画像のページが最初に開きます。
 
-アカウントとパスワードを設定することでWebUIの簡易ログイン認証を行います。
+AtomAwingの場合はPan/Tiltのスライダーがカメラ画面の左と下に表示され、つまんで動かす事ができます。
 
-md5によるdigest認証なので安全ではありません。LAN内での簡易認証として使用してください。
+AtomCam / WyzeCamV3の場合はスライダーは表示されません。
 
-##### アカウント
-
-１文字以上の英数記号を使用できます。但し':'と'\\'は使用できません。
-
-特にエラーチェックはしてないので入れるとおかしくなるかもしれません。
-
-##### パスワード
-
-１文字以上の英数記号を使用できます。但し':'と'\\'は使用できません。
-
-特にエラーチェックはしてないので入れるとおかしくなるかもしれません。
+右下にはナイトビジョンのon/auto/offの切り替えボタンがあります。
 
 
-### 録画
 
-以下3種類の録画があります。
+### SD Card
 
-それぞれの中の設定に関しては後述します。
+<img src="https://github.com/mnakada/atomcam_tools/blob/main/images/sdcard.jpg">
+
+カメラ内のSD-Cardの映像記録のフォルダーにアクセスできます。
+
+alarm_recordはモーション検知録画、recordは連続録画、time_lapseはタイムラプスの保存されているフォルダーです。
+
+ファイルをクリックすることでmp4, jpegファイルを開くことができます。
+
+smbアクセスでSD-Cardを開くよりもこちらで開く方が負荷が少ないです。
+
+##### 
+
+### 録画設定
+
+<img src="https://github.com/mnakada/atomcam_tools/blob/main/images/record.jpg">
 
 #### 連続録画
 
@@ -220,16 +225,6 @@ SD-Cardはモバイルアプリからアクセスされるため、ファイル�
 ATOMCamアプリで設定した検出時にクラウドサーバーに保存される12秒の映像と静止画をSD-Card/NASにも記録します。記録されるフォルダーは alarm_record です。
 
 ！！！　「録画ファイルの自動削除」で保存日数を指定しないと一杯になっても削除されません　！！！
-
-「SD-Card消去」を押すことによってもファイル削除が行えます。  
-
-#### timelapse録画
-
-SD-Card/NASに指定した一定時間毎に映像を記録します。早送りのような映像が作成できます。
-
-指定した全記録が終わるまではmp4ファイルが完成しません。
-
-
 
 以下、各録画項目内の設定です。
 
@@ -272,7 +267,19 @@ NASへの記録をします。
 
 右端のー/＋で指定項目を削除/追加できます。複数の項目はor条件で効きます。
 
-#### サンプリング設定(timelapse)
+
+
+### タイムラプス設定
+
+<img src="https://github.com/mnakada/atomcam_tools/blob/main/images/timelapse.jpg">
+
+SD-Card/NASに指定した一定時間毎に映像を記録します。早送りのような映像が作成できます。
+
+指定した全記録が終わるまではmp4ファイルが完成しません。
+
+設定項目は下記以外は録画設定と同じです。
+
+#### サンプリング設定
 
 開始する曜日と時間を指定します。
 
@@ -280,15 +287,15 @@ NASへの記録をします。
 
 開始時刻から周期と回数で指定された枚数の記録をとり20fpsの録画ファイルを生成します。
 
-#### 出力fps(timelapse)
+#### 出力fps
 
 出力ファイルの再生フレームレートを指定します。数値は1秒間の表示枚数です。
 
-####動作状態(timelapse)
+####動作状態
 
 動作中は進捗を表示します。
 
-#### 中止(timelapse)
+#### 中止
 
 動作中に停止したい場合は、Lockを外して中止ボタンを押してください。
 
@@ -296,15 +303,11 @@ mp4ファイルを生成して中止します。
 
 
 
+### メディア設定
+
+<img src="https://github.com/mnakada/atomcam_tools/blob/main/images/media.jpg">
+
 #### SD-Card設定
-
-##### - Webアクセス
-
-SD Cardのボタンを押すとSD-Cardのディレクトリ一覧が開きます。
-
-ファイルをクリックすることでmp4, jpegファイルを開くことができます。
-
-smbアクセスでSD-Cardを開くよりもファイル一覧で開く方が負荷が少ないです。
 
 ##### - smbアクセス
 
@@ -314,7 +317,7 @@ onにするとSD-Cardの /record, /time_lapse, /alarm_record をSamba4.0でデ�
 
 　　　**Webアクセスの方が負荷が少ないです。**
 
-##### -録画を直接記録
+##### - 録画を直接記録
 
 offにすると一旦RAM-Diskにファイルを生成してからSD-Cardにコピーします。
 
@@ -323,6 +326,16 @@ onにするとSD-Cardに直接ファイルを生成します。
 SD-Cardのスピードや各種設定によって最適な設定が分からないため設定を変えて試してください。
 
 SD-Cardに記録される常時録画かモーション検知録画のファイルに効果があります。
+
+##### - SD-Card消去
+
+SD-Cardのrecord, alarm_record, time_lapseフォルダの中身を消去します。
+
+SD-Cardにtoolが入っているため、アプリからのSD-Cardのフォーマットをdisableしています。
+
+その代替手段として用意しています。
+
+Lockスイッチを解除してからEraseボタンを押してください。
 
 
 
@@ -342,11 +355,15 @@ NASにアクセスするためのパスワードを指定します。（この�
 
 
 
-### ストリーミング
+### 配信設定
+
+<img src="https://github.com/mnakada/atomcam_tools/blob/main/images/streaming.jpg">
+
+#### RTSP
 
 **※ 負荷が重いためSD-Cardのネットワークアクセスと同時使用は推奨しません。**
 
-#### RTSP Main
+####  Main
 
 Main(video0)側のRTSPストリーミングを行います。 
 
@@ -364,7 +381,7 @@ Main側のVLC media playerの「ネットワークストリーミングを開く
 
 Main側のストリームフォーマットをAVC/HEVCのいずれかに切り替えます。
 
-#### RTSP Sub
+#### Sub
 
 Sub(video1)側のRTSPストリーミングを行います。 
 
@@ -387,9 +404,12 @@ AtomCamからPCまでの経路でのパケット伝送が保障されますが�
 変更するとRTSP Main/SubのURLが変わります。
 
 
+
 ### イベント通知
 
-#### WebHook(experimental)
+<img src="https://github.com/mnakada/atomcam_tools/blob/main/images/event.jpg">
+
+#### WebHook
 
 動体検知や録画ファイルの書き込み等のイベントのタイミングで指定のURLに通知します。
 
@@ -443,21 +463,17 @@ URLが自己証明書等の認証されていない証明書を提示しても�
 
 タイムラプス録画終了時に通知URLに type: timelapseFinish, data: timelapse pathをpostします。
 
-### 動体検知
 
-#### 動体検知周期の短縮
 
-動体検知アラームの不感知期間を５分から30秒に短縮します。
+### クルーズ設定（AtomSwingのみ）
 
-設定変更時には反映するために再起動されます。
+<img src="https://github.com/mnakada/atomcam_tools/blob/main/images/cruise.jpg">
 
-#### 動体検知録画upload停止
+#### Swing座標初期化
 
-動体検知時にAtomTechのawsサーバーに12秒間の録画データがuploadされますが、このuploadを停止します。これを停止するとAtomCamのアプリから録画データを見る事ができなくなります。
+Swingのpan/tilt座標系を初期化します。
 
-設定変更時には反映するために再起動されます。
-
-### クルーズ（AtomSwingのみ）
+両側の端点に当てることでモーターの動作範囲をリセットさせるための動作をします。
 
 #### クルーズ動作
 
@@ -505,89 +521,126 @@ pan,tiltは数値を直接入力するか、Jpeg表示の左、下にあるス�
 
 速度は１が低速、９が高速です。
 
-### ビデオ設定
 
-#### フレームレート
+
+### システム設定
+
+<img src="https://github.com/mnakada/atomcam_tools/blob/main/images/system.jpg">
+
+####デバイス設定
+
+##### - デバイス名
+
+カメラのデバイス名を設定します。
+ここで設定した名前はCIFS(Samba) / mDNS(avahi) / NASのフォルダー名に使用されます。
+
+##### - ログイン認証
+
+アカウントとパスワードを設定することでWebUIの簡易ログイン認証を行います。
+
+md5によるdigest認証なので安全ではありません。LAN内での簡易認証として使用してください。
+
+##### - アカウント
+
+１文字以上の英数記号を使用できます。但し':'と'\\'は使用できません。
+
+特にエラーチェックはしてないので入れるとおかしくなるかもしれません。
+
+##### - パスワード
+
+１文字以上の英数記号を使用できます。但し':'と'\\'は使用できません。
+
+特にエラーチェックはしてないので入れるとおかしくなるかもしれません。
+
+####  動体検知
+
+##### - 動体検知周期の短縮
+
+動体検知アラームの不感知期間を５分から30秒に短縮します。
+
+設定変更時には反映するために再起動されます。
+
+##### - 動体検知録画upload停止
+
+動体検知時にAtomTechのawsサーバーに12秒間の録画データがuploadされますが、このuploadを停止します。これを停止するとAtomCamのアプリから録画データを見る事ができなくなります。
+
+設定変更時には反映するために再起動されます。
+
+#### ビデオ設定
+
+##### - フレームレート
 
 １秒あたりのフレーム数(1-28fps)を設定します。
 
-#### Mainの帯域
+#####- Mainの帯域
 
 Main HDのビットレート(300-2000bps)を設定します。
 
-#### MainHEVCの帯域 (ATOMCamのみ)
+#####- MainHEVCの帯域 (ATOMCamのみ)
 
 Main H.265/HEVC HDのビットレート(300-2000bps)を設定します。
 
-#### Subの帯域
+#####- Subの帯域
 
 Sub360p/320pのビットレート(100-500bps)を設定します。
 
-### モニタリング
 
-#### Network確認
+
+### メンテナンス
+
+<img src="https://github.com/mnakada/atomcam_tools/blob/main/images/maintenance.jpg">
+
+#### モニタリング
+
+##### - Network確認
 
 LANとの接続を確認し、再接続を試みます。
 
-#### 異常時再起動
+##### - 異常時再起動
 
 LANとの接続ができない状態が継続した場合、システムの再起動をします。
 
-#### ping
+#####- ping
 
 定期的な疎通確認を行います。
 
-#### 通知URL
+#####- 通知URL
 
 疎通確認をするURLを指定します。
 
 ここで指定したURLにhttp getを１分毎に行います。
 
-### メンテナンス
-
-#### Swing座標初期化
-
-Swingのpan/tilt座標系を初期化します。
-
-両側の端点に当てることでモーターの動作範囲をリセットさせるための動作をします。
-
-#### 定期リスタート
-
-カメラのシステムを指定したスケジュールで再起動します。
-
-ネットワークの不調など、何らかの理由でATOMCamが連続稼働することができない場合の対応ですが、必ずしもこれによって問題が解決するとは限りません。  
-
-#### リブート
-
-AtomCamを再起動します。
-
-Lockスイッチを解除してRebootボタンを押してください。
-
-再起動に60~80秒くらいかかります。
-
-#### SD-Card消去
-
-SD-Cardのrecord, alarm_record, time_lapseフォルダの中身を消去します。
-
-SD-Cardにtoolが入っているため、アプリからのSD-Cardのフォーマットをdisableしています。
-
-その代替手段として用意しています。
-
-Lockスイッチを解除してからEraseボタンを押してください。
-
-#### カスタム更新ZIPファイル
-
-Updateの更新ZIPファイルを指定のURLから取得します。
-
-独自のpackage buildをする場合の用途になります。
-
 #### Update
+
+#####- Update
 
 GitHubのLatest VersionにUpdate します。GitHubからLatest Versionをダウンロードして展開して書き込み再起動します。180秒くらいかかります。
 
  現在のtoolのバージョン（タイトル部に表示されています）がLatest Versionより古い場合のみUpdateすることができます。
 
 台数が多い場合や回線が細い場合、PCで[GitHubのLatest Version](https://github.com/mnakada/atomcam_tools/releases/latest)のatomcam_tools.zipをダウンロードし、展開せずにそのままSamba経由でSD-Cardのupdateフォルダに入れて、リブートすることでもUpdateできます。この場合はVerのチェックは行われません。
+
+#####- カスタム更新ZIPファイル
+
+Updateの更新ZIPファイルを指定のURLから取得します。
+
+独自のpackage buildをする場合の用途になります。
+
+#### 再起動
+
+#####- 定期リスタート
+
+カメラのシステムを指定したスケジュールで再起動します。
+
+ネットワークの不調など、何らかの理由でATOMCamが連続稼働することができない場合の対応ですが、必ずしもこれによって問題が解決するとは限りません。  
+
+#####- リブート
+
+AtomCamを再起動します。
+
+Lockスイッチを解除してRebootボタンを押してください。
+
+再起動に60~80秒くらいかかります。
 
 
 

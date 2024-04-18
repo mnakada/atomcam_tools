@@ -11,7 +11,7 @@
 > [!IMPORTANT]
 >
 > **Ver.2.3.xからVer.2.4.xのVer. Upは設定を記録しているhack.iniが変換されます**。  
-> Ver. Downする場合はSD-Cardに保存されている```hack.ini_0_9_9.bak```ファイルを```hack.ini```に上書きしてください。
+> Ver. 2.3.x以下にVer.Downする場合はSD-Cardに保存されている```hack.ini_0_9_9.bak```ファイルを```hack.ini```に上書きしてください。
 >
 > 設定項目が増えてきて分かりにくくなってきたのでVer.2.4.0からメニュー構成を変更しました。
 
@@ -36,7 +36,7 @@
   - 定期的に周期と回数を指定してTime Lapse録画を実行します。
   - SD-Cardのtime_lapse/フォルダに中間ファイルを生成し、最後にmp4に変換して指定メディアに記録します。
   
-- RTSPServer(Port:8554)
+- RTSPServer(Port:8554,8080)
   - RTSP streaming を送出します。
   - AtomCamの場合、Main(video0)に1080p AVC/HEVC、Sub(video1)に360p HEVCを出しています。
   - WyzeCamV3の場合、Main(video0)に1080p AVC、Sub(video1)に320p AVCを出しています。
@@ -50,10 +50,10 @@
   - microSDカードのroot directoryにsshの公開鍵をauthorized\_keysの名前のファイルで置いてください。rootアカウントなのでパスワードではloginできない設定になっています。
   - ssh root@[ATOMCamのIPアドレス] or ssh root@[hsotname].local でloginできます。
 
-- webHook機能(experimental)
+- webHook機能
   - 各種イベント発生時に指定したURLにpostで通知します。
 
-- 動体検知アラームの不感知期間を短縮(experimental)
+- 動体検知アラームの不感知期間を短縮
 
   - Atomcamの動体検知は一度検知すると５分間検知しない仕様ですが、この検知しない期間を30秒に短縮します。
   - メーカーへの迷惑防止のためCloudへの通知、video/jpegのuploadは５分以内の再送をブロックしています。このため、アプリへの通知も５分以内の再検知時は通知されません。
@@ -70,7 +70,7 @@
   - 商品とのubootと同じシーケンスでflashメモリ内の領域の消去と書き込みが行われます。
   - update途中で電源が落ちることがないよう気をつけてください。
 
-- AtomSwingのpan/tilt制御(experimental)
+- AtomSwingのpan/tilt制御
 
   - WebUIからのpan/tilt操作
 
@@ -78,7 +78,7 @@
 
   - pan/tilt座標系の初期化のためのリセット動作をするボタンをメンテナンスに追加
 
-- AtomSwingのクルーズシーケンス制御(experimental)
+- AtomSwingのクルーズシーケンス制御
 
   - WebUIからのpan/tiltと待ち時間の登録
   - 待ち時間中の動体検知、動体追尾の選択
@@ -130,7 +130,7 @@ ATOMCam Ver. 4.33.3.68, 4.33.3.73
 
 ATOMCam2 Ver. 4.58.0.100, 4.58.0.104, 4.58.0.108, 4.58.0.115, 4.58.0.120
 
-ATOMSwing Ver. 4.37.1.106, 4.37.1.108, 4.37.1.117, 4.37.1.122, 4.37.1.142 (最近のVerは重たい)
+ATOMSwing Ver. 4.37.1.106, 4.37.1.108, 4.37.1.117, 4.37.1.122, 4.37.1.142
 
 WyzeCamV3 Ver.4.36.9.139 （Experimental release)  4.36.10.xx以降のVer.では動作しません。
 
@@ -156,7 +156,7 @@ Qiitaに少し解説を書いています。
 https://github.com/mnakada/atomcam_tools/releases/latest
 
 からatomcam_tools.zipをダウンロードし、適当なツールで解凍します。
-<img src="https://github.com/mnakada/atomcam_tools/blob/main/images/extract.png">
+<img src="https://github.com/mnakada/atomcam_tools/blob/images/extract.png">
 
 解凍されて出てきたすべてのファイルを、ATOMCamで使用可能なmicroSDカードのルートフォルダに保存します 。
 保存したmicroSDカードをATOMCamに入れて電源を入れます。
@@ -172,23 +172,29 @@ AtomCamのu-bootがexFATに対応していないため、exFATだとhackが認�
 
  http://atomcam.local を開くと設定画面にアクセスできます。
 
-<img src="https://github.com/mnakada/atomcam_tools/blob/main/images/camra.jpg">
-
 mDNS未対応で開けない場合は、ATOMCam純正アプリや、IPアドレス確認ツールなどでATOMCamのIPアドレスを確認し、 ブラウザで http://[ATOMCamのIPアドレス] を開きます。
 
-この設定画面で行った設定は microSDカード内、hack.ini　に保存され、次回再起動後からは自動的に読み込まれます。  
+AtomSwingの画面
+
+<img src="https://github.com/mnakada/atomcam_tools/blob/images/camera.jpg">
+
+WyzeCamV3の画面
+
+<img src="https://github.com/mnakada/atomcam_tools/blob/images/wyzecam.jpg">
+
+上のタイトル帯には左にタイトルとtoolsのVer.、真ん中にCameraの種類とVer.、その右にカメラ内の時間、右端に言語設定とこの説明ページへのlinkボタンがあります。
+
+左側には各ページの切り替えのタブがあります。ここを選択する事でページが切り替わります。
+
+以下、各タブのページの説明になります。
+
+
 
 ### カメラ画像
 
-<img src="https://github.com/mnakada/atomcam_tools/blob/main/images/camra.jpg">
+最初に上記のカメラ画像のページが開きます。
 
-上のタイトル帯には左にタイトルとtoolsのVer.、真ん中にCameraの種類とVer.、その右にカメラ内の時間、右端に言語設定とこのページへのlinkボタンがあります。
-
-左側にはページ切り替えのタブがあります。ここを選択する事で各ページに切り替わります。
-
-その右側は各ページの内容です。カメラ画像のページが最初に開きます。
-
-AtomAwingの場合はPan/Tiltのスライダーがカメラ画面の左と下に表示され、つまんで動かす事ができます。
+AtomSwingの場合はPan/Tiltのスライダーがカメラ画面の左と下に表示され、つまんで動かす事ができます。
 
 AtomCam / WyzeCamV3の場合はスライダーは表示されません。
 
@@ -198,7 +204,7 @@ AtomCam / WyzeCamV3の場合はスライダーは表示されません。
 
 ### SD Card
 
-<img src="https://github.com/mnakada/atomcam_tools/blob/main/images/sdcard.jpg">
+<img src="https://github.com/mnakada/atomcam_tools/blob/images/sdcard.jpg">
 
 カメラ内のSD-Cardの映像記録のフォルダーにアクセスできます。
 
@@ -212,13 +218,13 @@ smbアクセスでSD-Cardを開くよりもこちらで開く方が負荷が少�
 
 ### 録画設定
 
-<img src="https://github.com/mnakada/atomcam_tools/blob/main/images/record.jpg">
+<img src="https://github.com/mnakada/atomcam_tools/blob/images/record.jpg">
 
 #### 連続録画
 
 SD-Card/NASのrecordフォルダーに１分ごとのファイルが記録されます。
 
-SD-Cardはモバイルアプリからアクセスされるため、ファイル名等は変更できません。
+モバイルアプリからアクセスされるためSD-Cardのファイル名は変更できません。そのため保存するパスの設定はできません。
 
 #### モーション検知録画
 
@@ -228,15 +234,15 @@ ATOMCamアプリで設定した検出時にクラウドサーバーに保存さ�
 
 以下、各録画項目内の設定です。
 
-#### SD-Card録画
+##### - SD-Card録画
 
 SD-Cardへの記録をします。
 
-#### NAS録画
+##### - NAS録画
 
 NASへの記録をします。
 
-#### 保存するPATH
+##### - 保存するPATH
 
 指定フォルダ以下のファイルのPATHを指定します。最後に拡張子が自動的に付加されます。
 
@@ -246,7 +252,7 @@ NASへの記録をします。
 
 フォルダがない場合は自動で作成します。
 
-#### ファイルの自動削除
+##### - ファイルの自動削除
 
 保存日数で指定した日を超えたファイルを自動削除する機能です。
 
@@ -254,12 +260,11 @@ NASへの記録をします。
 
 容量にご注意ください。
 
-#### 保存日数
+##### - 保存日数
 
 録画ファイルを保存しておく日数です。この日数経過すると自動的に削除されます。
 
-
-#### 録画スケジュール
+##### - 録画スケジュール
 
 スケジュールを選ぶと、曜日と時間帯を指定する項目が追加されます。
 
@@ -271,7 +276,7 @@ NASへの記録をします。
 
 ### タイムラプス設定
 
-<img src="https://github.com/mnakada/atomcam_tools/blob/main/images/timelapse.jpg">
+<img src="https://github.com/mnakada/atomcam_tools/blob/images/timelapse.jpg">
 
 SD-Card/NASに指定した一定時間毎に映像を記録します。早送りのような映像が作成できます。
 
@@ -279,7 +284,7 @@ SD-Card/NASに指定した一定時間毎に映像を記録します。早送り
 
 設定項目は下記以外は録画設定と同じです。
 
-#### サンプリング設定
+##### - サンプリング設定
 
 開始する曜日と時間を指定します。
 
@@ -287,15 +292,15 @@ SD-Card/NASに指定した一定時間毎に映像を記録します。早送り
 
 開始時刻から周期と回数で指定された枚数の記録をとり20fpsの録画ファイルを生成します。
 
-#### 出力fps
+#####- 出力fps
 
 出力ファイルの再生フレームレートを指定します。数値は1秒間の表示枚数です。
 
-####動作状態
+#####- 動作状態
 
 動作中は進捗を表示します。
 
-#### 中止
+#####- 中止
 
 動作中に停止したい場合は、Lockを外して中止ボタンを押してください。
 
@@ -305,7 +310,7 @@ mp4ファイルを生成して中止します。
 
 ### メディア設定
 
-<img src="https://github.com/mnakada/atomcam_tools/blob/main/images/media.jpg">
+<img src="https://github.com/mnakada/atomcam_tools/blob/images/media.jpg">
 
 #### SD-Card設定
 
@@ -357,7 +362,7 @@ NASにアクセスするためのパスワードを指定します。（この�
 
 ### 配信設定
 
-<img src="https://github.com/mnakada/atomcam_tools/blob/main/images/streaming.jpg">
+<img src="https://github.com/mnakada/atomcam_tools/blob/images/streaming.jpg">
 
 #### RTSP
 
@@ -403,11 +408,23 @@ AtomCamからPCまでの経路でのパケット伝送が保障されますが�
 
 変更するとRTSP Main/SubのURLが変わります。
 
+#### パスワード認証
+
+RTSPにパスワード認証を要求します。
+
+#####- アカウント
+
+RTSPのアカウントを設定します。
+
+##### - パスワード
+
+RTSPのパスワードを設定します。
+
 
 
 ### イベント通知
 
-<img src="https://github.com/mnakada/atomcam_tools/blob/main/images/event.jpg">
+<img src="https://github.com/mnakada/atomcam_tools/blob/images/event.jpg">
 
 #### WebHook
 
@@ -467,7 +484,7 @@ URLが自己証明書等の認証されていない証明書を提示しても�
 
 ### クルーズ設定（AtomSwingのみ）
 
-<img src="https://github.com/mnakada/atomcam_tools/blob/main/images/cruise.jpg">
+<img src="https://github.com/mnakada/atomcam_tools/blob/images/cruise.jpg">
 
 #### Swing座標初期化
 
@@ -487,7 +504,7 @@ Swingのpan/tilt座標系を初期化します。
 
 編集するときは、一旦クルーズをOffにして設定してからにしないとカメラの方向が動いてやりにくいです。
 
-#### pan, tilt,速度
+##### - pan, tilt,速度
 
 カメラを向ける方向と移動時の速度を指定します。
 
@@ -495,27 +512,27 @@ pan,tiltは数値を直接入力するか、Jpeg表示の左、下にあるス�
 
 速度は１が低速、９が高速です。
 
-#### 動作後待機時間
+##### - 動作後待機時間
 
 カメラの移動が終わってから、次の移動までの待機時間を秒数で指定します。
 
-#### 検知
+##### - 検知
 
 待機時間中に動体検知すると、待機時間を延長します。
 
 動体検知が終わってからの待機時間は下の項目の検知後待機時間になります。
 
-#### 追尾
+#####- 追尾
 
 待機時間中に動体検知すると、動体を追尾し、待機時間を延長します。
 
 検知後待機時間は上記の検知と同様です。
 
-#### 検知後待機時間
+#####- 検知後待機時間
 
 検知後の待機時間中も動体検知は働いて、待機時間の間検知しないと次のシーケンスに進みます。
 
-#### 追尾速度
+#####- 追尾速度
 
 追尾時の移動速度です。
 
@@ -525,7 +542,7 @@ pan,tiltは数値を直接入力するか、Jpeg表示の左、下にあるス�
 
 ### システム設定
 
-<img src="https://github.com/mnakada/atomcam_tools/blob/main/images/system.jpg">
+<img src="https://github.com/mnakada/atomcam_tools/blob/images/system.jpg">
 
 ####デバイス設定
 
@@ -588,7 +605,7 @@ Sub360p/320pのビットレート(100-500bps)を設定します。
 
 ### メンテナンス
 
-<img src="https://github.com/mnakada/atomcam_tools/blob/main/images/maintenance.jpg">
+<img src="https://github.com/mnakada/atomcam_tools/blob/images/maintenance.jpg">
 
 #### モニタリング
 

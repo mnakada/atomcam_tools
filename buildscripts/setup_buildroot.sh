@@ -2,14 +2,13 @@
 set -e
 
 cd /atomtools/build/buildroot-2016.02
-
-rm -rf /atomtools/build/buildroot-2016.02/package/ffmpeg
-rm -rf /atomtools/build/buildroot-2016.02/package/mjpg-streamer
-rm -rf /atomtools/build/buildroot-2016.02/package/ncurses
-cp -r /src/custompackages/package/* /atomtools/build/buildroot-2016.02/package/
+for i in `ls /src/custompackages/package`
+do
+  rm -rf package/$i
+  cp -pr /src/custompackages/package/$i package/
+done
 
 patch -p1 < /src/patches/add_fp_no_fused_madd.patch
-patch -p1 < /src/patches/libv4l_add_lpthread.patch
 patch -p1 < /src/patches/linux_makefile.patch
 
 cp /src/configs/atomcam_defconfig configs/

@@ -1,0 +1,85 @@
+--- lighttpd-org/src/mod_dirlisting.c	2015-11-22 19:03:10.000000000 +0000
++++ lighttpd-1.4.39/src/mod_dirlisting.c	2024-04-18 01:24:11.036859058 +0000
+@@ -64,6 +64,7 @@
+ 	buffer *external_css;
+ 	buffer *encoding;
+ 	buffer *set_footer;
++	buffer *top_directory;
+ } plugin_config;
+ 
+ typedef struct {
+@@ -179,6 +180,7 @@
+ 			buffer_free(s->external_css);
+ 			buffer_free(s->encoding);
+ 			buffer_free(s->set_footer);
++			buffer_free(s->top_directory);
+ 
+ 			free(s);
+ 		}
+@@ -209,6 +211,7 @@
+ #define CONFIG_ENCODE_README    "dir-listing.encode-readme"
+ #define CONFIG_ENCODE_HEADER    "dir-listing.encode-header"
+ #define CONFIG_AUTO_LAYOUT      "dir-listing.auto-layout"
++#define CONFIG_TOP_DIR          "dir-listing.top-directory"
+ 
+ 
+ SETDEFAULTS_FUNC(mod_dirlisting_set_defaults) {
+@@ -230,6 +233,7 @@
+ 		{ CONFIG_ENCODE_README,    NULL, T_CONFIG_BOOLEAN, T_CONFIG_SCOPE_CONNECTION }, /* 11 */
+ 		{ CONFIG_ENCODE_HEADER,    NULL, T_CONFIG_BOOLEAN, T_CONFIG_SCOPE_CONNECTION }, /* 12 */
+ 		{ CONFIG_AUTO_LAYOUT,      NULL, T_CONFIG_BOOLEAN, T_CONFIG_SCOPE_CONNECTION }, /* 13 */
++		{ CONFIG_TOP_DIR,          NULL, T_CONFIG_STRING, T_CONFIG_SCOPE_CONNECTION },  /* 14 */
+ 
+ 		{ NULL,                          NULL, T_CONFIG_UNSET, T_CONFIG_SCOPE_UNSET }
+ 	};
+@@ -255,6 +259,7 @@
+ 		s->encode_readme = 1;
+ 		s->encode_header = 1;
+ 		s->auto_layout = 1;
++		s->top_directory = buffer_init();
+ 
+ 		s->encoding = buffer_init();
+ 		s->set_footer = buffer_init();
+@@ -273,6 +278,7 @@
+ 		cv[11].destination = &(s->encode_readme);
+ 		cv[12].destination = &(s->encode_header);
+ 		cv[13].destination = &(s->auto_layout);
++		cv[14].destination = s->top_directory;
+ 
+ 		p->config_storage[i] = s;
+ 
+@@ -341,6 +347,7 @@
+ 	PATCH(encode_readme);
+ 	PATCH(encode_header);
+ 	PATCH(auto_layout);
++	PATCH(top_directory);
+ 
+ 	/* skip the first, the global context */
+ 	for (i = 1; i < srv->config_context->used; i++) {
+@@ -381,6 +388,8 @@
+ 				PATCH(encode_header);
+ 			} else if (buffer_is_equal_string(du->key, CONST_STR_LEN(CONFIG_AUTO_LAYOUT))) {
+ 				PATCH(auto_layout);
++			} else if (buffer_is_equal_string(du->key, CONST_STR_LEN(CONFIG_TOP_DIR))) {
++				PATCH(top_directory);
+ 			}
+ 		}
+ 	}
+@@ -565,6 +574,9 @@
+ 		"</tr>"
+ 		"</thead>\n"
+ 		"<tbody>\n"
++	));
++	if(buffer_is_empty(p->conf.top_directory) || !buffer_is_equal(con->uri.path, p->conf.top_directory)) {
++		buffer_append_string_len(out, CONST_STR_LEN(
+ 		"<tr>"
+ 			"<td class=\"n\"><a href=\"../\">Parent Directory</a>/</td>"
+ 			"<td class=\"m\">&nbsp;</td>"
+@@ -572,6 +584,7 @@
+ 			"<td class=\"t\">Directory</td>"
+ 		"</tr>\n"
+ 	));
++	}
+ }
+ 
+ static void http_list_directory_footer(server *srv, connection *con, plugin_data *p, buffer *out) {

@@ -176,11 +176,11 @@ mDNS未対応で開けない場合は、ATOMCam純正アプリや、IPアドレ�
 
 AtomSwingの画面
 
-<kdb><img src="https://github.com/mnakada/atomcam_tools/blob/images/camera.jpg" /></kbd>
+<kbd><img src="https://github.com/mnakada/atomcam_tools/blob/images/camera.jpg" /></kbd>
 
 WyzeCamV3の画面
 
-<kdb><img src="https://github.com/mnakada/atomcam_tools/blob/images/wyzecam.jpg" /></kbd>
+<kbd><img src="https://github.com/mnakada/atomcam_tools/blob/images/wyzecam.jpg" /></kbd>
 
 上のタイトル帯には左にタイトルとtoolsのVer.、真ん中にCameraの種類とVer.、その右にカメラ内の時間、右端に言語設定とこの説明ページへのlinkボタンがあります。
 
@@ -204,7 +204,7 @@ AtomCam / WyzeCamV3の場合はスライダーは表示されません。
 
 ### SD Card
 
-<kdb><img src="https://github.com/mnakada/atomcam_tools/blob/images/sdcard.jpg" /></kbd>
+<kbd><img src="https://github.com/mnakada/atomcam_tools/blob/images/sdcard.jpg" /></kbd>
 
 カメラ内のSD-Cardの映像記録のフォルダーにアクセスできます。
 

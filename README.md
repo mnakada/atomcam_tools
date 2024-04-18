@@ -176,11 +176,11 @@ mDNS未対応で開けない場合は、ATOMCam純正アプリや、IPアドレ�
 
 AtomSwingの画面
 
-<img src="https://github.com/mnakada/atomcam_tools/blob/images/camera.jpg">
+<kdb><img src="https://github.com/mnakada/atomcam_tools/blob/images/camera.jpg" /></kbd>
 
 WyzeCamV3の画面
 
-<img src="https://github.com/mnakada/atomcam_tools/blob/images/wyzecam.jpg">
+<kdb><img src="https://github.com/mnakada/atomcam_tools/blob/images/wyzecam.jpg" /></kbd>
 
 上のタイトル帯には左にタイトルとtoolsのVer.、真ん中にCameraの種類とVer.、その右にカメラ内の時間、右端に言語設定とこの説明ページへのlinkボタンがあります。
 
@@ -204,7 +204,7 @@ AtomCam / WyzeCamV3の場合はスライダーは表示されません。
 
 ### SD Card
 
-<img src="https://github.com/mnakada/atomcam_tools/blob/images/sdcard.jpg">
+<kdb><img src="https://github.com/mnakada/atomcam_tools/blob/images/sdcard.jpg" /></kbd>
 
 カメラ内のSD-Cardの映像記録のフォルダーにアクセスできます。
 
@@ -218,7 +218,7 @@ smbアクセスでSD-Cardを開くよりもこちらで開く方が負荷が少�
 
 ### 録画設定
 
-<img src="https://github.com/mnakada/atomcam_tools/blob/images/recording.jpg">
+<kbd><img src="https://github.com/mnakada/atomcam_tools/blob/images/recording.jpg" /></kbd>
 
 #### 連続録画
 
@@ -276,7 +276,7 @@ NASへの記録をします。
 
 ### タイムラプス設定
 
-<img src="https://github.com/mnakada/atomcam_tools/blob/images/timelapse.jpg">
+<kbd><img src="https://github.com/mnakada/atomcam_tools/blob/images/timelapse.jpg" /></kbd>
 
 SD-Card/NASに指定した一定時間毎に映像を記録します。早送りのような映像が作成できます。
 
@@ -310,7 +310,7 @@ mp4ファイルを生成して中止します。
 
 ### メディア設定
 
-<img src="https://github.com/mnakada/atomcam_tools/blob/images/media.jpg">
+<kbd><img src="https://github.com/mnakada/atomcam_tools/blob/images/media.jpg" /></kbd>
 
 #### SD-Card設定
 
@@ -362,7 +362,7 @@ NASにアクセスするためのパスワードを指定します。（この�
 
 ### 配信設定
 
-<img src="https://github.com/mnakada/atomcam_tools/blob/images/streaming.jpg">
+<kbd><img src="https://github.com/mnakada/atomcam_tools/blob/images/streaming.jpg" /></kbd>
 
 #### RTSP
 
@@ -424,7 +424,7 @@ RTSPのパスワードを設定します。
 
 ### イベント通知
 
-<img src="https://github.com/mnakada/atomcam_tools/blob/images/event.jpg">
+<kbd><img src="https://github.com/mnakada/atomcam_tools/blob/images/event.jpg" /></kbd>
 
 #### WebHook
 
@@ -484,7 +484,7 @@ URLが自己証明書等の認証されていない証明書を提示しても�
 
 ### クルーズ設定（AtomSwingのみ）
 
-<img src="https://github.com/mnakada/atomcam_tools/blob/images/cruise.jpg">
+<kbd><img src="https://github.com/mnakada/atomcam_tools/blob/images/cruise.jpg" /></kbd>
 
 #### Swing座標初期化
 
@@ -542,7 +542,7 @@ pan,tiltは数値を直接入力するか、Jpeg表示の左、下にあるス�
 
 ### システム設定
 
-<img src="https://github.com/mnakada/atomcam_tools/blob/images/system.jpg">
+<kbd><img src="https://github.com/mnakada/atomcam_tools/blob/images/system.jpg" /></kbd>
 
 #### デバイス設定
 
@@ -605,7 +605,7 @@ Sub360p/320pのビットレート(100-500bps)を設定します。
 
 ### メンテナンス
 
-<img src="https://github.com/mnakada/atomcam_tools/blob/images/maintenance.jpg">
+<kbd><img src="https://github.com/mnakada/atomcam_tools/blob/images/maintenance.jpg" /></kbd>
 
 #### モニタリング
 

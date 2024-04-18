@@ -146,7 +146,12 @@
           <SettingSwitch i18n="RTSP.sub" v-model="config.RTSP_VIDEO1" />
           <SettingSwitch v-if="config.RTSP_VIDEO1 === 'on'" i18n="RTSP.sub.audio" :titleOffset="2" v-model="config.RTSP_AUDIO1" />
           <SettingInput v-if="config.RTSP_VIDEO1 === 'on'" i18n="RTSP.sub.URL" :titleOffset="2" :span="10" type="readonly" v-model="RtspUrl1" />
-          <SettingSwitch v-if="(config.RTSP_VIDEO0 === 'on') || (config.RTSP_VIDEO1 === 'on')" i18n="RTSP.http" v-model="config.RTSP_OVER_HTTP" />
+          <div v-if="(config.RTSP_VIDEO0 === 'on') || (config.RTSP_VIDEO1 === 'on')">
+            <SettingSwitch i18n="RTSP.http" v-model="config.RTSP_OVER_HTTP" />
+            <SettingSwitch i18n="RTSP.auth" v-model="config.RTSP_AUTH" />
+            <SettingInput v-if="config.RTSP_AUTH === 'on'" i18n="RTSP.account" type="text" :titleOffset="2" v-model="config.RTSP_USER" />
+            <SettingInput v-if="config.RTSP_AUTH === 'on'" i18n="RTSP.password" type="password" :titleOffset="2" v-model="config.RTSP_PASSWD" show-password />
+          </div>
         </ElTabPane>
 
         <ElTabPane class="well-transparent container" :label="$t('event.tab')">
@@ -295,6 +300,9 @@
           RTSP_VIDEO1: 'off',
           RTSP_AUDIO1: 'off',
           RTSP_OVER_HTTP: 'off',
+          RTSP_AUTH: 'off',
+          RTSP_USER: '',
+          RTSP_PASSWD: '',
           PERIODICREC_SDCARD: 'on',
           PERIODICREC_SDCARD_REMOVE: 'off',
           PERIODICREC_SDCARD_REMOVE_DAYS: 30,
@@ -430,11 +438,13 @@
       RtspUrl0() {
         const port = (this.config.RTSP_OVER_HTTP  === 'on') ? 8080 : 8554;
         const video = (this.config.RTSP_MAIN_FORMAT_HEVC === 'on') ? 'video2' : 'video0';
-        return `rtsp://${window.location.host}:${port}/${video}_unicast`;
+        const auth = (this.config.RTSP_AUTH === 'on') && (this.config.RTSP_USER !== '') && (this.config.RTSP_PASSWD !== '') ? `${this.config.RTSP_USER}:${this.config.RTSP_PASSWD}@` : '';
+        return `rtsp://${auth}${window.location.host}:${port}/${video}_unicast`;
       },
       RtspUrl1() {
         const port = (this.config.RTSP_OVER_HTTP  === 'on') ? 8080 : 8554;
-        return `rtsp://${window.location.host}:${port}/video1_unicast`;
+        const auth = (this.config.RTSP_AUTH === 'on') && (this.config.RTSP_USER !== '') && (this.config.RTSP_PASSWD !== '') ? `${this.config.RTSP_USER}:${this.config.RTSP_PASSWD}@` : '';
+        return `rtsp://${auth}${window.location.host}:${port}/video1_unicast`;
       },
     },
     async mounted() {
@@ -804,7 +814,10 @@
         }
         if((this.config.RTSP_VIDEO0 === 'on') || (this.config.RTSP_VIDEO1 === 'on')) {
           if((this.config.RTSP_OVER_HTTP !== this.oldConfig.RTSP_OVER_HTTP) ||
-             (this.config.RTSP_MAIN_FORMAT_HEVC !== this.oldConfig.RTSP_MAIN_FORMAT_HEVC)) {
+             (this.config.RTSP_MAIN_FORMAT_HEVC !== this.oldConfig.RTSP_MAIN_FORMAT_HEVC) ||
+             (this.config.RTSP_AUTH !== this.oldConfig.RTSP_AUTH) ||
+             (this.config.RTSP_USER !== this.oldConfig.RTSP_USER) ||
+             (this.config.RTSP_PASSWD !== this.oldConfig.RTSP_PASSWD)) {
             execCmds.push('rtspserver restart');
           } else if((this.config.RTSP_VIDEO0 !== this.oldConfig.RTSP_VIDEO0) ||
                     (this.config.RTSP_VIDEO1 !== this.oldConfig.RTSP_VIDEO1) ||

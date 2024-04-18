@@ -118,6 +118,15 @@ RTSP:
   http:
     title: RTSP over HTTP
     tooltip: Use HTTP for RTSP streaming 
+  auth:
+    title: Authentication
+    tooltip: Require password authentication for RTSP.
+  account:
+    title: Account
+    tooltip: Set RTSP username
+  password:
+    title: Password
+    tooltip: set RTSP password
 
 event:
   tab: Notification

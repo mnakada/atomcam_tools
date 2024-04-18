@@ -120,6 +120,15 @@ RTSP:
   http:
     title: RTSP over HTTP
     tooltip: RTSPをHTTP経由で配信します
+  auth:
+    title: パスワード認証
+    tooltip: RTSPにパスワード認証を要求します
+  account:
+    title: アカウント
+    tooltip: RTSPのユーザー名を設定します
+  password:
+    title: パスワード
+    tooltip: RTSPのパスワードを設定します
 
 event:
   tab: イベント通知

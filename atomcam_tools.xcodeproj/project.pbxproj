@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXFileReference section */
-		152EEAD6274527B10084B0E3 /* images */ = {isa = PBXFileReference; lastKnownFileType = folder; path = images; sourceTree = "<group>"; };
 		152FF2AC284AF69A0070E05F /* lima-docker.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = "lima-docker.yml"; sourceTree = "<group>"; };
 		152FF2AD284C76810070E05F /* network_samples */ = {isa = PBXFileReference; lastKnownFileType = folder; path = network_samples; sourceTree = "<group>"; };
 		1541FB8D1F1116CE006343F3 /* license */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = license; sourceTree = "<group>"; };
@@ -46,7 +45,6 @@
 				15B1B2D22765CEB60034BDCF /* patches */,
 				15F0A889282B79A400E95C1D /* custompackages */,
 				15B1B2D52765CEB60034BDCF /* web */,
-				152EEAD6274527B10084B0E3 /* images */,
 				152FF2AD284C76810070E05F /* network_samples */,
 				159AA925276B6D0E00C8D898 /* target */,
 			);

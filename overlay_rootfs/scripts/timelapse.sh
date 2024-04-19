@@ -12,7 +12,7 @@ if [ "$1" = "finish" ] ; then
   TIMELAPSE_CIFS_PATH=$(awk -F "=" '/^TIMELAPSE_CIFS_PATH *=/ {print $2}' $HACK_INI)
   (
     if [ "$TIMELAPSE_CIFS" = "on" ] && /atom_patch/system_bin/mount_cifs.sh ; then
-      CIFSFILE="time_lapse/$TIMELAPSE_CIFS_PATH"
+      CIFSFILE=`date +"time_lapse/$TIMELAPSE_CIFS_PATH.mp4"`
       OUTFILE="/atom/mnt/$HOSTNAME/$CIFSFILE"
       DIR_PATH=${OUTFILE%/*}
       CIFS_ERROR=""

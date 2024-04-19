@@ -44,8 +44,8 @@ if [ "$1" = "on" -o "$1" = "restart" -o "$1" = "watchdog" -o "$RTSP_VIDEO0" = "o
       sleep 0.5
     done
     echo `date +"%Y/%m/%d %H:%M:%S"` ": v4l2rtspserever start"
-    [ "$RTSP_OVER_HTTP" = "on" ] && option="-p 8080 "
-    [ "$RTSP_AUTH" = "on" -a "$RTSP_USER" != "" -a "$RTSP_PASSWD" != "" ] && option+="-U $RTSP_USER:$RTSP_PASSWD "
+    [ "$RTSP_OVER_HTTP" = "on" ] && option="-p 8080"
+    [ "$RTSP_AUTH" = "on" -a "$RTSP_USER" != "" -a "$RTSP_PASSWD" != "" ] && option="$option -U $RTSP_USER:$RTSP_PASSWD"
     /usr/bin/v4l2rtspserver $option -C 1 -a S16_LE /dev/video${MAIN_VIDEO},hw:0,0 /dev/video1,hw:2,0 >> /tmp/log/rtspserver.log 2>&1 &
   fi
   while [ "`pidof v4l2rtspserver`" = "" ]; do

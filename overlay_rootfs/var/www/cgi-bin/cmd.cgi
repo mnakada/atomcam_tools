@@ -19,8 +19,35 @@ if [ "$REQUEST_METHOD" = "GET" ]; then
     echo TIMESTAMP=`date +"%Y/%m/%d %X"`
   fi
   if [ "$NAME" = "" -o "$NAME" = "status" ] ; then
-    res=`echo move | nc localhost:4000`
-    [ "$res" = "error" ] || echo MOTORPOS=$res
+    if [ -f /tmp/motor_initialize_done ] ; then
+      res=`echo move | nc localhost:4000`
+      [ "$res" = "error" ] || echo MOTORPOS=$res
+    else
+      awk '
+        BEGIN {
+          FS = "=";
+          x = 0;
+          y = 0;
+        }
+        /slide_x/ {
+          x = $2 / 100;
+        }
+        /slide_y/ {
+          y = $2 / 100;
+        }
+        /horSwitch/ {
+          h = $2;
+        }
+        /verSwitch/ {
+          v = $2;
+        }
+        END {
+          if(h == 1) x = 350 - x;
+          if(v == 1) y = 180 - y;
+          printf("MOTORPOS=%d %d\n", x, y);
+        }
+      ' /atom/configs/.user_config
+    fi
   fi
 fi
 

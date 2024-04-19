@@ -610,7 +610,7 @@
     },
     methods: {
       HandleTabsClick(tab) {
-        this.selectedTab = tab.index;
+        this.selectedTab = parseInt(tab.index);
       },
       async Move() {
         if(!this.posValid) return;
@@ -965,7 +965,7 @@
   }
 
   .still-image {
-    width: 98%;
+    width: 96%;
   }
 
   .pan-slider {

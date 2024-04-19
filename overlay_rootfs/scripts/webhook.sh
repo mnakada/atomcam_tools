@@ -22,6 +22,12 @@ BEGIN {
   system("/scripts/timelapse.sh finish " str[3]);
 }
 
+/motor reset done./ {
+  if(!logPause) print "motor reset done !!!" >> "/tmp/log/atom.log";
+  print "motor reset done !!!" >> "/dev/console";
+  print > "/tmp/motor_initialize_done";
+}
+
 {
   if(!logDisable) {
     timestamp = systime();

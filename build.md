@@ -8,19 +8,24 @@
 
 - Dockerの実行環境
 
-  
+<br>
 
-※ 以下MacOS Montereyで確認しています。
+※ 以下MacOS Sonomaで確認しています。
 
-
+<br>
 
 ## build方法
 
 適当なdirectoryで下記を実行します。
 
+MacOSの場合はDocker起動にlimaを使います。
+
+事前にlima, docker CLI, docker-composeをinstallしておいてください。
+
 ```shell
 # git clone atomcam_tools
 # cd atomcam_tools
+# make lima  <---- MacOSのみ
 # make
 ```
 
@@ -31,20 +36,20 @@ zipの中身は
 - authorized_keys
 - hostname
 - factory_t31_ZMC6tiIDQN
-- rootfs_hack.ext2
+- rootfs_hack.squashfs
 
-で、atomcam_tools/ 以下に出来ているものと同じです。
+で、atomcam_tools/target 以下に出来ているものと同じです。
 
 remote loginするなら、sshのpublic.keyをauthorized_keysに追加してください。
 
 ```shell
-# cat ~/.ssh/id_rsa.pub >> ./authorized_keys
+# cat ~/.ssh/id_rsa.pub >> ./target/authorized_keys
 ```
 
 デバイス名を変更するなら、hostnameを修正してください。(default : atomcam)
 
 ```shell
-# echo "hogehoge" > ./hostname
+# echo "hogehoge" > ./target/hostname
 ```
 
 上記４つのファイルをSD-CardにコピーしてAtomCamに入れて起動します。
@@ -54,19 +59,20 @@ remote loginするなら、sshのpublic.keyをauthorized_keysに追加してく�
 build環境は一度buildするとdocker上にコンテナが起動した状態になっています。
 
 ```shell
-# docker-compose exec builder bash
+# make login
 ```
 
 でコンテナに入れます。
 dockerコンテナが落ちてるときは
 
 ```shell
-# docker-compose up -d
+# make lima   <----- MacOSの場合
+# docker-compose up -d    <------ linuxの場合
 ```
 
 で起動してください。
 
-
+<br>
 
 ## Target(ATOMCam内部)の環境
 
@@ -83,105 +89,153 @@ dockerコンテナが落ちてるときは
 
 です。
 
-WiFiはatom側のシステムが起動しているので、rootfs側は起動していません。
-
-
+<br>
 
 ### 起動シーケンス
 
-##### u-boot -> kernel内蔵のinitramfs上の/init_atomcam
+##### u-boot -> kernel内蔵のinitramfs上の/init
 
-​	*initramfsの中身はinitramfs_skeleton/です。。*
+*initramfsの中身はinitramfs_skeleton/です。*
 
-　initramfsはkernel 起動時のcmdlineで/initを実行するようにしています。
+initramfsはkernel 起動時のcmdlineで/initを実行するようにしています。
 
-​	この中でSD-Card上のrootfs_hack.ext2をrootにswitch_rootして、/sbin/init(busybox)を起動します。
+toolsのupdateがある場合はそのための処理を実行します。
 
-##### rootfs_hack.ext2
+その後、SD-Card上のrootfs_hack.squashfsをrootにswitch_rootしてremountの処理を行い、/sbin/init(busybox)を起動します。
 
-　*rootfs_hack.ext2はconfigs/rootfs.configの設定でbuildされたイメージにoverlay_rootfsを重ねたものになります。*
+##### rootfs_hack.squashfs
 
-​	/sbin/initがinittabに従って/etc/init.d/rcSを起動して、rcSで/etc/init.d/S*を順番に実行します。
+*rootfs_hack.squashfsはconfigs/atomcam_defconfigの設定でbuildされたイメージにoverlay_rootfsを重ねたものになります。*
 
-　S35wifiはAtomCamのシステム側で処理しているので実行しないほうが良いのですが、wifiパッケージを入れると起動スクリプトが入るため、overlay_rootfsで中身の無いものを上書きして無効にしています。
-	/etc/init.dを最後まで実行すると、serialを繋いでいればgettyでlogin promptが出ます。AtomCamの後ろ側のLEDが青点滅ー＞青点灯になるとsshでloginできる状態になります。
+/sbin/initがinittabに従って/etc/init.d/rcSを起動して、rcSで/etc/init.d/S*を順番に実行します。
+/etc/init.dを最後まで実行すると、serialを繋いでいればgettyでlogin promptが出ます。AtomCamの後ろ側のLEDが青点滅ー＞青点灯になるとsshでloginできる状態になります。
 
-​	途中でATOMCamのシステムを起動する環境を整える/etc/init.d/S38atomcamを呼び出しています。
+##### /etc/init.d/S31fwupdate
 
-##### S38atomcam
+ATOMCamのFW updateのシーケンスが実行中の場合、処理を代行します。
 
-​	/atom/以下に本来のATOMCamのシステムと幾つかのmount-pointを共通でアクセスできるようにmountします。また、hackのために/tmp/system/bin/にscriptをコピーしています。
+##### /etc/init.d/S34mount
 
-​	その後、chrootで/atomの/tmp/system/bin/atom_init.shを呼び出します。
+overlayfsが使えないので、bind mountでシステムのファイル／フォルダーの配置を入れ替えています。
+
+##### /etc/init.d/S38atomcam
+
+/atom/以下に本来のATOMCamのシステムと幾つかのmount-pointを共通でアクセスできるようにmountします。
+
+その後、chrootで/atomの/tmp/system/bin/atom_init.shを呼び出します。
 
  ​  ここまではglibcの世界で動作しています。
 
-##### atom_init.sh
+##### (/atom)/tmp/system/bin/atom_init.sh
 
-​	本来のATOMCamの初期化シーケンスを実行します。ここからuClibcの世界に入ります。
-​	iCamera_appの実行時にlibcallback.soを噛ませて映像の横流しとwebHookのためのctorsへのsetlinebufの設定をしています。さらにwebHookのためにlogを/tmp/log/に出力させています。
+本来のATOMCamの初期化シーケンスを実行します。ここからuClibcの世界に入ります。
+iCamera_appの実行時にlibcallback.soを噛ませて各種patchをあてて処理を追加しています。さらにwebHookのためにlogを名前付きFIFOファイル (/var/run/atomapp) に出力させています。
 
-​	これを実行するとwatchdogが起動するため、assisとiCamera_appは止められなくなります。
+これを実行するとwatchdogが起動するため、assisとiCamera_appは止められなくなります。
 
-　iCamera_appは起動すると/configsの設定情報を読み込んで、wifiの起動、時刻の設定が行なっています。
-
-　ただし、外部コマンドは直接iCamera_appで実行されるのではなくassisにメッセージ通信経由で投げてassisが実行しています。
-
-　また、recognition等の機能はiCamera_appにあるわけではなく、cloudから読み込まれて実行されているようです。
+recognition等の機能はiCamera_appにあるわけではなく、cloudから読み込まれて実行されているようです。
 
 
 
 ###  各種script
 
-##### /scripts/mv.sh, /scripts/rm.sh
+##### (/atom)/bin/mv, (/atom)/bin/rm
 
-​	ATOMCamのiCloud_appが動体検知をcloudに送信後に削除する時のrmコマンド、１分ごとのSD-Cardへの記録ファイルを/tmpから移動するmvコマンドを置き換えてNASへの記録やwebHookのeventを送信するためのscriptです。起動時に/tmp/system/bin/rm, mvにコピーしています。
+ATOMCamのiCloud_appが動体検知をcloudに送信後に削除する時のrmコマンド、１分ごとのSD-Cardへの記録ファイルを/tmpから移動するmvコマンドを置き換えてNASへの記録やwebHookのeventを送信するためのscriptです。
 
-​	iCound_appからmessage経由で外部コマンドを実行するassisの起動時のPATHの先頭に/tmp/system/binを挿入することでrm, mvコマンドを置き換えています。
+##### /scripts/cmd
+
+iCamera_app内部パラメータや動作を変更するためのコマンドを実行するwrapperコマンドです。
+
+##### /scripts/cruise.sh
+
+AtomSwingでのクルーズ動作を実行するためのscriptです。
+
+##### /scripts/hack_ini_reconfig.sh
+
+Ver.upでhack_iniの互換性がない場合に引き継ぎ処理をするためのscriptです。
+
+##### /scripts/health_check.sh
+
+定期的にネットワークの健全性のチェックを行うscriptです。
+
+##### /scripts/lighttpd.sh
+
+WebUIのlighttpdの起動処理と認証の切り替え等の処理を行うscriptです。
+
+##### /scripts/memory_check.sh
+
+定期的にメモリーの状態をlogに記録するscriptです。
+
+##### /scripts/motor_init
+
+AtomSwingでモーターの初期位置動作をするscriptです。
+
+##### /scripts/network_init.sh
+
+networkの接続をするための初期化scriptです。
 
 ##### /scripts/reboot.sh
 
-​	WebUIの定期reboot設定をcrontabで指定時間に実行するためのscriptです。
+WebUIの定期reboot設定をcrontabで指定時間に実行するためのscriptです。
 
-​	syncしてrebootを実行します。
+syncしてrebootを実行します。
+
+##### /scripts/remove_old.sh
+
+指定時間経過した録画データを削除するためのscriptです。
 
 ##### /scripts/rtspserver.sh
 
-​	init.d/S58rtspserverとWebUIのRTSPのon/offから呼ばれます。
+init.d/S58rtspserverとWebUIのRTSPのon/offから呼ばれます。
 
-​	v4l2rtspserverをon/offします。
+v4l2rtspserverをon/offします。
+
+##### /scripts/samba.sh
+
+設定に従ってSambaの起動／終了をするscriptです。
+
+##### /scripts/set_crontab.sh
+
+reboot.shやtimelapse.shを起動する時刻をcrontabに設定するためのscriptです。
+
+##### /scripts/set_icamera_config.sh
+
+iCamera_app起動直後に設定しておくべき設定値を処理するためのscriptです。
+
+##### /scripts/timelapse.sh
+
+timelapseの開始処理、終了時のファイル処理のscriptです。
 
 ##### /scripts/webcmd.sh
 
-​	/var/www/cgi-bin/exec.cgiからnamed-FIFO経由でコマンドを実行します。
+/var/www/cgi-bin/exec.cgiからnamed-FIFO経由でコマンドを実行します。
 
-​	cgiの実行はwww-dataアカウントでの実行なのでシステム制御系のコマンドは直接実行できないので、コマンドを受けて実行して問題ないものだけ実行する構造にしています。
+cgiの実行はwww-dataアカウントでの実行なのでシステム制御系のコマンドは直接実行できないので、コマンドを受けて実行して問題ないものだけ実行する構造にしています。
 
 ##### /scripts/webhook.sh
 
-​	iCamera_appのlogを受けてwebHookのイベントを拾っています。
+iCamera_appのlogを受けてwebHookのイベントを拾っています。
 
-　iCamera_appの実行環境は制限があるため、logを一旦/tmp/log/atomcam.logに記録して、そのlogをここで受けてパースしてcurlでpostしています。
+iCamera_appの実行環境では制限があるため、名前付きFIFO経由でlogを受けて必要に応じてcurlでpostしています。
 
-　iCamera_appの出力をそのまま/tmp/log/atomcam.logにpipeで出力するとbufferされて遅延するため、libcallback.soにConstructorのhookを入れてsetlinebufでlineごとのbufferingに変更しています。
+##### /var/www/cgi-bin/cmd.cgi
 
-##### /var/www/cgi-bin/exec.cgi
-
-​	WebUIからのコマンドをnamed-pipe経由でwebcmd.shに投げています。
+WebUIからのコマンドをnamed-pipe経由でwebcmd.shに投げています。
 
 ##### /var/www/cgi-bin/get_jpeg.cgi
 
-​	WebUIで表示するjpeg画像を取得しています。
-
-##### /var/www/cgi-bin/get_time.cgi
-
-​	WebUIで表示するATOMCamの時刻を1秒ごとに取得しています。
+WebUIで表示するjpeg画像を取得しています。
 
 ##### /var/www/cgi-bin/hack_ini.cgi
 
-​	WebUIで使用している設定値の取得、設定をします。
+WebUIで使用している設定値の取得、設定をします。
 
+##### /var/www/cgi-bin/hello.cgi
 
+MobileAppからのアクセス時の要求に応答するためのcgiです。
+
+##### 
 
 ## WebUI
 
@@ -214,9 +268,13 @@ gccのprefixは
 
 ATOMCam本来のシステムのカメラアプリiCamera_appはuClibcの環境でbuildされています。
 
-そのためiCamera_appのhack用のlibcallback.soのbuildにはuClibc環境が必要なので別途cloneしている
-**/atomtools/build/mips-gcc472-glibc216-64bit/bin/mips-linux-uclibc-gnu-**
-を使用しています。
+そのためiCamera_appのhack用のlibcallback.soのbuildにはuClibc環境が必要なので別途cross tools-ng-1.26.0を導入しています。
+
+gccのprefixは
+
+**/atomtools/build/cross/mips-uclibc/bin/mipsel-ingenic-linux-uclibc-**
+
+です。
 
 
 
@@ -226,22 +284,19 @@ ATOMCam本来のシステムのカメラアプリiCamera_appはuClibcの環境�
 
 ```shell
 root@ac0375635c01:/atomtools# make linux-rebuild
-root@ac0375635c01:/atomtools# cp output/images/uImage.lzma /src
+root@ac0375635c01:/atomtools# make
 ```
 
-でbuildされてatomcam_tools/にコピーされます。
+でbuildされてatomcam_tools/targetにコピーされます。
 
 
 
 rootfs内のファイルやbusyboxのmenuconfigを修正した場合
 ```shell
 root@ac0375635c01:/atomtools# make
-root@ac0375635c01:/atomtools# cp output/images/rootfs.ext2 /src
 ```
 
-でbuildされてatomcam_tools/にコピーされます。
-
-それぞれfactory_t31_ZMC6tiIDQN, rootfs_hack.ext2の名前でSDCardにコピーしてください。
+でbuildされてatomcam_tools/targetにコピーされます。
 
 
 
@@ -252,7 +307,7 @@ root@ac0375635c01:/atomtools# make menuconfig
 root@ac0375635c01:/atomtools# make
 ```
 
-でrootfsがbuildされます。
+でbuildされてatomcam_tools/targetにコピーされます。
 
 
 
@@ -260,6 +315,7 @@ root@ac0375635c01:/atomtools# make
 
 ```shell
 root@ac0375635c01:/atomtools# make <package>-rebuild
+root@ac0375635c01:/atomtools# make
 ```
 
 です。
@@ -282,9 +338,10 @@ kernelの設定変更の場合
 ```shell
 root@ac0375635c01:/atomtools# make linux-menuconfig
 root@ac0375635c01:/atomtools# make linux-rebuild
+root@ac0375635c01:/atomtools# make
 ```
 
-でuImage.lzmaが生成されます。
+でbuildされてatomcam_tools/targetにコピーされます。
 
 
 

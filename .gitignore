@@ -1,0 +1,11 @@
+*.BAK
+factory_t31_ZMC6tiIDQN
+rootfs_hack.ext2
+rootfs_hack.squashfs
+atomcam_tools.zip
+*.xcodeproj/project.xcworkspace/
+*.xcodeproj/xcuserdata/
+*.xcodeproj/xcshareddata/
+*.log
+bin/
+

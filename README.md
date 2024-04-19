@@ -17,6 +17,16 @@
 
 <br>
 
+AtomSwingの画面
+
+<kbd><img src="https://github.com/mnakada/atomcam_tools/blob/images/camera.jpg" /></kbd>
+
+WyzeCamV3の画面
+
+<kbd><img src="https://github.com/mnakada/atomcam_tools/blob/images/wyzecam.jpg" /></kbd>
+
+<br>
+
 ## 実現される機能
 - WebUI (Port: 80)
   - ATOMCamのアプリから設定できない追加機能について設定します。
@@ -176,13 +186,7 @@ AtomCamのu-bootがexFATに対応していないため、exFATだとhackが認�
 
 mDNS未対応で開けない場合は、ATOMCam純正アプリや、IPアドレス確認ツールなどでATOMCamのIPアドレスを確認し、 ブラウザで http://[ATOMCamのIPアドレス] を開きます。
 
-AtomSwingの画面
-
 <kbd><img src="https://github.com/mnakada/atomcam_tools/blob/images/camera.jpg" /></kbd>
-
-WyzeCamV3の画面
-
-<kbd><img src="https://github.com/mnakada/atomcam_tools/blob/images/wyzecam.jpg" /></kbd>
 
 上のタイトル帯には左にタイトルとtoolsのVer.、真ん中にCameraの種類とVer.、その右にカメラ内の時間、右端に言語設定とこの説明ページへのlinkボタンがあります。
 

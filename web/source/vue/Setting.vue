@@ -29,7 +29,7 @@
 
     <div>
       <ElTabs tabPosition="left" @tab-click="HandleTabsClick">
-        <ElTabPane class="well-transparent container" :label="$t('camera.tab')">
+        <ElTabPane class="well-transparent container-no-submit" :label="$t('camera.tab')">
           <div class="image-frame">
             <div class="image-frame-inner1">
               <ElSlider v-if="isSwing && posValid" class="tilt-slider" v-model="tilt" :min="0" :max="180" vertical :show-input-controls="false" height="100%" @change="Move" @input="Move" />
@@ -55,7 +55,7 @@
           </div>
         </ElTabPane>
 
-        <ElTabPane class="well-transparent container" :label="$t('SDCard.tab')">
+        <ElTabPane class="well-transparent container-no-submit" :label="$t('SDCard.tab')">
           <iframe ref="sdcardFrame" class="sdcard-frame" src="/sdcard" />
         </ElTabPane>
 
@@ -925,19 +925,33 @@
 
   .container {
     height: calc(100vh - 200px);
+    height: calc(100dvh - 200px);
     margin: 10px 20px 5px 20px;
     overflow-x: hidden;
     overflow-y: scroll;
+  }
+
+  .container-no-submit {
+    height: calc(100vh - 85px);
+    height: calc(100dvh - 85px);
+    margin: 5px;
+    padding: 5px;
+    display: flex;
+    justify-content: flex-end;
   }
 
   .image-frame {
     z-index: 100;
     display: flex;
     flex-direction: column;
+    width: calc(min(100%, (100vh - 140px) * 1920 / 1080));
+    width: calc(min(100%, (100dvh - 140px) * 1920 / 1080));
+    padding-bottom: 100%;
   }
 
   .image-frame-cruise {
     width: 30vw;
+    width: 30dvw;
     position:fixed;
     right: 30px;
     top: 100px;
@@ -965,12 +979,13 @@
   }
 
   .still-image {
-    width: 96%;
+    width: calc(100% - 38px);
+    object-fit: contain;
   }
 
   .pan-slider {
     background-color: white;
-    width: calc(100% - 36px);
+    width: calc(100% - 38px);
   }
 
   .tilt-slider {
@@ -980,7 +995,6 @@
 
   .sdcard-frame {
     width: 100%;
-    height: calc(100vh - 300px);
     border: none;
   }
 

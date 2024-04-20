@@ -75,10 +75,10 @@ diff -urp a/drivers/mmc/host/jzmmc_v12.c b/drivers/mmc/host/jzmmc_v12.c
  	if (ret < 0)
  		goto err_gpio_init;
  
-+  if(!host->index) {
-+    host->proc = jz_proc_mkdir("mmc0");
-+    if(!host->proc) printk("Failed to create mmc0 proc\n");
-+  }
++	if(!host->index) {
++		host->proc = jz_proc_mkdir("mmc0");
++		if(!host->proc) printk("Failed to create mmc0 proc\n");
++	}
 +
  	jzmmc_host_init(host, mmc);
  	ret = sysfs_create_group(&pdev->dev.kobj, &jzmmc_attr_group);
@@ -92,10 +92,10 @@ diff -urp a/drivers/mmc/host/jzmmc_v12.c b/drivers/mmc/host/jzmmc_v12.c
  {
  	struct jzmmc_host *host = mmc_get_drvdata(pdev);
  
-+  if(!host->index && host->proc) {
-+    proc_remove(host->proc);
-+    host->proc = NULL;
-+  }
++	if(!host->index && host->proc) {
++		proc_remove(host->proc);
++		host->proc = NULL;
++	}
 +
  	mmc_set_drvdata(pdev, NULL);
  	mmc_remove_host(host->mmc);

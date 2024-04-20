@@ -1,6 +1,6 @@
 diff -urp a/drivers/mmc/host/jzmmc_v12.c b/drivers/mmc/host/jzmmc_v12.c
---- a/drivers/mmc/host/jzmmc_v12.c	2021-11-17 21:10:58.000000000 +0900
-+++ b/drivers/mmc/host/jzmmc_v12.c	2021-11-17 21:13:17.000000000 +0900
+--- a/drivers/mmc/host/jzmmc_v12.c	2024-04-20 03:04:51.545537008 +0000
++++ b/drivers/mmc/host/jzmmc_v12.c	2024-04-20 03:04:51.545537008 +0000
 @@ -9,8 +9,8 @@
   * published by the Free Software Foundation.
   */
@@ -12,27 +12,15 @@ diff -urp a/drivers/mmc/host/jzmmc_v12.c b/drivers/mmc/host/jzmmc_v12.c
  #include <linux/platform_device.h>
  #include <linux/mmc/host.h>
  #include <linux/mmc/card.h>
-@@ -38,7 +38,6 @@
- #define TIMEOUT_PERIOD		500	/* msc operation timeout detect period */
- #define PIO_THRESHOLD		64	/* use pio mode if data length < PIO_THRESHOLD */
- #define CLK_CTRL
--#define IO_SAMPLE_PERIOD_MS	2000
- 
- enum {
- 	EVENT_CMD_COMPLETE = 0,
-@@ -135,10 +134,8 @@ struct jzmmc_host {
- 	spinlock_t		lock;
- 	unsigned int		double_enter;
- 	int				timeout_cnt;
--	u32			sample_time;
--	u32			sample_rdata;
--	u32			sample_wdata;
+@@ -139,6 +139,7 @@
+ 	u32			sample_rdata;
+ 	u32			sample_wdata;
  	int         timeout_state;
 +	struct proc_dir_entry *proc;
  };
  
  #define ERROR_IFLG (				\
-@@ -948,7 +945,7 @@ static void jzmmc_request(struct mmc_hos
+@@ -948,7 +949,7 @@
  	 * It never happens in design, but we add BUG_ON here to prevent it.
  	 */
  	if ((host->state != STATE_IDLE) && (mrq->data != NULL)) {
@@ -41,14 +29,7 @@ diff -urp a/drivers/mmc/host/jzmmc_v12.c b/drivers/mmc/host/jzmmc_v12.c
  		WARN_ON(1);
  	}
  
-@@ -1115,23 +1112,49 @@ static void set_pin_status(struct jzmmc_
- 	gpio_direction_output(pin->num, enable);
- }
- 
-+extern struct proc_dir_entry * jz_proc_mkdir(char *s);
-+extern void proc_remove(struct proc_dir_entry *de);
- static void jzmmc_detect_change(unsigned long data)
- {
+@@ -1120,9 +1121,16 @@
  	struct jzmmc_host *host = (struct jzmmc_host *)data;
  	bool			present;
  	bool			present_old;
@@ -57,42 +38,23 @@ diff -urp a/drivers/mmc/host/jzmmc_v12.c b/drivers/mmc/host/jzmmc_v12.c
  
  	present = get_pin_status(&host->pdata->gpio->cd);
 +	if(!firstEntry) {
-+          dev_warn(host->dev, "enter jzmmc detect change cd-pin %d\n", present);
++		dev_warn(host->dev, "enter jzmmc detect change cd-pin %d\n", present);
 +	  enable_irq(gpio_to_irq(host->pdata->gpio->cd.num));
-+          return;
-+        }
++		return;
++	}
 +	firstEntry = 0;
  	present_old = test_bit(JZMMC_CARD_PRESENT, &host->flags);
  
  	if ((present != present_old) || (present_old && host->mmc->card)) {
- 		if (present && present_old)
- 			dev_warn(host->dev, "rapidly remove\n");
--		else
-+		else {
- 			dev_notice(host->dev, "card %s, state=%d\n",
- 				   present ? "inserted" : "removed", host->state);
+@@ -1495,7 +1503,6 @@
+ 				   struct device_attribute *attr,
+ 					const char *buf, size_t count)
+ {
+-	struct jzmmc_platform_data *pdata = dev->platform_data;
+ 	struct jzmmc_host *host = dev_get_drvdata(dev);
  
-+			if(host->index == 0){
-+				if(present){
-+					if(!host->proc){
-+						host->proc = jz_proc_mkdir("mmc0");
-+						if(!host->proc){
-+							printk("Failed to create mmc0 proc\n");
-+						}
-+					}
-+				}else {
-+					if(host->proc){
-+						proc_remove(host->proc);
-+						host->proc = NULL;
-+					}
-+				}
-+			}
-+		}
-+
- 		/*if take timeout, then remove card,could clear the state */
- 		host->timeout_state = 0;
- 
-@@ -1685,7 +1708,7 @@ static int __init jzmmc_gpio_init(struct
+ 	if (buf == NULL) {
+@@ -1685,7 +1692,7 @@
  			jzmmc_clk_autoctrl(host, 1);
  			if(!timer_pending(&host->detect_timer)){
  				disable_irq_nosync(gpio_to_irq(host->pdata->gpio->cd.num));
@@ -101,12 +63,40 @@ diff -urp a/drivers/mmc/host/jzmmc_v12.c b/drivers/mmc/host/jzmmc_v12.c
  			}
  
  		} else {
-@@ -1806,6 +1829,8 @@ static int __init jzmmc_probe(struct pla
+@@ -1721,6 +1728,7 @@
+ 	}
+ }
+ 
++extern struct proc_dir_entry * jz_proc_mkdir(char *s);
+ static int __init jzmmc_probe(struct platform_device *pdev)
+ {
+ 	int irq;
+@@ -1806,6 +1814,11 @@
  	if (ret < 0)
  		goto err_gpio_init;
  
-+	host->proc = NULL;
++  if(!host->index) {
++    host->proc = jz_proc_mkdir("mmc0");
++    if(!host->proc) printk("Failed to create mmc0 proc\n");
++  }
 +
  	jzmmc_host_init(host, mmc);
  	ret = sysfs_create_group(&pdev->dev.kobj, &jzmmc_attr_group);
  	if (ret < 0)
+@@ -1833,10 +1846,16 @@
+ 	return ret;
+ }
+ 
++extern void proc_remove(struct proc_dir_entry *de);
+ static int __exit jzmmc_remove(struct platform_device *pdev)
+ {
+ 	struct jzmmc_host *host = mmc_get_drvdata(pdev);
+ 
++  if(!host->index && host->proc) {
++    proc_remove(host->proc);
++    host->proc = NULL;
++  }
++
+ 	mmc_set_drvdata(pdev, NULL);
+ 	mmc_remove_host(host->mmc);
+ 	mmc_free_host(host->mmc);

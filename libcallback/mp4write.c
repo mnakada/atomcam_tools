@@ -1,6 +1,7 @@
 #include <dlfcn.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdarg.h>
 
 struct Mp4StartConfig {
   int fps;
@@ -14,6 +15,7 @@ static int mp4write_periodicSD = 0;
 static int mp4write_AlarmSD = 0;
 
 extern char CommandResBuf[];
+extern int wyze;
 extern int VideoControl_UserFps;
 extern int VideoControl_AppFps;
 
@@ -54,7 +56,7 @@ char *MP4Write(int fd, char *tokenPtr) {
 
 int mp4write_start_handler(void *handler, char *file, struct Mp4StartConfig *config) {
 
-  if((mp4write_AlarmSD && !strcmp(file, "/tmp/alarm_record.mp4")) ||
+  if((mp4write_AlarmSD && !strncmp(file, "/tmp/alarm_", 11)) ||
      (mp4write_periodicSD && !strncmp(file, "/tmp/", 5) && (strlen(file) == 11))) {
     char buf[64];
     strncpy(buf, file + 5, 30);
@@ -65,4 +67,18 @@ int mp4write_start_handler(void *handler, char *file, struct Mp4StartConfig *con
   if(VideoControl_UserFps) fps = VideoControl_UserFps;
   config->fps = fps;
   return (original_mp4write_start_handler)(handler, file, config);
+}
+
+int snprintf(char *str, size_t size, const char *format, ...) {
+
+  va_list args;
+  va_start(args, format);
+
+  const char *fmt = format;
+  if(wyze && mp4write_AlarmSD && (size == 0xd7) && !strcmp(format, "/tmp/alarm_record_%d.mp4")) {
+    fmt = "/media/mmc/tmp/alarm_record_%d.mp4";
+  }
+  int ret = vsnprintf(str, size, fmt, args);
+  va_end(args);
+  return ret;
 }

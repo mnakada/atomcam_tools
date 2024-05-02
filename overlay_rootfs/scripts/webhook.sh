@@ -22,6 +22,12 @@ BEGIN {
   system("/scripts/timelapse.sh finish " str[3]);
 }
 
+/motor reset done./ {
+  if(!logPause) print "motor reset done !!!" >> "/tmp/log/atom.log";
+  print "motor reset done !!!" >> "/dev/console";
+  print > "/tmp/motor_initialize_done";
+}
+
 {
   if(!logDisable) {
     timestamp = systime();
@@ -39,7 +45,6 @@ BEGIN {
     }
     if(!logPause) print >> "/tmp/log/atom.log";
   }
-  if(ENV["WEBHOOK"] != "on") next;
   if(ENV["WEBHOOK_URL"] == "") next;
 }
 
@@ -48,6 +53,10 @@ BEGIN {
 }
 
 /alarm_event_handle.*timestamp/ {
+  if(ENV["WEBHOOK_ALARM_EVENT"] == "on") Post("alarmEvent");
+}
+
+/(alarm_event_handle).*== readly to alarm ==/ {
   if(ENV["WEBHOOK_ALARM_EVENT"] == "on") Post("alarmEvent");
 }
 

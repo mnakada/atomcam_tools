@@ -41,23 +41,30 @@ case "$1" in
     touch /tmp/resolv.conf
 
     insmod /lib/modules/v4l2loopback.ko video_nr=0,1,2
-    chroot /atom /tmp/system/bin/atom_init.sh
+
+    PRODUCT_CONFIG=/atom/configs/.product_config
+    export PRODUCT_MODEL=$(awk -F "=" '/^PRODUCT_MODEL *=/ {print $2}' $PRODUCT_CONFIG)
+    if [ "WYZE_CAKP2JFUS" = "$PRODUCT_MODEL" ] ; then
+      chroot /atom /tmp/system/bin/wyze_init.sh
+    else
+      chroot /atom /tmp/system/bin/atom_init.sh
+    fi
     [ -f /media/mmc/atom-debug ] && exit 0
     
     count=0
     while :
     do
       res=`/scripts/cmd audio` 2> /dev/null
-      [ "$res" = "on" -o "$res" = "off" ] && echo "=== iCamera_app callback OK ====" && break;
+      [ "$res" = "on" -o "$res" = "off" ] && echo "=== libcallback OK ====" && break;
       sleep 0.5
       let count++
       if [ 20 -le $count ] ; then
-        echo "=== iCamera_app callback error ==="
+        echo "=== libcallback error ==="
         sync
         sync
         sync
         reboot
-        break
+        exit 1
       fi
     done
     /scripts/set_icamera_config.sh

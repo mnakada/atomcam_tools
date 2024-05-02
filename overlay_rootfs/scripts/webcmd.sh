@@ -44,19 +44,29 @@ do
     cmd=""
   fi
   if [ "$cmd" = "mp4write" ]; then
-    /scripts/cmd mp4write ${params}
+    res=`/scripts/cmd mp4write ${params}`
+    echo "$cmd $params $res" >> /var/run/webres
+    cmd=""
   fi
   if [ "$cmd" = "framerate" ]; then
-    /scripts/cmd video fps ${params}
+    res=`/scripts/cmd video fps ${params}`
+    echo "$cmd $params $res" >> /var/run/webres
+    cmd=""
   fi
   if [ "$cmd" = "bitrate" ]; then
-    /scripts/cmd video bitrate ${params}
+    res=`/scripts/cmd video bitrate ${params}`
+    echo "$cmd $params $res" >> /var/run/webres
+    cmd=""
   fi
   if [ "$cmd" = "alarm" ]; then
-    /scripts/cmd alarm ${params}
+    res=`/scripts/cmd alarm ${params}`
+    echo "$cmd $params $res" >> /var/run/webres
+    cmd=""
   fi
   if [ "$cmd" = "curl" ]; then
-    /scripts/cmd curl ${params}
+    res=`/scripts/cmd curl ${params}`
+    echo "$cmd $params $res" >> /var/run/webres
+    cmd=""
   fi
   if [ "$cmd" = "rtspserver" ] && [ "$params" != "" ]; then
     /scripts/rtspserver.sh $params
@@ -89,8 +99,8 @@ do
   fi
   if [ "$cmd" = "update" ]; then
     HACK_INI=/tmp/hack.ini
-    CUSTOM_ZIP=$(awk -F "=" '/CUSTOM_ZIP *=/ {print $2}' $HACK_INI)
-    ZIP_URL=$(awk -F "=" '/CUSTOM_ZIP_URL *=/ {print $2}' $HACK_INI)
+    CUSTOM_ZIP=$(awk -F "=" '/^CUSTOM_ZIP *=/ {print $2}' $HACK_INI)
+    ZIP_URL=$(awk -F "=" '/^CUSTOM_ZIP_URL *=/ {print $2}' $HACK_INI)
     if [ "$CUSTOM_ZIP" = "off" ] || [ "$ZIP_URL" = "" ]; then
       ZIP_URL="https://github.com/mnakada/atomcam_tools/releases/latest/download/atomcam_tools.zip"
     fi

@@ -11,7 +11,7 @@ if [ "$1" = "watchdog" ]; then
 fi
 
 HACK_INI=/tmp/hack.ini
-DIGEST=$(awk -F "=" '/DIGEST *=/ {print $2}' $HACK_INI)
+DIGEST=$(awk -F "=" '/^DIGEST *=/ {print $2}' $HACK_INI)
 if [ "$DIGEST" != "" ]; then
   echo $DIGEST > /etc/lighttpd/user.digest
   echo 'server.modules += ( "mod_auth" )' > /etc/lighttpd/auth.conf

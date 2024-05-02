@@ -1,1 +1,15 @@
-busybox
+#!/bin/sh
+#
+# for alarm recording file
+#
+
+if [ "${1%/*.jpg}" != "/tmp" -o "${2##/media/mmc/alarm/*.jpg}" != "" ] ; then
+  /bin/busybox ${0##*/} $*
+  exit
+fi
+
+HACK_INI=/tmp/hack.ini
+STORAGE_SKIP_RECORD_ALARM_JPG=$(awk -F "=" '/^STORAGE_SKIP_RECORD_ALARM_JPG *=/ { gsub(/^\/*/, "", $2);print $2}' $HACK_INI)
+
+[ "$STORAGE_SKIP_RECORD_ALARM_JPG" = "on" ] && exit 0
+/bin/busybox ${0##*/} $*

@@ -7,6 +7,7 @@ extern char CommandResBuf[];
 extern int curl_minimum_alarm_cycle;
 extern int SetUserConfig(const char *key, int value);
 extern int GetUserConfig(const char *key);
+extern int SetAlarmConfigInterval(int interval);
 
 char *AlarmInterval(int fd, char *tokenPtr) {
 
@@ -20,6 +21,7 @@ char *AlarmInterval(int fd, char *tokenPtr) {
   if((interval < 30) || (interval > 300)) return "error";
   int ret = SetUserConfig("alarmInterval", interval);
   if(ret < 0) return "error";
+  SetAlarmConfigInterval(interval);
   curl_minimum_alarm_cycle = (interval < 300) ? 300 : 0;
   return "ok";
 }

@@ -3,31 +3,39 @@
 # for alarm record file
 #
 
-[ "$1" != "" ] && [ -e $1 ] && FILE=$1
-[ "$2" != "" ] && [ -e $2 ] && FILE=$2
-if [ "$FILE" != "/tmp/alarm.jpg" -a "$FILE" != "/tmp/alarm_record.mp4" -a "$FILE" != "/media/mmc/tmp/alarm_record.mp4" ] ; then
+FILE="${*##* }"
+if [ "${FILE##/tmp/alarm*.jpg}" != "" -a "${FILE##/tmp/alarm_record*.mp4}" != "" -a "${FILE##/media/mmc/tmp/alarm_record*.mp4}" != "" ] ; then
   /bin/busybox ${0##*/} $*
   exit
 fi
 SPATH=${FILE%/*}
 
 HACK_INI=/tmp/hack.ini
-RECORDING_LOCAL_SCHEDULE=$(awk -F "=" '/RECORDING_LOCAL_SCHEDULE *=/ {print $2}' $HACK_INI)
-STORAGE_CIFS=$(awk -F "=" '/STORAGE_CIFS *=/ { gsub(/^\/*/, "", $2);print $2}' $HACK_INI)
-STORAGE_CIFS_PATH=$(awk -F "=" '/STORAGE_CIFS_PATH *=/ { gsub(/^\/*/, "", $2);print $2}' $HACK_INI)
-STORAGE_SDCARD_PATH=$(awk -F "=" '/STORAGE_SDCARD_PATH *=/ { gsub(/^\/*/, "", $2);print $2}' $HACK_INI)
-STORAGE_SDCARD=$(awk -F "=" '/STORAGE_SDCARD *=/ {print $2}' $HACK_INI)
-WEBHOOK=$(awk -F "=" '/WEBHOOK *=/ {print $2}' $HACK_INI)
-WEBHOOK_URL=$(awk -F "=" '/WEBHOOK_URL *=/ {print $2}' $HACK_INI)
-[ "$(awk -F "=" '/WEBHOOK_INSECURE *=/ {print $2}' $HACK_INI)" = "on" ] && INSECURE_FLAG="-k "
-WEBHOOK_ALERM_PICT=$(awk -F "=" '/WEBHOOK_ALERM_PICT *=/ {print $2}' $HACK_INI)
-WEBHOOK_ALARM_PICT_FINISH=$(awk -F "=" '/WEBHOOK_ALARM_PICT_FINISH *=/ {print $2}' $HACK_INI)
-WEBHOOK_ALERM_VIDEO=$(awk -F "=" '/WEBHOOK_ALERM_VIDEO *=/ {print $2}' $HACK_INI)
-WEBHOOK_ALARM_VIDEO_FINISH=$(awk -F "=" '/WEBHOOK_ALARM_VIDEO_FINISH *=/ {print $2}' $HACK_INI)
+ALARMREC_SCHEDHULE=$(awk -F "=" '/^ALARMREC_SCHEDHULE *=/ {print $2}' $HACK_INI)
+ALARMREC_CIFS=$(awk -F "=" '/^ALARMREC_CIFS *=/ { gsub(/^\/*/, "", $2);print $2}' $HACK_INI)
+ALARMREC_CIFS_PATH=$(awk -F "=" '/^ALARMREC_CIFS_PATH *=/ { gsub(/^\/*/, "", $2);print $2}' $HACK_INI)
+ALARMREC_SDCARD_PATH=$(awk -F "=" '/^ALARMREC_SDCARD_PATH *=/ { gsub(/^\/*/, "", $2);print $2}' $HACK_INI)
+ALARMREC_SDCARD=$(awk -F "=" '/^ALARMREC_SDCARD *=/ {print $2}' $HACK_INI)
+WEBHOOK_URL=$(awk -F "=" '/^WEBHOOK_URL *=/ {print $2}' $HACK_INI)
+[ "$(awk -F "=" '/^WEBHOOK_INSECURE *=/ {print $2}' $HACK_INI)" = "on" ] && INSECURE_FLAG="-k "
+WEBHOOK_ALERM_PICT=$(awk -F "=" '/^WEBHOOK_ALERM_PICT *=/ {print $2}' $HACK_INI)
+WEBHOOK_ALARM_PICT_FINISH=$(awk -F "=" '/^WEBHOOK_ALARM_PICT_FINISH *=/ {print $2}' $HACK_INI)
+WEBHOOK_ALERM_VIDEO=$(awk -F "=" '/^WEBHOOK_ALERM_VIDEO *=/ {print $2}' $HACK_INI)
+WEBHOOK_ALARM_VIDEO_FINISH=$(awk -F "=" '/^WEBHOOK_ALARM_VIDEO_FINISH *=/ {print $2}' $HACK_INI)
 HOSTNAME=`hostname`
 
-if [ "$RECORDING_LOCAL_SCHEDULE" = "on" ]; then
+if [ "$ALARMREC_SCHEDHULE" = "on" ]; then
   FMT=`awk '
+    BEGIN {
+      FS=";";
+    }
+    /ALARMREC_SCHEDULE_LIST *=/ {
+      gsub(/^ALARMREC_SCHEDULE_LIST *=/, "");
+      for(i = 1; i <= NF; i++) {
+        print $i;
+      }
+    }
+  ' /tmp/hack.ini | awk '
     BEGIN {
       FS = "=";
       INDEX=-1;
@@ -80,26 +88,26 @@ fi
 TMPFILE="${SPATH}/rm_`cat /proc/sys/kernel/random/uuid`"
 /bin/busybox mv $FILE $TMPFILE
 (
-  if [ "$WEBHOOK" = "on" ] && [ "$WEBHOOK_URL" != "" ]; then
-    if [ "$WEBHOOK_ALERM_PICT" = "on" ] && [ "$FILE" = "$SPATH/alarm.jpg" ]; then
-      LD_LIBRARY_PATH=/tmp/system/lib:/tmp/system/usr/lib /tmp/system/lib/ld.so.1 /tmp/system/bin/curl -X POST -m 3 -F "image=@$TMPFILE" -F"type=image/jpeg" -F"device=${HOSTNAME}" $INSECURE_FLAG $WEBHOOK_URL > /dev/null 2>&1
+  if [ "$WEBHOOK_URL" != "" ]; then
+    if [ "$WEBHOOK_ALERM_PICT" = "on" ] && [ "${FILE##*.}" = "jpg" ]; then
+      LD_LIBRARY_PATH=/tmp/system/lib:/tmp/system/usr/lib /tmp/system/lib/ld.so.1 /tmp/system/bin/curl -X POST -m 3 -F "image=@$TMPFILE" -F "type=image/jpeg" -F "device=${HOSTNAME}" $INSECURE_FLAG $WEBHOOK_URL > /dev/console 2>&1
     fi
-    if [ "$WEBHOOK_ALERM_VIDEO" = "on" ] && [ "$FILE" = "$SPATH/alarm_record.mp4" ]; then
-      LD_LIBRARY_PATH=/tmp/system/lib:/tmp/system/usr/lib /tmp/system/lib/ld.so.1 /tmp/system/bin/curl -X POST -m 3 -F "video=@$TMPFILE" -F "type=video/mp4" -F"device=${HOSTNAME}" $INSECURE_FLAG $WEBHOOK_URL > /dev/null 2>&1
+    if [ "$WEBHOOK_ALERM_VIDEO" = "on" ] && [ "${FILE##*.}" = "mp4" ]; then
+      LD_LIBRARY_PATH=/tmp/system/lib:/tmp/system/usr/lib /tmp/system/lib/ld.so.1 /tmp/system/bin/curl -X POST -m 3 -F "video=@$TMPFILE" -F "type=video/mp4" -F "device=${HOSTNAME}" $INSECURE_FLAG $WEBHOOK_URL > /dev/null 2>&1
     fi
   fi
   if [ "$FMT" != "" ] ; then
-    if [ "$STORAGE_CIFS" = "on" -o "$STORAGE_CIFS" = "alarm" ] && /tmp/system/bin/mount_cifs.sh ; then
-      CIFSFILE=`date +"alarm_record/$STORAGE_CIFS_PATH.${FILE##*.}"`
+    if [ "$ALARMREC_CIFS" = "on" ] && /tmp/system/bin/mount_cifs.sh ; then
+      CIFSFILE=`date +"alarm_record/$ALARMREC_CIFS_PATH.${FILE##*.}"`
       OUTFILE="/mnt/$HOSTNAME/$CIFSFILE"
       DIR_PATH=${OUTFILE%/*}
       mkdir -p $DIR_PATH
-      cp -f $TMPFILE $OUTFILE
+      /bin/busybox cp -f $TMPFILE $OUTFILE
       STORAGE=", \"cifsFile\":\"${CIFSFILE}\""
     fi
 
-    if [ "$STORAGE_SDCARD" = "on" -o "$STORAGE_SDCARD" = "alarm" ]; then
-      SDCARDFILE=`date +"alarm_record/$STORAGE_SDCARD_PATH.${FILE##*.}"`
+    if [ "$ALARMREC_SDCARD" = "on" ]; then
+      SDCARDFILE=`date +"alarm_record/$ALARMREC_SDCARD_PATH.${FILE##*.}"`
       OUTFILE="/media/mmc/$SDCARDFILE"
       DIR_PATH=${OUTFILE%/*}
       mkdir -p $DIR_PATH
@@ -107,11 +115,11 @@ TMPFILE="${SPATH}/rm_`cat /proc/sys/kernel/random/uuid`"
       STORAGE="${STORAGE}, \"sdcardFile\":\"${SDCARDFILE}\""
     fi
 
-    if [ "$WEBHOOK" = "on" ] && [ "$WEBHOOK_URL" != "" ]; then
-      if [ "$WEBHOOK_ALARM_PICT_FINISH" = "on" ] && [ "$FILE" = "$SPATH/alarm.jpg" ]; then
+    if [ "$WEBHOOK_URL" != "" ]; then
+      if [ "$WEBHOOK_ALARM_PICT_FINISH" = "on" ] && [ "${FILE##*.}" = "jpg" ]; then
         LD_LIBRARY_PATH=/tmp/system/lib:/tmp/system/usr/lib /tmp/system/lib/ld.so.1 /tmp/system/bin/curl -X POST -m 3 -H "Content-Type: application/json" -d "{\"type\":\"uploadPictureFinish\", \"device\":\"${HOSTNAME}\"${STORAGE}}" $INSECURE_FLAG $WEBHOOK_URL > /dev/null 2>&1
       fi
-      if [ "$WEBHOOK_ALARM_VIDEO_FINISH" = "on" ] && [ "$FILE" = "$SPATH/alarm_record.mp4" ]; then
+      if [ "$WEBHOOK_ALARM_VIDEO_FINISH" = "on" ] && [ "${FILE##*.}" = "mp4" ]; then
         LD_LIBRARY_PATH=/tmp/system/lib:/tmp/system/usr/lib /tmp/system/lib/ld.so.1 /tmp/system/bin/curl -X POST -m 3 -H "Content-Type: application/json" -d "{\"type\":\"uploadVideoFinish\", \"device\":\"${HOSTNAME}\"${STORAGE}}" $INSECURE_FLAG $WEBHOOK_URL > /dev/null 2>&1
       fi
     fi

@@ -44,9 +44,9 @@ case "$1" in
     if [ ! -f /configs/etc/wpa_supplicant.conf ] ; then
       cp -pr /etc/wpa_supplicant.conf /configs/etc
     fi
-    if [ ! -d /configs/etc/lighttpd ] ; then
+    if [ ! -d /configs/etc/lighttpd ] || ! cmp /etc/lighttpd/lighttpd.conf /configs/etc/lighttpd/lighttpd.conf ; then
       mkdir -p /configs/etc/lighttpd
-      cp -pr /etc/lighttpd/* /configs/etc/lighttpd
+      cp -pr /etc/lighttpd/lighttpd.conf /configs/etc/lighttpd
     fi
     if [ ! -d /configs/root ] ; then
       mkdir -p /configs/root
@@ -73,6 +73,7 @@ case "$1" in
     mount -o bind /configs/crontabs /var/spool/cron/crontabs
     mkdir -p /media/mmc/update
     mkdir -p /media/mmc/tmp
+    rm -rf /media/mmc/.Trashes
     rm -f /media/mmc/tmp/*
     rm -f /media/mmc/timelapse.info
     rm -f /media/mmc/time_lapse.info

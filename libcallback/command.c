@@ -16,7 +16,7 @@ static int SelfPipe[2];
 
 extern char *JpegCapture(int fd, char *tokenPtr);
 extern char *VideoCommand(int fd, char *tokenPtr);
-extern char *AudioCapture(int fd, char *tokenPtr);
+extern char *AudioCommand(int fd, char *tokenPtr);
 extern char *MotorMove(int fd, char *tokenPtr);
 extern char *WaitMotion(int fd, char *tokenPtr);
 extern char *NightLight(int fd, char *tokenPtr);
@@ -25,8 +25,11 @@ extern char *CurlConfig(int fd, char *tokenPtr);
 extern char *Timelapse(int fd, char *tokenPtr);
 extern char *MP4Write(int fd, char *tokenPtr);
 extern char *AlarmInterval(int fd, char *tokenPtr);
+extern char *UserConfig(int fd, char *tokenPtr);
+extern char *AlarmConfig(int fd, char *tokenPtr);
 
 char *CommandResBuf[256];
+int wyze = 0;
 
 struct CommandTableSt {
   const char *cmd;
@@ -35,7 +38,7 @@ struct CommandTableSt {
 
 struct CommandTableSt CommandTable[] = {
   { "video",      &VideoCommand },
-  { "audio",      &AudioCapture },
+  { "audio",      &AudioCommand },
   { "jpeg",       &JpegCapture },
   { "move",       &MotorMove },
   { "waitMotion", &WaitMotion },
@@ -45,6 +48,8 @@ struct CommandTableSt CommandTable[] = {
   { "timelapse",  &Timelapse },
   { "mp4write",   &MP4Write },
   { "alarm",      &AlarmInterval },
+  { "config",     &UserConfig },
+  { "alarmConfig",&AlarmConfig },
 };
 
 void CommandResponse(int fd, const char *res) {
@@ -187,9 +192,29 @@ static void *CommandThread(void *arg) {
   }
 }
 
+void Dump(const char *str, void *start, int size) {
+  fprintf(stderr, "Dump %08x %s\n", (unsigned int)start, str);
+  for(int i = 0; i < size; i+= 16) {
+    char buf1[256];
+    char buf2[256];
+    sprintf(buf1, "%08x : ", (unsigned int)i);
+    for(int j = 0; j < 16; j++) {
+      if(i + j >= size) break;
+      unsigned char d = ((unsigned char *)start)[i + j];
+      sprintf(buf1 + strlen(buf1), "%02x ", d);
+      if((d < 0x20) || (d > 0x7f)) d = '.';
+      sprintf(buf2 + j, "%c", d);
+    }
+    fprintf(stderr, "%s %s\n", buf1, buf2);
+  }
+}
+
 static void __attribute ((constructor)) command_init(void) {
 
   unsetenv("LD_PRELOAD");
+  char *p = getenv("PRODUCT_MODEL");
+  if(!strcmp(p, "WYZE_CAKP2JFUS")) wyze = 1;
+
   if(pipe(SelfPipe)) {
     fprintf(stderr, "pipe error\n");
     return;

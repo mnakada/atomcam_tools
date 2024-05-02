@@ -1,8 +1,8 @@
 <template>
   <div>
-    <div class="title">
+    <div class="title" :class="'title_' + distributor">
       <div>
-        ATOMCam Hack
+        {{ distributor }}Cam Hack
         <span class="version">
           Ver.{{ config.ATOMHACKVER }}
         </span>
@@ -26,140 +26,215 @@
         </a>
       </div>
     </div>
-    <div class="well-transparent container">
-      <div class="image-frame" :style="imageFrameStyle">
-        <div class="image-frame-inner1">
-          <ElSlider v-if="isSwing && posValid" class="tilt-slider" v-model="tilt" :min="0" :max="180" vertical :show-input-controls="false" height="100%" @change="Move" @input="Move" />
-          <ElTooltip v-if="!rebooting" :tabindex="-1" placement="top" :content="stillFullView?$t('imageFrame.clickToShrink'):$t('imageFrame.clickToExpand')" effect="light" :open-delay="500">
-            <img class="still-image" :src="stillImage" @click="stillFullView=!stillFullView">
-          </ElTooltip>
-        </div>
-        <div v-if="isSwing && posValid" class="image-frame-inner2">
-          <ElSlider class="pan-slider" v-model="pan" :min="0" :max="355" :show-input-controls="false" @change="Move" @input="Move" />
-        </div>
-        <div v-if="!rebooting" class="image-frame-inner3">
-          <i class="el-icon-moon ir-led" />
-          <ElButtonGroup>
-            <ElButton size="mini" type="primary" @click="NightLight('on')">
-              on
-            </ElButton>
-            <ElButton size="mini" type="primary" @click="NightLight('auto')">
-              auto
-            </ElButton>
-            <ElButton size="mini" type="primary" @click="NightLight('off')">
-              off
-            </ElButton>
-          </ElButtonGroup>
-        </div>
-      </div>
 
-      <h3 v-t="'basicSettings.title'" />
-      <SettingInput i18n="basicSettings.deviceName" type="text" v-model="config.HOSTNAME" />
-      <SettingSwitch i18n="basicSettings.loginAuthentication" v-model="loginAuth" />
-      <SettingInput v-if="loginAuth==='on'" i18n="basicSettings.account" type="text" v-model="account" />
-      <SettingInput v-if="loginAuth==='on'" i18n="basicSettings.password" type="password" v-model="password" />
+    <div>
+      <ElTabs tabPosition="left" @tab-click="HandleTabsClick">
+        <ElTabPane class="well-transparent container-no-submit" :label="$t('camera.tab')">
+          <div class="image-frame">
+            <div class="image-frame-inner1">
+              <ElSlider v-if="isSwing && posValid" class="tilt-slider" v-model="tilt" :min="0" :max="180" vertical :show-input-controls="false" height="100%" @change="Move" @input="Move" />
+              <img class="still-image" :src="stillImage">
+            </div>
+            <div v-if="isSwing && posValid" class="image-frame-inner2">
+              <ElSlider class="pan-slider" v-model="pan" :min="0" :max="355" :show-input-controls="false" @change="Move" @input="Move" />
+            </div>
+            <div v-if="!rebooting" class="image-frame-inner3">
+              <i class="el-icon-moon ir-led" />
+              <ElButtonGroup>
+                <ElButton size="mini" type="primary" @click="NightLight('on')">
+                  on
+                </ElButton>
+                <ElButton size="mini" type="primary" @click="NightLight('auto')">
+                  auto
+                </ElButton>
+                <ElButton size="mini" type="primary" @click="NightLight('off')">
+                  off
+                </ElButton>
+              </ElButtonGroup>
+            </div>
+          </div>
+        </ElTabPane>
 
-      <h3 v-t="'recording.title'" />
-      <SettingSwitch i18n="recording.localRecordingSchedule" v-model="config.RECORDING_LOCAL_SCHEDULE" @change="(config.RECORDING_LOCAL_SCHEDULE === 'on') && !schedule.length && AddSchedule()" />
-      <div v-if="config.RECORDING_LOCAL_SCHEDULE === 'on'">
-        <SettingSchedule v-for="(timeTable, idx) of schedule" :key="'timetable'+idx" :timeRange="true" v-model="schedule[idx]" @add="AddSchedule" @remove="DeleteSchedule(idx)" />
-      </div>
-      <SettingSwitch i18n="recording.SDCard" v-model="storage_sdcard_record" :onOff="false" />
-      <SettingSwitch i18n="recording.SDCard.motionRecording" v-model="storage_sdcard_alarm" :onOff="false" />
-      <SettingSwitch v-if="storage_sdcard" i18n="recording.SDCard.networkAccess" :titleOffset="2" v-model="config.STORAGE_SDCARD_PUBLISH" />
-      <SettingInput v-if="storage_sdcard" i18n="recording.SDCard.savePath" :titleOffset="2" :span="10" type="text" v-model="config.STORAGE_SDCARD_PATH" @input="FixPath('STORAGE_SDCARD_PATH')" />
-      <SettingSwitch v-if="storage_sdcard" i18n="recording.SDCard.directWrite" :titleOffset="2" v-model="config.STORAGE_SDCARD_DIRECT_WRITE" />
-      <SettingSwitch v-if="storage_sdcard" i18n="recording.SDCard.automaticDeletion" :titleOffset="2" v-model="config.STORAGE_SDCARD_REMOVE" />
-      <SettingInputNumber v-if="storage_sdcard && config.STORAGE_SDCARD_REMOVE === 'on'" i18n="recording.SDCard.daysToKeep" :titleOffset="2" :span="3" v-model="config.STORAGE_SDCARD_REMOVE_DAYS" :min="1" />
-      <SettingButton v-if="storage_sdcard" i18n="recording.SDCard.seeAllFiles" :span="4">
-        <a href="/sdcard" target="_blank" class="el-button el-button--primary el-button--mini link-button">SD Card</a>
-      </SettingButton>
+        <ElTabPane class="well-transparent container-no-submit" :label="$t('SDCard.tab')">
+          <iframe ref="sdcardFrame" class="sdcard-frame" src="/sdcard" />
+        </ElTabPane>
 
-      <SettingSwitch i18n="recording.NAS" v-model="storage_cifs_record" :onOff="false" />
-      <SettingSwitch i18n="recording.NAS.motionRecording" v-model="storage_cifs_alarm" :onOff="false" />
-      <SettingInput v-if="storage_cifs" i18n="recording.NAS.networkPath" :titleOffset="2" :span="10" type="text" v-model="config.STORAGE_CIFSSERVER" @input="FixPath('STORAGE_CIFSSERVER')" />
-      <SettingInput v-if="storage_cifs" i18n="recording.NAS.account" :titleOffset="2" type="text" v-model="config.STORAGE_CIFSUSER" />
-      <SettingInput v-if="storage_cifs" i18n="recording.NAS.password" :titleOffset="2" type="password" v-model="config.STORAGE_CIFSPASSWD" show-password />
-      <SettingInput v-if="storage_cifs" i18n="recording.NAS.savePath" :titleOffset="2" :span="10" type="text" v-model="config.STORAGE_CIFS_PATH" @input="FixPath('STORAGE_CIFS_PATH')" />
-      <SettingSwitch v-if="storage_cifs" i18n="recording.NAS.automaticDeletion" :titleOffset="2" v-model="config.STORAGE_CIFS_REMOVE" />
-      <SettingInputNumber v-if="storage_cifs && config.STORAGE_CIFS_REMOVE === 'on'" i18n="recording.NAS.daysToKeep" :titleOffset="2" :span="3" v-model="config.STORAGE_CIFS_REMOVE_DAYS" :min="1" />
+        <ElTabPane class="well-transparent container" :label="$t('record.tab')">
+          <h3 v-t="'record.periodicRec.title'" />
+          <SettingSwitch i18n="record.SDCard" v-model="config.PERIODICREC_SDCARD" />
+          <div v-if="config.PERIODICREC_SDCARD === 'on'">
+            <SettingSwitch i18n="record.SDCard.automaticDeletion" :titleOffset="2" v-model="config.PERIODICREC_SDCARD_REMOVE" />
+            <SettingInputNumber v-if="config.PERIODICREC_SDCARD_REMOVE === 'on'" i18n="record.SDCard.daysToKeep" :titleOffset="2" :span="3" v-model="config.PERIODICREC_SDCARD_REMOVE_DAYS" :min="1" />
+          </div>
+          <SettingSwitch i18n="record.NAS" v-model="config.PERIODICREC_CIFS" />
+          <div v-if="config.PERIODICREC_CIFS === 'on'">
+            <SettingInput i18n="record.NAS.savePath" :titleOffset="2" :span="10" type="text" v-model="config.PERIODICREC_CIFS_PATH" @input="FixPath('PERIODICREC_CIFS_PATH')" />
+            <SettingSwitch i18n="record.NAS.automaticDeletion" :titleOffset="2" v-model="config.PERIODICREC_CIFS_REMOVE" />
+            <SettingInputNumber v-if="config.PERIODICREC_CIFS_REMOVE === 'on'" i18n="record.NAS.daysToKeep" :titleOffset="2" :span="3" v-model="config.PERIODICREC_CIFS_REMOVE_DAYS" :min="1" />
+          </div>
+          <div v-if="config.PERIODICREC_SDCARD === 'on' || config.PERIODICREC_CIFS === 'on'">
+            <SettingSwitch i18n="record.recordingSchedule" v-model="config.PERIODICREC_SCHEDULE" @change="(config.PERIODICREC_SCHEDULE === 'on') && !periodicRecSchedule.length && AddSchedule('periodicRecSchedule')" />
+            <div v-if="config.PERIODICREC_SCHEDULE === 'on'">
+              <SettingSchedule v-for="(timeTable, idx) of periodicRecSchedule" :key="'timetable'+idx" :timeRange="true" v-model="periodicRecSchedule[idx]" @add="AddSchedule('periodicRecSchedule')" @remove="DeleteSchedule('periodicRecSchedule', idx, 'PERIODICREC_SCHEDULE')" />
+            </div>
+          </div>
 
-      <SettingSwitch i18n="recording.timelapse" v-model="config.TIMELAPSE" />
-      <SettingInput v-if="config.TIMELAPSE === 'on'" i18n="recording.timelapse.savePath" :titleOffset="2" :span="10" type="text" v-model="config.TIMELAPSE_PATH" @input="FixPath('TIMELAPSE_PATH')" />
-      <SettingInputNumber v-if="config.TIMELAPSE === 'on'" i18n="recording.timelapse.fps" :titleOffset="2" :span="3" v-model="config.TIMELAPSE_FPS" :min="1" :max="60" />
-      <SettingSchedule v-if="config.TIMELAPSE === 'on'" v-model="timelapse" :timelapse="true" />
-      <SettingComment v-if="config.TIMELAPSE === 'on'" i18n="recording.timelapse.note" />
-      <SettingProgress v-if="timelapseInfo.busy" i18n="recording.timelapse.start" :titleOffset="2" :percentage="timelapseInfo.count * 100 / timelapseInfo.max" :label="timelapseInfo.count.toString() + '/' + timelapseInfo.max.toString()" />
-      <SettingDangerButton v-if="timelapseInfo.busy" i18n="recording.timelapse.stop" :titleOffset="2" icon="el-icon-refresh-left" @click="TimelapseAbort">
-        <span v-if="timelapseInfo.abort" v-t="recording.timelapse.stop.comment" />
-      </SettingDangerButton>
+          <h3 v-t="'record.alarmRec.title'" />
+          <SettingSwitch i18n="record.SDCard" v-model="config.ALARMREC_SDCARD" />
+          <div v-if="config.ALARMREC_SDCARD === 'on'">
+            <SettingInput i18n="record.SDCard.savePath" :titleOffset="2" :span="10" type="text" v-model="config.ALARMREC_SDCARD_PATH" @input="FixPath('ALARMREC_SDCARD_PATH')" />
+            <SettingSwitch i18n="record.SDCard.automaticDeletion" :titleOffset="2" v-model="config.ALARMREC_SDCARD_REMOVE" />
+            <SettingInputNumber v-if="config.ALARMREC_SDCARD_REMOVE === 'on'" i18n="record.SDCard.daysToKeep" :titleOffset="2" :span="3" v-model="config.ALARMREC_SDCARD_REMOVE_DAYS" :min="1" />
+          </div>
+          <SettingSwitch i18n="record.NAS" v-model="config.ALARMREC_CIFS" />
+          <div v-if="config.ALARMREC_CIFS === 'on'">
+            <SettingInput i18n="record.NAS.savePath" :titleOffset="2" :span="10" type="text" v-model="config.ALARMREC_CIFS_PATH" @input="FixPath('ALARMREC_CIFS_PATH')" />
+            <SettingSwitch i18n="record.NAS.automaticDeletion" :titleOffset="2" v-model="config.ALARMREC_CIFS_REMOVE" />
+            <SettingInputNumber v-if="config.ALARMREC_CIFS_REMOVE === 'on'" i18n="record.NAS.daysToKeep" :titleOffset="2" :span="3" v-model="config.ALARMREC_CIFS_REMOVE_DAYS" :min="1" />
+          </div>
+          <div v-if="config.ALARMREC_SDCARD === 'on' || config.ALARMREC_CIFS === 'on'">
+            <SettingSwitch i18n="record.recordingSchedule" v-model="config.ALARMREC_SCHEDULE" @change="(config.ALARMREC_SCHEDULE === 'on') && !alarmRecSchedule.length && AddSchedule('alarmRecSchedule')" />
+            <div v-if="config.ALARMREC_SCHEDULE === 'on'">
+              <SettingSchedule v-for="(timeTable, idx) of alarmRecSchedule" :key="'timetable'+idx" :timeRange="true" v-model="alarmRecSchedule[idx]" @add="AddSchedule('alarmRecSchedule')" @remove="DeleteSchedule('alarmRecSchedule', idx, 'ALARMREC_SCHEDULE')" />
+            </div>
+          </div>
+        </ElTabPane>
 
-      <h3 v-t="'RTSP.title'" />
-      <SettingSwitch i18n="RTSP.main" v-model="config.RTSP_VIDEO0" />
-      <SettingSwitch v-if="config.RTSP_VIDEO0 === 'on'" i18n="RTSP.main.audio" :titleOffset="2" v-model="config.RTSP_AUDIO0" />
-      <SettingInput v-if="config.RTSP_VIDEO0 === 'on'" i18n="RTSP.main.URL" :titleOffset="2" :span="10" type="readonly" v-model="RtspUrl0" />
-      <SettingSwitch v-if="config.RTSP_VIDEO0 === 'on'" i18n="RTSP.main.format" :titleOffset="2" v-model="config.RTSP_MAIN_FORMAT_HEVC" />
-      <SettingSwitch i18n="RTSP.sub" v-model="config.RTSP_VIDEO1" />
-      <SettingSwitch v-if="config.RTSP_VIDEO1 === 'on'" i18n="RTSP.sub.audio" :titleOffset="2" v-model="config.RTSP_AUDIO1" />
-      <SettingInput v-if="config.RTSP_VIDEO1 === 'on'" i18n="RTSP.sub.URL" :titleOffset="2" :span="10" type="readonly" v-model="RtspUrl1" />
-      <SettingSwitch v-if="(config.RTSP_VIDEO0 === 'on') || (config.RTSP_VIDEO1 === 'on')" i18n="RTSP.http" v-model="config.RTSP_OVER_HTTP" />
+        <ElTabPane class="well-transparent container" :label="$t('timelapse.tab')">
+          <h3 v-t="'timelapse.title'" />
+          <SettingSwitch i18n="record.SDCard" v-model="config.TIMELAPSE_SDCARD" />
+          <div v-if="config.TIMELAPSE_SDCARD === 'on'">
+            <SettingInput i18n="record.SDCard.savePath" :titleOffset="2" :span="10" type="text" v-model="config.TIMELAPSE_SDCARD_PATH" @input="FixPath('TIMELAPSE_SDCARD_PATH')" />
+            <SettingSwitch i18n="record.SDCard.automaticDeletion" :titleOffset="2" v-model="config.TIMELAPSE_SDCARD_REMOVE" />
+            <SettingInputNumber v-if="config.TIMELAPSE_SDCARD_REMOVE === 'on'" i18n="record.SDCard.daysToKeep" :titleOffset="2" :span="3" v-model="config.TIMELAPSE_SDCARD_REMOVE_DAYS" :min="1" />
+          </div>
+          <SettingSwitch i18n="record.NAS" v-model="config.TIMELAPSE_CIFS" />
+          <div v-if="config.TIMELAPSE_CIFS === 'on'">
+            <SettingInput i18n="record.NAS.savePath" :titleOffset="2" :span="10" type="text" v-model="config.TIMELAPSE_CIFS_PATH" @input="FixPath('TIMELAPSE_CIFS_PATH')" />
+            <SettingSwitch i18n="record.NAS.automaticDeletion" :titleOffset="2" v-model="config.TIMELAPSE_CIFS_REMOVE" />
+            <SettingInputNumber v-if="config.TIMELAPSE_CIFS_REMOVE === 'on'" i18n="record.NAS.daysToKeep" :titleOffset="2" :span="3" v-model="config.TIMELAPSE_CIFS_REMOVE_DAYS" :min="1" />
+          </div>
+          <div v-if="config.TIMELAPSE_SDCARD === 'on' || config.TIMELAPSE_CIFS === 'on'">
+            <SettingSchedule v-model="timelapse" :timelapse="true" i18n="timelapse.setting" />
+            <SettingComment i18n="timelapse.note" />
+            <SettingInputNumber i18n="timelapse.fps" :span="3" v-model="config.TIMELAPSE_FPS" :min="1" :max="60" />
+            <SettingProgress v-if="timelapseInfo.busy" i18n="timelapse.start" :percentage="timelapseInfo.count * 100 / timelapseInfo.max" :label="timelapseInfo.count.toString() + '/' + timelapseInfo.max.toString()" />
+            <SettingDangerButton v-if="timelapseInfo.busy" i18n="timelapse.stop" icon="el-icon-refresh-left" @click="TimelapseAbort">
+              <span v-if="timelapseInfo.abort" v-t="timelapse.stop.comment" />
+            </SettingDangerButton>
+          </div>
+        </ElTabPane>
 
-      <h3 v-t="'event.title'" />
-      <SettingSwitch i18n="event.webhook" v-model="config.WEBHOOK" />
-      <SettingInput v-if="config.WEBHOOK === 'on'" i18n="event.webhook.URL" :titleOffset="2" :span="10" type="text" v-model="config.WEBHOOK_URL" />
-      <SettingSwitch v-if="config.WEBHOOK === 'on'" i18n="event.webhook.insecure" :titleOffset="3" v-model="config.WEBHOOK_INSECURE" />
-      <SettingSwitch v-if="config.WEBHOOK === 'on'" i18n="event.webhook.alarm" :titleOffset="2" v-model="config.WEBHOOK_ALARM_EVENT" />
-      <SettingSwitch v-if="config.WEBHOOK === 'on'" i18n="event.webhook.information" :titleOffset="2" v-model="config.WEBHOOK_ALARM_INFO" />
-      <SettingSwitch v-if="config.WEBHOOK === 'on'" i18n="event.webhook.recordingEnd" :titleOffset="2" v-model="config.WEBHOOK_ALARM_VIDEO_FINISH" />
-      <SettingSwitch v-if="config.WEBHOOK === 'on'" i18n="event.webhook.recordingTransfer" :titleOffset="2" tooltip="" v-model="config.WEBHOOK_ALERM_VIDEO" />
-      <SettingSwitch v-if="config.WEBHOOK === 'on'" i18n="event.webhook.screenshotEnd" :titleOffset="2" v-model="config.WEBHOOK_ALARM_PICT_FINISH" />
-      <SettingSwitch v-if="config.WEBHOOK === 'on'" i18n="event.webhook.screenshotTransfer" :titleOffset="2" v-model="config.WEBHOOK_ALERM_PICT" />
-      <SettingSwitch v-if="config.WEBHOOK === 'on'" i18n="event.webhook.recordingSave" :titleOffset="2" v-model="config.WEBHOOK_RECORD_EVENT" />
-      <SettingSwitch v-if="config.WEBHOOK === 'on'" i18n="event.webhook.startTimelapse" :titleOffset="2" v-model="config.WEBHOOK_TIMELAPSE_START" />
-      <SettingSwitch v-if="config.WEBHOOK === 'on'" i18n="event.webhook.recordTimelapse" :titleOffset="2" v-model="config.WEBHOOK_TIMELAPSE_EVENT" />
-      <SettingSwitch v-if="config.WEBHOOK === 'on'" i18n="event.webhook.endTimeLapse" :titleOffset="2" v-model="config.WEBHOOK_TIMELAPSE_FINISH" />
+        <ElTabPane class="well-transparent container" :label="$t('media.tab')">
+          <h3 v-t="'SDCardSettings.title'" />
+          <SettingSwitch i18n="SDCardSettings.smbAccess" v-model="config.STORAGE_SDCARD_PUBLISH" />
+          <SettingSwitch i18n="SDCardSettings.directWrite" v-model="config.STORAGE_SDCARD_DIRECT_WRITE" />
+          <SettingDangerButton i18n="SDCardSettings.eraseSDCard" icon="el-icon-folder-delete" @click="DoErase" />
 
-      <h3 v-t="'motionDetect.title'" />
-      <SettingSwitch i18n="motionDetect.sensorPeriod" v-model="config.MINIMIZE_ALARM_CYCLE" />
-      <SettingSwitch i18n="motionDetect.uploadStop" v-model="config.AWS_VIDEO_DISABLE" />
+          <h3 v-t="'NASSettings.title'" />
+          <SettingInput i18n="NASSettings.networkPath" :span="10" type="text" v-model="config.STORAGE_CIFSSERVER" @input="FixPath('STORAGE_CIFSSERVER')" />
+          <SettingInput i18n="NASSettings.account" type="text" v-model="config.STORAGE_CIFSUSER" />
+          <SettingInput i18n="NASSettings.password" type="password" v-model="config.STORAGE_CIFSPASSWD" show-password />
+        </ElTabPane>
 
-      <div v-if="isSwing" @click="ClearCruiseSelect">
-        <h3 v-t="'cruise.title'" />
-        <SettingSwitch i18n="cruise.cameraMotion" v-model="config.CRUISE" @change="(config.CRUISE === 'on') && !cruiseList.length && AddCruise()" @click.native.stop />
-        <div v-if="config.CRUISE === 'on'">
-          <SettingCruise v-for="(cruise, idx) of cruiseList" :key="'timetable'+idx" v-model="cruiseList[idx]" :pan="pan" :tilt="tilt" :selected="cruiseSelect === idx" @add="AddCruise" @remove="DeleteCruise(idx)" @pan="pan=$event" @tilt="tilt=$event" @click="CruiseSelect(idx)" />
-        </div>
-      </div>
+        <ElTabPane class="well-transparent container" :label="$t('RTSP.tab')">
+          <h3 v-t="'RTSP.title'" />
+          <SettingSwitch i18n="RTSP.main" v-model="config.RTSP_VIDEO0" />
+          <SettingSwitch v-if="config.RTSP_VIDEO0 === 'on'" i18n="RTSP.main.audio" :titleOffset="2" v-model="config.RTSP_AUDIO0" />
+          <SettingInput v-if="config.RTSP_VIDEO0 === 'on'" i18n="RTSP.main.URL" :titleOffset="2" :span="10" type="readonly" v-model="RtspUrl0" />
+          <SettingSwitch v-if="(config.RTSP_VIDEO0 === 'on') && (distributor === 'ATOM')" i18n="RTSP.main.format" :titleOffset="2" v-model="config.RTSP_MAIN_FORMAT_HEVC" />
+          <SettingSwitch i18n="RTSP.sub" v-model="config.RTSP_VIDEO1" />
+          <SettingSwitch v-if="config.RTSP_VIDEO1 === 'on'" i18n="RTSP.sub.audio" :titleOffset="2" v-model="config.RTSP_AUDIO1" />
+          <SettingInput v-if="config.RTSP_VIDEO1 === 'on'" i18n="RTSP.sub.URL" :titleOffset="2" :span="10" type="readonly" v-model="RtspUrl1" />
+          <div v-if="(config.RTSP_VIDEO0 === 'on') || (config.RTSP_VIDEO1 === 'on')">
+            <SettingSwitch i18n="RTSP.http" v-model="config.RTSP_OVER_HTTP" />
+            <SettingSwitch i18n="RTSP.auth" v-model="config.RTSP_AUTH" />
+            <SettingInput v-if="config.RTSP_AUTH === 'on'" i18n="RTSP.account" type="text" :titleOffset="2" v-model="config.RTSP_USER" />
+            <SettingInput v-if="config.RTSP_AUTH === 'on'" i18n="RTSP.password" type="password" :titleOffset="2" v-model="config.RTSP_PASSWD" show-password />
+          </div>
+        </ElTabPane>
 
-      <h3 v-t="'videoSpec.title'" />
-      <SettingInputNumber i18n="videoSpec.frameRate" :withSwitch="true" :defaultValue="20" :span="3" v-model="config.FRAMERATE" :min="1" :max="28" />
-      <SettingInputNumber i18n="videoSpec.bitrateMainAVC" :withSwitch="true" :span="3" v-model="config.BITRATE_MAIN_AVC" :min="300" :max="2000" />
-      <SettingInputNumber i18n="videoSpec.bitrateMainHEVC" :withSwitch="true" :span="3" v-model="config.BITRATE_MAIN_HEVC" :min="300" :max="2000" />
-      <SettingInputNumber i18n="videoSpec.bitrateSubHEVC" :withSwitch="true" :span="3" v-model="config.BITRATE_SUB_HEVC" :min="100" :max="500" />
+        <ElTabPane class="well-transparent container" :label="$t('event.tab')">
+          <h3 v-t="'event.webhook.title'" />
+          <SettingInput i18n="event.webhook.URL" :span="10" type="text" v-model="config.WEBHOOK_URL" />
+          <SettingSwitch i18n="event.webhook.insecure" :titleOffset="2" v-model="config.WEBHOOK_INSECURE" />
+          <SettingSwitch i18n="event.webhook.alarm" v-model="config.WEBHOOK_ALARM_EVENT" />
+          <SettingSwitch v-if="(distributor === 'ATOM')" i18n="event.webhook.information" v-model="config.WEBHOOK_ALARM_INFO" />
+          <SettingSwitch i18n="event.webhook.recordingEnd" v-model="config.WEBHOOK_ALARM_VIDEO_FINISH" />
+          <SettingSwitch i18n="event.webhook.recordingTransfer" tooltip="" v-model="config.WEBHOOK_ALERM_VIDEO" />
+          <SettingSwitch i18n="event.webhook.screenshotEnd" v-model="config.WEBHOOK_ALARM_PICT_FINISH" />
+          <SettingSwitch i18n="event.webhook.screenshotTransfer" v-model="config.WEBHOOK_ALERM_PICT" />
+          <SettingSwitch i18n="event.webhook.recordingSave" v-model="config.WEBHOOK_RECORD_EVENT" />
+          <SettingSwitch i18n="event.webhook.startTimelapse" v-model="config.WEBHOOK_TIMELAPSE_START" />
+          <SettingSwitch i18n="event.webhook.recordTimelapse" v-model="config.WEBHOOK_TIMELAPSE_EVENT" />
+          <SettingSwitch i18n="event.webhook.endTimeLapse" v-model="config.WEBHOOK_TIMELAPSE_FINISH" />
+        </ElTabPane>
 
-      <h3 v-t="'monitoring.title'" />
-      <SettingSwitch i18n="monitoring.network" v-model="config.MONITORING_NETWORK" />
-      <SettingSwitch v-if="config.MONITORING_NETWORK === 'on'" i18n="monitoring.reboot" v-model="config.MONITORING_REBOOT" :titleOffset="2" />
-      <SettingSwitch i18n="monitoring.ping" v-model="config.HEALTHCHECK" />
-      <SettingInput v-if="config.HEALTHCHECK === 'on'" i18n="monitoring.URL" :titleOffset="2" :span="10" type="text" v-model="config.HEALTHCHECK_PING_URL" />
+        <ElTabPane v-if="isSwing && posValid" class="well-transparent container" :label="$t('cruise.tab')">
+          <h3 v-t="'cruise.title'" />
+          <SettingButton i18n="cruise.initialPosition" :span="4" @click="MoveInit" />
+          <div @click="ClearCruiseSelect">
+            <SettingSwitch i18n="cruise.cameraMotion" v-model="config.CRUISE" @change="(config.CRUISE === 'on') && !cruiseList.length && AddCruise()" @click.native.stop />
+            <div v-if="config.CRUISE === 'on'">
+              <div class="image-frame image-frame-cruise">
+                <div class="image-frame-inner1">
+                  <ElSlider class="tilt-slider" v-model="tilt" :min="0" :max="180" vertical :show-input-controls="false" height="100%" @change="Move" @input="Move" />
+                  <img class="still-image" :src="stillImage">
+                </div>
+                <div class="image-frame-inner2">
+                  <ElSlider class="pan-slider" v-model="pan" :min="0" :max="355" :show-input-controls="false" @change="Move" @input="Move" />
+                </div>
+              </div>
+              <div class="cruise-padding" />
+              <SettingCruise v-for="(cruise, idx) of cruiseList" :key="'timetable'+idx" v-model="cruiseList[idx]" :pan="pan" :tilt="tilt" :selected="cruiseSelect === idx" @add="AddCruise" @remove="DeleteCruise(idx)" @pan="pan=$event" @tilt="tilt=$event" @click="CruiseSelect(idx)" />
+            </div>
+          </div>
+        </ElTabPane>
 
-      <h3 v-t="'maintenance.title'" />
-      <SettingButton v-if="isSwing" i18n="maintenance.initialPosition" :span="4" @click="MoveInit" />
-      <SettingSwitch i18n="maintenance.periodicRestart" v-model="config.REBOOT" />
-      <SettingSchedule v-if="config.REBOOT === 'on'" v-model="reboot" />
-      <SettingDangerButton i18n="maintenance.reboot" icon="el-icon-refresh-left" @click="DoReboot" />
-      <SettingDangerButton i18n="maintenance.eraseSDCard" icon="el-icon-folder-delete" @click="DoErase" />
-      <SettingDangerButton i18n="maintenance.update" icon="el-icon-refresh" :button="config.CUSTOM_ZIP === 'on' ? 'Custom Update' : 'Update'" :disabled="!updatable" @click="DoUpdate">
-        <span class="latest" :class="{ 'latest-updatable': updatable }">
-          Latest Version : Ver.{{ latestVer }}
-        </span>
-      </SettingDangerButton>
-      <SettingSwitch i18n="maintenance.customZip" v-model="config.CUSTOM_ZIP" />
-      <SettingInput v-if="config.CUSTOM_ZIP === 'on'" i18n="maintenance.customZip.URL" :titleOffset="2" :span="10" type="text" v-model="config.CUSTOM_ZIP_URL" placeholder="https://github.com/mnakada/atomcam_tools/releases/latest/download/atomcam_tools.zip" />
-      <div class="bottom-padding" />
+        <ElTabPane class="well-transparent container" :label="$t('systemSettings.tab')">
+          <h3 v-t="'deviceSettings.title'" />
+          <SettingInput i18n="deviceSettings.deviceName" type="text" v-model="config.HOSTNAME" />
+          <SettingSwitch i18n="deviceSettings.loginAuthentication" v-model="loginAuth" />
+          <SettingInput v-if="loginAuth==='on'" i18n="deviceSettings.account" type="text" v-model="account" />
+          <SettingInput v-if="loginAuth==='on'" i18n="deviceSettings.password" type="password" v-model="password" />
+
+          <h3 v-t="'motionDetect.title'" />
+          <SettingSwitch i18n="motionDetect.sensorPeriod" v-model="config.MINIMIZE_ALARM_CYCLE" />
+          <SettingSwitch i18n="motionDetect.uploadStop" v-model="config.AWS_VIDEO_DISABLE" />
+
+          <h3 v-t="'videoSpec.title'" />
+          <SettingInputNumber i18n="videoSpec.frameRate" :withSwitch="true" :defaultValue="20" :span="3" v-model="config.FRAMERATE" :min="1" :max="30" />
+          <SettingInputNumber i18n="videoSpec.bitrateMain" :withSwitch="true" :span="3" v-model="config.BITRATE_MAIN_AVC" :min="300" :max="2000" />
+          <SettingInputNumber v-if="distributor === 'ATOM'" i18n="videoSpec.bitrateMainHEVC" :withSwitch="true" :span="3" v-model="config.BITRATE_MAIN_HEVC" :min="300" :max="2000" />
+          <SettingInputNumber i18n="videoSpec.bitrateSub" :withSwitch="true" :span="3" v-model="config.BITRATE_SUB_HEVC" :min="100" :max="500" />
+        </ElTabPane>
+
+        <ElTabPane class="well-transparent container" :label="$t('maintenance.tab')">
+          <h3 v-t="'monitoring.title'" />
+          <SettingSwitch i18n="monitoring.network" v-model="config.MONITORING_NETWORK" />
+          <SettingSwitch v-if="config.MONITORING_NETWORK === 'on'" i18n="monitoring.reboot" v-model="config.MONITORING_REBOOT" :titleOffset="2" />
+          <SettingSwitch i18n="monitoring.ping" v-model="config.HEALTHCHECK" />
+          <SettingInput v-if="config.HEALTHCHECK === 'on'" i18n="monitoring.URL" :titleOffset="2" :span="10" type="text" v-model="config.HEALTHCHECK_PING_URL" />
+
+          <h3 v-t="'update.title'" />
+          <SettingDangerButton i18n="update.toolsUpdate" icon="el-icon-refresh" :button="config.CUSTOM_ZIP === 'on' ? 'Custom Update' : 'Update'" :disabled="!updatable" @click="DoUpdate">
+            <span class="latest" :class="{ 'latest-updatable': updatable }">
+              Latest Version : Ver.{{ latestVer }}
+            </span>
+          </SettingDangerButton>
+          <SettingSwitch i18n="update.customZip" v-model="config.CUSTOM_ZIP" />
+          <SettingInput v-if="config.CUSTOM_ZIP === 'on'" i18n="update.customZip.URL" :titleOffset="2" :span="10" type="text" v-model="config.CUSTOM_ZIP_URL" placeholder="https://github.com/mnakada/atomcam_tools/releases/latest/download/atomcam_tools.zip" />
+
+          <h3 v-t="'reboot.title'" />
+          <SettingSwitch i18n="reboot.periodicRestart" v-model="config.REBOOT" />
+          <SettingSchedule v-if="config.REBOOT === 'on'" v-model="reboot" />
+          <SettingDangerButton i18n="reboot.reboot" icon="el-icon-refresh-left" @click="DoReboot" />
+        </ElTabPane>
+      </ElTabs>
     </div>
-    <div class="submit">
-      <ElButton @click="Submit" type="primary" :disabled="stillFullView" v-t="'submit'" />
+
+    <div v-if="selectedTab >= 2" class="submit">
+      <ElButton @click="Submit" type="primary" v-t="'submit'" />
     </div>
     <ElDrawer :title="$t('updating.title')" :visible.sync="executing" direction="btt" :show-close="false" :wrapperClosable="false">
       <h4 class="comment" v-t="'updating.comment'" />
@@ -173,7 +248,7 @@
 <script>
   import axios from 'axios';
   import md5 from 'js-md5';
-  import { Tooltip, Drawer, Slider, ButtonGroup } from 'element-ui';
+  import { Drawer, Slider, ButtonGroup, Tabs, TabPane } from 'element-ui';
   import SettingSwitch from './SettingSwitch.vue';
   import SettingInput from './SettingInput.vue';
   import SettingInputNumber from './SettingInputNumber.vue';
@@ -184,18 +259,20 @@
   import SettingProgress from './SettingProgress.vue';
   import SettingCruise from './SettingCruise.vue';
 
-  import 'element-ui/lib/theme-chalk/tooltip.css';
   import 'element-ui/lib/theme-chalk/drawer.css';
   import 'element-ui/lib/theme-chalk/slider.css';
   import 'element-ui/lib/theme-chalk/button-group.css';
+  import 'element-ui/lib/theme-chalk/tabs.css';
+  import 'element-ui/lib/theme-chalk/tab-pane.css';
 
   export default {
     name: 'ATOMCamSetting',
     components: {
-      ElTooltip: Tooltip,
       ElDrawer: Drawer,
       ElSlider: Slider,
       ElButtonGroup: ButtonGroup,
+      ElTabs: Tabs,
+      ElTabPane: TabPane,
       SettingSwitch,
       SettingInput,
       SettingInputNumber,
@@ -209,6 +286,7 @@
     data() {
       return {
         config: {
+          CONFIG_VER: '1.0.0',
           appver: '', // ATOMCam app_ver (/atom/config/app.ver)
           ATOMHACKVER: '', // AtomHack Ver (/etc/atomhack.ver)
           PRODUCT_MODEL: '', // ATOMCam Model (/atom/configs/.product_config)
@@ -216,34 +294,51 @@
           DIGEST: '',
           REBOOT: 'off',
           REBOOT_SCHEDULE: '0 2 * * 7', // -> /var/spool/crontabs/root
-          RECORDING_LOCAL_SCHEDULE: 'off',
-          RECORDING_LOCAL_SCHEDULE_LIST: '', // -> /media/mmc/local_schedule
           RTSP_VIDEO0: 'off',
           RTSP_AUDIO0: 'off',
           RTSP_MAIN_FORMAT_HEVC: 'off',
           RTSP_VIDEO1: 'off',
           RTSP_AUDIO1: 'off',
           RTSP_OVER_HTTP: 'off',
-          STORAGE_SDCARD: 'on', // on(alarm & record), alarm, record, off
-          STORAGE_SDCARD_PUBLISH: 'off',
-          STORAGE_SDCARD_PATH: '%Y%m%d/%H%M%S',
-          STORAGE_SDCARD_REMOVE: 'off',
-          STORAGE_SDCARD_REMOVE_DAYS: 30,
-          STORAGE_SDCARD_DIRECT_WRITE: 'off',
-          STORAGE_CIFS: 'off', // on(alarm & record), alarm, record, off
-          STORAGE_CIFS_PATH: '%Y%m%d/%H%M%S',
-          STORAGE_CIFS_REMOVE: 'off',
-          STORAGE_CIFS_REMOVE_DAYS: 30,
-          STORAGE_CIFSSERVER: '',
-          STORAGE_CIFSUSER: '',
-          STORAGE_CIFSPASSWD: '',
-          TIMELAPSE: 'off',
+          RTSP_AUTH: 'off',
+          RTSP_USER: '',
+          RTSP_PASSWD: '',
+          PERIODICREC_SDCARD: 'on',
+          PERIODICREC_SDCARD_REMOVE: 'off',
+          PERIODICREC_SDCARD_REMOVE_DAYS: 30,
+          PERIODICREC_CIFS: 'off',
+          PERIODICREC_CIFS_PATH: '%Y%m%d/%H%M%S',
+          PERIODICREC_CIFS_REMOVE: 'off',
+          PERIODICREC_CIFS_REMOVE_DAYS: 30,
+          PERIODICREC_SCHEDULE: 'off',
+          PERIODICREC_SCHEDULE_LIST: '',
+          ALARMREC_SDCARD: 'on',
+          ALARMREC_SDCARD_PATH: '%Y%m%d/%H%M%S',
+          ALARMREC_SDCARD_REMOVE: 'off',
+          ALARMREC_SDCARD_REMOVE_DAYS: 30,
+          ALARMREC_CIFS: 'off',
+          ALARMREC_CIFS_PATH: '%Y%m%d/%H%M%S',
+          ALARMREC_CIFS_REMOVE: 'off',
+          ALARMREC_CIFS_REMOVE_DAYS: 30,
+          ALARMREC_SCHEDHULE: 'off',
+          ALARMREC_SCHEDULE_LIST: '',
+          TIMELAPSE_SDCARD: 'off',
+          TIMELAPSE_SDCARD_PATH: '%Y%m%d%H%M',
+          TIMELAPSE_SDCARD_REMOVE: 'off',
+          TIMELAPSE_SDCARD_REMOVE_DAYS: 30,
+          TIMELAPSE_CIFS: 'off',
+          TIMELAPSE_CIFS_PATH: '%Y%m%d%H%M',
+          TIMELAPSE_CIFS_REMOVE: 'off',
+          TIMELAPSE_CIFS_REMOVE_DAYS: 30,
           TIMELAPSE_SCHEDULE: '0 4 * * 0:1:2:3:4:5:6', // -> /var/spool/crontabs/root
-          TIMELAPSE_PATH: '%Y%m%d%H%M',
           TIMELAPSE_INTERVAL: 60,
           TIMELAPSE_COUNT: 960,
           TIMELAPSE_FPS: 20,
-          WEBHOOK: 'off',
+          STORAGE_SDCARD_PUBLISH: 'off',
+          STORAGE_SDCARD_DIRECT_WRITE: 'off',
+          STORAGE_CIFSSERVER: '',
+          STORAGE_CIFSUSER: '',
+          STORAGE_CIFSPASSWD: '',
           WEBHOOK_URL: '',
           WEBHOOK_INSECURE: 'off',
           WEBHOOK_ALARM_EVENT: 'off',
@@ -280,11 +375,8 @@
         intervalValue: {
           TIMESTAMP: '',
         },
-        storage_sdcard_record: true,
-        storage_sdcard_alarm: true,
-        storage_cifs_record: false,
-        storage_cifs_alarm: false,
-        schedule: [],
+        alarmRecSchedule: [],
+        periodicRecSchedule: [],
         timelapse: {
           dayOfWeekSelect: [0, 1, 2, 3, 4, 5, 6],
           startTime: '04:00',
@@ -303,22 +395,20 @@
           dayOfWeekSelect: [6],
         },
         rebootTime: 80,
+        stillInterval: 500,
         latestVer: '',
         executing: false,
         rebooting: false,
         stillImage: null,
-        stillFullView: false,
         pan: 0,
         tilt: 0,
         posValid: false,
+        selectedTab: 0,
       };
     },
     computed: {
-      stillInterval() {
-        return this.stillFullView ? 500 : 1000;
-      },
-      imageFrameStyle() {
-        return this.stillFullView ? { right: '10px', width: '98vw', height: '55.125vw' } : { right: '30px', width: '30vw', height: '16.875vw' };
+      distributor() {
+        return this.config.PRODUCT_MODEL.replace(/_.*$/, '');
       },
       storage_sdcard() {
         return this.storage_sdcard_record || this.storage_sdcard_alarm;
@@ -348,11 +438,13 @@
       RtspUrl0() {
         const port = (this.config.RTSP_OVER_HTTP  === 'on') ? 8080 : 8554;
         const video = (this.config.RTSP_MAIN_FORMAT_HEVC === 'on') ? 'video2' : 'video0';
-        return `rtsp://${window.location.host}:${port}/${video}_unicast`;
+        const auth = (this.config.RTSP_AUTH === 'on') && (this.config.RTSP_USER !== '') && (this.config.RTSP_PASSWD !== '') ? `${this.config.RTSP_USER}:${this.config.RTSP_PASSWD}@` : '';
+        return `rtsp://${auth}${window.location.host}:${port}/${video}_unicast`;
       },
       RtspUrl1() {
         const port = (this.config.RTSP_OVER_HTTP  === 'on') ? 8080 : 8554;
-        return `rtsp://${window.location.host}:${port}/video1_unicast`;
+        const auth = (this.config.RTSP_AUTH === 'on') && (this.config.RTSP_USER !== '') && (this.config.RTSP_PASSWD !== '') ? `${this.config.RTSP_USER}:${this.config.RTSP_PASSWD}@` : '';
+        return `rtsp://${auth}${window.location.host}:${port}/video1_unicast`;
       },
     },
     async mounted() {
@@ -382,60 +474,37 @@
         this.account = this.config.DIGEST.replace(/:.*$/, '');
       }
 
-      if(this.config.STORAGE_SDCARD === 'on') {
-        this.storage_sdcard_record = true;
-        this.storage_sdcard_alarm = true;
-      } else if(this.config.STORAGE_SDCARD === 'record') {
-        this.storage_sdcard_record = true;
-        this.storage_sdcard_alarm = false;
-      } else if(this.config.STORAGE_SDCARD === 'alarm') {
-        this.storage_sdcard_record = false;
-        this.storage_sdcard_alarm = true;
-      } else {
-        this.storage_sdcard_record = false;
-        this.storage_sdcard_alarm = false;
-      }
+      for(let schedule in ['periodicRec', 'alarmRec']) {
+        const confKey = schedule.toUpperCase() + '_SCHEDULE_LIST';
+        const innerKey = schedule + 'Schedule';
+        if(this.config[confKey]) {
+          let index = -1;
 
-      if(this.config.STORAGE_CIFS === 'on') {
-        this.storage_cifs_record = true;
-        this.storage_cifs_alarm = true;
-      } else if(this.config.STORAGE_CIFS === 'record') {
-        this.storage_cifs_record = true;
-        this.storage_cifs_alarm = false;
-      } else if(this.config.STORAGE_CIFS === 'alarm') {
-        this.storage_cifs_record = false;
-        this.storage_cifs_alarm = true;
-      } else {
-        this.storage_cifs_record = false;
-        this.storage_cifs_alarm = false;
-      }
-
-      if(this.config.RECORDING_LOCAL_SCHEDULE_LIST) {
-        let index = -1;
-        this.schedule = this.config.RECORDING_LOCAL_SCHEDULE_LIST.split(';').reduce((d, l) => {
-          if(l.search(/\[index_.*\]/) >= 0) {
-            index = l.replace(/^.*_(\d*).*$/, '$1') - 1;
-            d[index] = {};
-            return d;
-          }
-          const ll = l.split(/=/);
-          if(ll[0] === 'Rule') {
-            d[index].dayOfWeekSelect = [];
-            for(let i = 0; i < 7; i++) {
-              if(ll[1] & (2 << i)) d[index].dayOfWeekSelect.push(i);
+          this.$set(this, innerKey, this.config[confKey].split(';').reduce((d, l) => {
+            if(l.search(/\[index_.*\]/) >= 0) {
+              index = l.replace(/^.*_(\d*).*$/, '$1') - 1;
+              d[index] = {};
+              return d;
             }
-          }
-          if(ll[0] === 'ContinueTime') d[index].continueTimeNum = parseInt(ll[1]);
-          if(ll[0] === 'StartTime') d[index].startTimeNum = parseInt(ll[1]);
-          if((d[index].continueTimeNum != null) && (d[index].startTimeNum != null)) {
-            d[index].startTime = parseInt(d[index].startTimeNum / 60).toString().padStart(2, '0') + ':' + (d[index].startTimeNum % 60).toString().padStart(2, '0');
-            const endTime = d[index].startTimeNum + d[index].continueTimeNum - 1;
-            d[index].endTime = parseInt(endTime / 60).toString().padStart(2, '0') + ':' + (endTime % 60).toString().padStart(2, '0');
-            delete(d[index].continueTimeNum);
-            delete(d[index].startTimeNum);
-          }
-          return d;
-        }, []);
+            const ll = l.split(/=/);
+            if(ll[0] === 'Rule') {
+              d[index].dayOfWeekSelect = [];
+              for(let i = 0; i < 7; i++) {
+                if(ll[1] & (2 << i)) d[index].dayOfWeekSelect.push(i);
+              }
+            }
+            if(ll[0] === 'ContinueTime') d[index].continueTimeNum = parseInt(ll[1]);
+            if(ll[0] === 'StartTime') d[index].startTimeNum = parseInt(ll[1]);
+            if((d[index].continueTimeNum != null) && (d[index].startTimeNum != null)) {
+              d[index].startTime = parseInt(d[index].startTimeNum / 60).toString().padStart(2, '0') + ':' + (d[index].startTimeNum % 60).toString().padStart(2, '0');
+              const endTime = d[index].startTimeNum + d[index].continueTimeNum - 1;
+              d[index].endTime = parseInt(endTime / 60).toString().padStart(2, '0') + ':' + (endTime % 60).toString().padStart(2, '0');
+              delete(d[index].continueTimeNum);
+              delete(d[index].startTimeNum);
+            }
+            return d;
+          }, []));
+        }
       }
 
       if(this.config.TIMELAPSE_SCHEDULE) {
@@ -540,6 +609,9 @@
       this.StillImageInterval();
     },
     methods: {
+      HandleTabsClick(tab) {
+        this.selectedTab = parseInt(tab.index);
+      },
       async Move() {
         if(!this.posValid) return;
         await this.Exec(`move ${this.pan} ${this.tilt}`, 'socket');
@@ -567,17 +639,17 @@
         if(this.imageTimeout) clearTimeout(this.imageTimeout);
         this.imageTimeout = setTimeout(this.StillImageInterval.bind(this), this.stillInterval);
       },
-      AddSchedule() {
-        this.schedule.push({
+      AddSchedule(schedule) {
+        this[schedule].push({
           allDay: true,
           startTime: '00:00',
           endTime: '23:59',
           dayOfWeekSelect: [0, 1, 2, 3, 4, 5, 6],
         });
       },
-      DeleteSchedule(i) {
-        this.schedule.splice(i, 1);
-        if(!this.schedule.length) this.config.RECORDING_LOCAL_SCHEDULE = false;
+      DeleteSchedule(schedule, i, confKey) {
+        this[schedule].splice(i, 1);
+        if(!this[schedule].length) this.$set(this.config, confKey, 'off');
       },
       AddCruise() {
         this.cruiseList.push({
@@ -642,49 +714,33 @@
           this.config.DIGEST='';
         }
 
-        let str = '';
-        for(const i in this.schedule) {
-          const timeTable = this.schedule[i];
-          str += `[index_${(i - 0 + 1).toString().padStart(2, '0')}];`;
-          const val = timeTable.dayOfWeekSelect.reduce((v, d) => v | (2 << d), 0);
-          str += `Rule=${val};`;
-          const stime = parseInt(timeTable.startTime.slice(0, 2)) * 60 + parseInt(timeTable.startTime.slice(-2));
-          const etime = parseInt(timeTable.endTime.slice(0, 2)) * 60 + parseInt(timeTable.endTime.slice(-2)) + 1;
-          str += `ContinueTime=${etime - stime};`;
-          str += `StartTime=${stime};`;
-          str += `Status=1;`;
-          str += `DelFlags=1;`;
+        for(let schedule in ['periodicRec', 'alarmRec']) {
+          const confKey = schedule.toUpperCase() + '_SCHEDULE_LIST';
+          const innerKey = schedule + 'Schedule';
+          let str = '';
+          for(const i in this[innerKey]) {
+            const timeTable = this[innerKey][i];
+            str += `[index_${(i - 0 + 1).toString().padStart(2, '0')}];`;
+            const val = timeTable.dayOfWeekSelect.reduce((v, d) => v | (2 << d), 0);
+            str += `Rule=${val};`;
+            const stime = parseInt(timeTable.startTime.slice(0, 2)) * 60 + parseInt(timeTable.startTime.slice(-2));
+            const etime = parseInt(timeTable.endTime.slice(0, 2)) * 60 + parseInt(timeTable.endTime.slice(-2)) + 1;
+            str += `ContinueTime=${etime - stime};`;
+            str += `StartTime=${stime};`;
+            str += `Status=1;`;
+            str += `DelFlags=1;`;
+          }
+          this.$set(this.config, confKey, str);
         }
-        this.config.RECORDING_LOCAL_SCHEDULE_LIST = str;
 
-        if(this.storage_sdcard_record && this.storage_sdcard_alarm) {
-          this.config.STORAGE_SDCARD = 'on';
-        } else if(this.storage_sdcard_record) {
-          this.config.STORAGE_SDCARD = 'record';
-        } else if(this.storage_sdcard_alarm) {
-          this.config.STORAGE_SDCARD = 'alarm';
-        } else {
-          this.config.STORAGE_SDCARD = 'off';
-        }
-        if(!this.storage_sdcard) this.config.STORAGE_SDCARD_PUBLISH = 'off';
-
-        if(this.storage_cifs_record && this.storage_cifs_alarm) {
-          this.config.STORAGE_CIFS = 'on';
-        } else if(this.storage_cifs_record) {
-          this.config.STORAGE_CIFS = 'record';
-        } else if(this.storage_cifs_alarm) {
-          this.config.STORAGE_CIFS = 'alarm';
-        } else {
-          this.config.STORAGE_CIFS = 'off';
-        }
+        if(this.config.PERIODICREC_SDCARD !== 'on' && this.config.ALARMREC_SDCARD !== 'on' && this.config.TIMELAPSE_SDCARD !== 'on') this.config.STORAGE_SDCARD_PUBLISH = 'off';
 
         this.config.LOCALE = this.$i18n.locale;
         this.config.TIMELAPSE_INTERVAL = this.timelapse.interval;
         this.config.TIMELAPSE_COUNT = this.timelapse.count;
-        str = parseInt(this.timelapse.startTime.slice(-2)) + ' ';
-        str += parseInt(this.timelapse.startTime.slice(0, 2)) + ' * * ';
-        str += this.timelapse.dayOfWeekSelect.sort((a, b) => a - b).reduce((v, d) => v + (v.length ? ':' : '') + ((d + 1) % 7).toString(), '');
-        this.config.TIMELAPSE_SCHEDULE = str;
+        this.config.TIMELAPSE_SCHEDULE = parseInt(this.timelapse.startTime.slice(-2)) + ' ' +
+          parseInt(this.timelapse.startTime.slice(0, 2)) + ' * * ' +
+          this.timelapse.dayOfWeekSelect.sort((a, b) => a - b).reduce((v, d) => v + (v.length ? ':' : '') + ((d + 1) % 7).toString(), '');
 
         this.config.CRUISE_LIST = this.cruiseList.reduce((str, cruise) => {
           str += `move ${cruise.pan} ${cruise.tilt} ${cruise.speed};`;
@@ -697,10 +753,9 @@
         }, '');
         this.ClearCruiseSelect();
 
-        str = parseInt(this.reboot.startTime.slice(-2)) + ' ';
-        str += parseInt(this.reboot.startTime.slice(0, 2)) + ' * * ';
-        str += this.reboot.dayOfWeekSelect.sort((a, b) => a - b).reduce((v, d) => v + (v.length ? ':' : '') + ((d + 1) % 7).toString(), '');
-        this.config.REBOOT_SCHEDULE = str;
+        this.config.REBOOT_SCHEDULE = parseInt(this.reboot.startTime.slice(-2)) + ' ' +
+          parseInt(this.reboot.startTime.slice(0, 2)) + ' * * ' +
+          this.reboot.dayOfWeekSelect.sort((a, b) => a - b).reduce((v, d) => v + (v.length ? ':' : '') + ((d + 1) % 7).toString(), '');
 
         await axios.post('./cgi-bin/hack_ini.cgi', this.config).catch(err => {
           // eslint-disable-next-line no-console
@@ -759,7 +814,10 @@
         }
         if((this.config.RTSP_VIDEO0 === 'on') || (this.config.RTSP_VIDEO1 === 'on')) {
           if((this.config.RTSP_OVER_HTTP !== this.oldConfig.RTSP_OVER_HTTP) ||
-             (this.config.RTSP_MAIN_FORMAT_HEVC !== this.oldConfig.RTSP_MAIN_FORMAT_HEVC)) {
+             (this.config.RTSP_MAIN_FORMAT_HEVC !== this.oldConfig.RTSP_MAIN_FORMAT_HEVC) ||
+             (this.config.RTSP_AUTH !== this.oldConfig.RTSP_AUTH) ||
+             (this.config.RTSP_USER !== this.oldConfig.RTSP_USER) ||
+             (this.config.RTSP_PASSWD !== this.oldConfig.RTSP_PASSWD)) {
             execCmds.push('rtspserver restart');
           } else if((this.config.RTSP_VIDEO0 !== this.oldConfig.RTSP_VIDEO0) ||
                     (this.config.RTSP_VIDEO1 !== this.oldConfig.RTSP_VIDEO1) ||
@@ -810,9 +868,17 @@
     align-items: flex-end;
     font-size: 2.5rem;
     padding: 0px 0px 5px 30px;
+    height:60px;
+  }
+
+  .title_ATOM {
     color: white;
     background-color: #bc423a;
-    height:60px;
+  }
+
+  .title_WYZE {
+    color: white;
+    background-color: #1abadd;
   }
 
   .version {
@@ -859,16 +925,36 @@
 
   .container {
     height: calc(100vh - 200px);
+    height: calc(100dvh - 200px);
     margin: 10px 20px 5px 20px;
     overflow-x: hidden;
     overflow-y: scroll;
   }
 
+  .container-no-submit {
+    height: calc(100vh - 85px);
+    height: calc(100dvh - 85px);
+    margin: 5px;
+    padding: 5px;
+    display: flex;
+    justify-content: flex-end;
+  }
+
   .image-frame {
     z-index: 100;
     display: flex;
-    position: fixed;
     flex-direction: column;
+    width: calc(min(100%, (100vh - 140px) * 1920 / 1080));
+    width: calc(min(100%, (100dvh - 140px) * 1920 / 1080));
+    padding-bottom: 100%;
+  }
+
+  .image-frame-cruise {
+    width: 30vw;
+    width: 30dvw;
+    position:fixed;
+    right: 30px;
+    top: 100px;
   }
 
   .image-frame-inner1 {
@@ -893,12 +979,13 @@
   }
 
   .still-image {
-    width: calc(100% - 36px);
+    width: calc(100% - 38px);
+    object-fit: contain;
   }
 
   .pan-slider {
     background-color: white;
-    width: calc(100% - 36px);
+    width: calc(100% - 38px);
   }
 
   .tilt-slider {
@@ -906,32 +993,43 @@
     align-items: stretch;
   }
 
+  .sdcard-frame {
+    width: 100%;
+    border: none;
+  }
+
   .environment {
     margin: 5px 30px 2px 30px;
   }
+
   .link-button {
     text-decoration: none;
   }
+
   .submit {
     position: fixed;
     bottom: 75px;
     right: 100px;
   }
+
   .comment {
     width: 100%;
     margin: 30px;
     text-align: center;
   }
+
   .latest {
     font-size: 1.2em;
     font-weight: 300;
   }
+
   .latest-updatable {
     color: 'red';
     font-size: 1.2em;
     font-weight: 600;
   }
-  .bottom-padding {
+
+  .cruise-padding {
     padding-bottom: 150px;
   }
 </style>

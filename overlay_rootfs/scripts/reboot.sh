@@ -1,6 +1,6 @@
 #!/bin/sh
 HACK_INI=/tmp/hack.ini
-REBOOT=$(awk -F "=" '/REBOOT *=/ {print $2}' $HACK_INI)
+REBOOT=$(awk -F "=" '/^REBOOT *=/ {print $2}' $HACK_INI)
 
 if [ "$REBOOT" = "on" ]; then
   /scripts/cmd timelapse stop

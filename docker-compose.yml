@@ -1,5 +1,3 @@
-version: "3"
-
 services:
   builder:
     image: atomtools/atomtools:Ver.2.2.0

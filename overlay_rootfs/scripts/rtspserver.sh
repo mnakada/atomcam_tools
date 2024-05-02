@@ -15,12 +15,15 @@ if [ "$1" = "off" -o "$1" = "restart" ]; then
 fi
 
 HACK_INI=/tmp/hack.ini
-RTSP_VIDEO0=$(awk -F "=" '/RTSP_VIDEO0 *=/ {print $2}' $HACK_INI)
-RTSP_AUDIO0=$(awk -F "=" '/RTSP_AUDIO0 *=/ {print $2}' $HACK_INI)
-RTSP_VIDEO1=$(awk -F "=" '/RTSP_VIDEO1 *=/ {print $2}' $HACK_INI)
-RTSP_AUDIO1=$(awk -F "=" '/RTSP_AUDIO1 *=/ {print $2}' $HACK_INI)
-RTSP_OVER_HTTP=$(awk -F "=" '/RTSP_OVER_HTTP *=/ {print $2}' $HACK_INI)
-RTSP_MAIN_FORMAT_HEVC=$(awk -F "=" '/RTSP_MAIN_FORMAT_HEVC *=/ {print $2}' $HACK_INI)
+RTSP_VIDEO0=$(awk -F "=" '/^RTSP_VIDEO0 *=/ {print $2}' $HACK_INI)
+RTSP_AUDIO0=$(awk -F "=" '/^RTSP_AUDIO0 *=/ {print $2}' $HACK_INI)
+RTSP_VIDEO1=$(awk -F "=" '/^RTSP_VIDEO1 *=/ {print $2}' $HACK_INI)
+RTSP_AUDIO1=$(awk -F "=" '/^RTSP_AUDIO1 *=/ {print $2}' $HACK_INI)
+RTSP_OVER_HTTP=$(awk -F "=" '/^RTSP_OVER_HTTP *=/ {print $2}' $HACK_INI)
+RTSP_MAIN_FORMAT_HEVC=$(awk -F "=" '/^RTSP_MAIN_FORMAT_HEVC *=/ {print $2}' $HACK_INI)
+RTSP_AUTH=$(awk -F "=" '/^RTSP_AUTH *=/ {print $2}' $HACK_INI)
+RTSP_USER=$(awk -F "=" '/^RTSP_USER *=/ {print $2}' $HACK_INI)
+RTSP_PASSWD=$(awk -F "=" '/^RTSP_PASSWD *=/ {print $2}' $HACK_INI)
 MAIN_VIDEO=0
 MAIN_NOUSE=2
 [ "$RTSP_MAIN_FORMAT_HEVC" = "on" ] && MAIN_VIDEO=2 && MAIN_NOUSE=0
@@ -41,11 +44,9 @@ if [ "$1" = "on" -o "$1" = "restart" -o "$1" = "watchdog" -o "$RTSP_VIDEO0" = "o
       sleep 0.5
     done
     echo `date +"%Y/%m/%d %H:%M:%S"` ": v4l2rtspserever start"
-    if [ "$RTSP_OVER_HTTP" = "on" ] ; then
-      /usr/bin/v4l2rtspserver -p 8080 -C 1 -a S16_LE /dev/video${MAIN_VIDEO},hw:0,0 /dev/video1,hw:2,0 >> /tmp/log/rtspserver.log 2>&1 &
-    else
-      /usr/bin/v4l2rtspserver -C 1 -a S16_LE /dev/video${MAIN_VIDEO},hw:0,0 /dev/video1,hw:2,0 >> /tmp/log/rtspserver.log 2>&1 &
-    fi
+    [ "$RTSP_OVER_HTTP" = "on" ] && option="-p 8080"
+    [ "$RTSP_AUTH" = "on" -a "$RTSP_USER" != "" -a "$RTSP_PASSWD" != "" ] && option="$option -U $RTSP_USER:$RTSP_PASSWD"
+    /usr/bin/v4l2rtspserver $option -C 1 -a S16_LE /dev/video${MAIN_VIDEO},hw:0,0 /dev/video1,hw:2,0 >> /tmp/log/rtspserver.log 2>&1 &
   fi
   while [ "`pidof v4l2rtspserver`" = "" ]; do
     sleep 0.5

@@ -22,7 +22,7 @@ if lsusb | grep 'Device 002:' ; then
     sleep 0.5
     if ip link | grep eth0 > /dev/null ; then
       ifconfig eth0 up
-      udhcpc -i eth0 -x hostname:atomcam -p /var/run/udhcpc.pid -b
+      udhcpc -i eth0 -b 2> /dev/null
       for count in `seq 20` ; do
         ifconfig eth0 | grep 'inet addr' > /dev/null && exit 0
         sleep 0.5
@@ -64,8 +64,12 @@ if [ -f /media/mmc/wpa_supplicant.conf ] ; then
   cat /media/mmc/wpa_supplicant.conf > /configs/etc/wpa_supplicant.conf
 else
   USER_CONFIG=/atom/configs/.user_config
-  SSID=$(awk -F "=" '/\[NET\]/ { f = 1; } /ssid=/ {if(!f) next; gsub(/\/$/, "", $2); print $2}' $USER_CONFIG)
-  PSK=$(awk -F "=" '/\[NET\]/ { f = 1; } /password=/ {if(!f) next; gsub(/\/$/, "", $2); print $2}' $USER_CONFIG)
+  WIFISSID=/atom/configs/.wifissid
+  WIFIPASSWD=/atom/configs/.wifipasswd
+  SSID=$(awk -F "=" '/^\[/ { f = 0; } /^\[NET\]/ { f = 1; } /ssid=/ {if(!f) next; gsub(/\/$/, "", $2); print $2}' $USER_CONFIG)
+  [ "$SSID" = "" -a -f $WIFISSID ] && SSID=`cat $WIFISSID`
+  PSK=$(awk -F "=" '/^\[/ { f = 0; } /^\[NET\]/ { f = 1; } /password=/ {if(!f) next; gsub(/\/$/, "", $2); print $2}' $USER_CONFIG)
+  [ "$PSK" = "" -a -f $WIFIPASSWD ] && PSK=`cat $WIFIPASSWD`
   cat > /configs/etc/wpa_supplicant.conf << EOF
 ctrl_interface=/var/run/wpa_supplicant
 update_config=1
@@ -90,8 +94,8 @@ done
 HWADDR=$(awk -F "=" '/(CONFIG_INFO|NETRELATED_MAC)=/ { print substr($2,1,2) ":" substr($2,3,2) ":" substr($2,5,2) ":" substr($2,7,2) ":" substr($2,9,2) ":" substr($2,11,2); exit;}' /atom/configs/.product_config)
 ifconfig wlan0 hw ether $HWADDR up
 wpa_supplicant -f /tmp/log/wpa_supplicant.log -D nl80211 -i wlan0 -c /configs/etc/wpa_supplicant.conf -B
-udhcpc -i wlan0 -x hostname:atomcam -p /var/run/udhcpc.pid -b &
 
+udhcpc -i wlan0 -b 2> /dev/null
 count=0
 while ! ifconfig wlan0 | grep 'inet addr' > /dev/null
 do

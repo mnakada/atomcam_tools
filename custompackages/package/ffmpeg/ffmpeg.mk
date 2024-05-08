@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-FFMPEG_VERSION = 4.3.1
+FFMPEG_VERSION = 5.1.4
 FFMPEG_SOURCE = ffmpeg-$(FFMPEG_VERSION).tar.xz
 FFMPEG_SITE = http://ffmpeg.org/releases
 FFMPEG_INSTALL_STAGING = YES
@@ -30,11 +30,6 @@ FFMPEG_CONF_OPTS = \
 	--disable-gray \
 	--enable-swscale-alpha \
 	--disable-small \
-	--enable-dct \
-	--enable-fft \
-	--enable-mdct \
-	--enable-rdft \
-	--disable-crystalhd \
 	--disable-dxva2 \
 	--enable-runtime-cpudetect \
 	--disable-hardcoded-tables \
@@ -82,12 +77,6 @@ FFMPEG_CONF_OPTS += --enable-ffplay
 FFMPEG_CONF_ENV += SDL_CONFIG=$(STAGING_DIR)/usr/bin/sdl2-config
 else
 FFMPEG_CONF_OPTS += --disable-ffplay
-endif
-
-ifeq ($(BR2_PACKAGE_FFMPEG_AVRESAMPLE),y)
-FFMPEG_CONF_OPTS += --enable-avresample
-else
-FFMPEG_CONF_OPTS += --disable-avresample
 endif
 
 ifeq ($(BR2_PACKAGE_FFMPEG_FFPROBE),y)
@@ -342,13 +331,6 @@ FFMPEG_CONF_OPTS += --enable-libtheora
 FFMPEG_DEPENDENCIES += libtheora
 else
 FFMPEG_CONF_OPTS += --disable-libtheora
-endif
-
-ifeq ($(BR2_PACKAGE_WAVPACK),y)
-FFMPEG_CONF_OPTS += --enable-libwavpack
-FFMPEG_DEPENDENCIES += wavpack
-else
-FFMPEG_CONF_OPTS += --disable-libwavpack
 endif
 
 ifeq ($(BR2_PACKAGE_LIBICONV),y)

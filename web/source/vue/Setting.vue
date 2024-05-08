@@ -955,6 +955,7 @@
     position:fixed;
     right: 30px;
     top: 100px;
+    padding: 0;
   }
 
   .image-frame-inner1 {

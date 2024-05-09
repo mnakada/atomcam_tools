@@ -30,6 +30,8 @@ RUN \
   gawk \
   libtool-bin \
   sudo \
+  golang \
+  upx \
   bison
 
 ENV PATH="$PATH:/usr/local/node/bin"

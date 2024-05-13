@@ -29,6 +29,8 @@
 
     <div>
       <ElTabs tabPosition="left" @tab-click="HandleTabsClick">
+
+        <!-- Camera Tab -->
         <ElTabPane class="well-transparent container-no-submit" :label="$t('camera.tab')">
           <div class="image-frame">
             <div class="image-frame-inner1">
@@ -55,10 +57,12 @@
           </div>
         </ElTabPane>
 
+        <!-- SD-Card Tab -->
         <ElTabPane class="well-transparent container-no-submit" :label="$t('SDCard.tab')">
           <iframe ref="sdcardFrame" class="sdcard-frame" src="/sdcard" />
         </ElTabPane>
 
+        <!-- Record Setting Tab -->
         <ElTabPane class="well-transparent container" :label="$t('record.tab')">
           <h3 v-t="'record.periodicRec.title'" />
           <SettingSwitch i18n="record.SDCard" v-model="config.PERIODICREC_SDCARD" />
@@ -100,6 +104,7 @@
           </div>
         </ElTabPane>
 
+        <!-- Timelapse Tab -->
         <ElTabPane class="well-transparent container" :label="$t('timelapse.tab')">
           <h3 v-t="'timelapse.title'" />
           <SettingSwitch i18n="record.SDCard" v-model="config.TIMELAPSE_SDCARD" />
@@ -125,6 +130,7 @@
           </div>
         </ElTabPane>
 
+        <!-- Media Setting Tab -->
         <ElTabPane class="well-transparent container" :label="$t('media.tab')">
           <h3 v-t="'SDCardSettings.title'" />
           <SettingSwitch i18n="SDCardSettings.smbAccess" v-model="config.STORAGE_SDCARD_PUBLISH" />
@@ -137,6 +143,7 @@
           <SettingInput i18n="NASSettings.password" type="password" v-model="config.STORAGE_CIFSPASSWD" show-password />
         </ElTabPane>
 
+        <!-- Streaming Setting Tab -->
         <ElTabPane class="well-transparent container" :label="$t('RTSP.tab')">
           <h3 v-t="'RTSP.title'" />
           <SettingSwitch i18n="RTSP.main" v-model="config.RTSP_VIDEO0" />
@@ -158,6 +165,7 @@
           </div>
         </ElTabPane>
 
+        <!-- Event Webhook Tab -->
         <ElTabPane class="well-transparent container" :label="$t('event.tab')">
           <h3 v-t="'event.webhook.title'" />
           <SettingInput i18n="event.webhook.URL" :span="10" type="text" v-model="config.WEBHOOK_URL" />
@@ -174,6 +182,7 @@
           <SettingSwitch i18n="event.webhook.endTimeLapse" v-model="config.WEBHOOK_TIMELAPSE_FINISH" />
         </ElTabPane>
 
+        <!-- Cruise Setting Tab -->
         <ElTabPane v-if="isSwing && posValid" class="well-transparent container" :label="$t('cruise.tab')">
           <h3 v-t="'cruise.title'" />
           <SettingButton i18n="cruise.initialPosition" :span="4" @click="MoveInit" />
@@ -195,6 +204,7 @@
           </div>
         </ElTabPane>
 
+        <!-- System Setting Tab -->
         <ElTabPane class="well-transparent container" :label="$t('systemSettings.tab')">
           <h3 v-t="'deviceSettings.title'" />
           <SettingInput i18n="deviceSettings.deviceName" type="text" v-model="config.HOSTNAME" />
@@ -213,6 +223,7 @@
           <SettingInputNumber i18n="videoSpec.bitrateSub" :withSwitch="true" :span="3" v-model="config.BITRATE_SUB_HEVC" :min="100" :max="500" />
         </ElTabPane>
 
+        <!-- Maintenance Tab -->
         <ElTabPane class="well-transparent container" :label="$t('maintenance.tab')">
           <h3 v-t="'monitoring.title'" />
           <SettingSwitch i18n="monitoring.network" v-model="config.MONITORING_NETWORK" />

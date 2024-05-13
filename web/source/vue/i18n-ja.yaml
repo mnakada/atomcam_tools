@@ -95,19 +95,22 @@ RTSP:
   title: RTSP
   main:
     title: Main
-    tooltip: RTSP Main(1080p)を開始します
+    tooltip: RTSP Main AVC(1080p)を開始します
     audio:
       title: 音声
-      tooltip: RTSP Mainの音声を設定します
+      tooltip: RTSP Main AVCの音声を設定します
     URL:
       title: URL
       tooltip: VLC playerなどにURLをcopy&pasteしてください
-    format:
-      title: フォーマット
-      tooltip: ストリームのフォーマットを設定します
-      text:
-        - 'HEVC '
-        - 'AVC '
+  mainHEVC:
+    title: MainHEVC
+    tooltip: RTSP Main HEVC(1080p)を開始します
+    audio:
+      title: 音声
+      tooltip: RTSP Main HEVCの音声を設定します
+    URL:
+      title: URL
+      tooltip: VLC playerなどにURLをcopy&pasteしてください
   sub:
     title: Sub
     tooltip: RTSP Sub(360p or 320p)を開始します

@@ -96,10 +96,7 @@ BR2_OPTIMIZE_3=y
 # BR2_GOOGLE_BREAKPAD_ENABLE is not set
 BR2_SSP_NONE=y
 # BR2_SSP_REGULAR is not set
-
-#
-# Stack Smashing Protection strong needs a toolchain w/ gcc >= 4.9
-#
+# BR2_SSP_STRONG is not set
 # BR2_SSP_ALL is not set
 # BR2_STATIC_LIBS is not set
 # BR2_SHARED_LIBS is not set
@@ -159,19 +156,20 @@ BR2_BINUTILS_EXTRA_CONFIG_OPTIONS=""
 # GCC Options
 #
 BR2_GCC_NEEDS_MPC=y
-BR2_GCC_VERSION_4_7_X=y
+BR2_GCC_SUPPORTS_GRAPHITE=y
+# BR2_GCC_VERSION_4_7_X is not set
 # BR2_GCC_VERSION_4_8_X is not set
-# BR2_GCC_VERSION_4_9_X is not set
+BR2_GCC_VERSION_4_9_X=y
 # BR2_GCC_VERSION_5_X is not set
 BR2_GCC_SUPPORTS_FINEGRAINEDMTUNE=y
-BR2_GCC_VERSION="4.7.4"
+BR2_GCC_VERSION="4.9.3"
 BR2_EXTRA_GCC_CONFIG_OPTIONS=""
 BR2_TOOLCHAIN_BUILDROOT_CXX=y
 # BR2_TOOLCHAIN_BUILDROOT_FORTRAN is not set
 BR2_GCC_ENABLE_TLS=y
 # BR2_GCC_ENABLE_LTO is not set
 # BR2_GCC_ENABLE_OPENMP is not set
-# BR2_GCC_ENABLE_LIBMUDFLAP is not set
+# BR2_GCC_ENABLE_GRAPHITE is not set
 # BR2_PACKAGE_HOST_GDB is not set
 BR2_TOOLCHAIN_HAS_NATIVE_RPC=y
 BR2_USE_WCHAR=y
@@ -207,10 +205,13 @@ BR2_TOOLCHAIN_GCC_AT_LEAST_4_4=y
 BR2_TOOLCHAIN_GCC_AT_LEAST_4_5=y
 BR2_TOOLCHAIN_GCC_AT_LEAST_4_6=y
 BR2_TOOLCHAIN_GCC_AT_LEAST_4_7=y
-BR2_TOOLCHAIN_GCC_AT_LEAST="4.7"
+BR2_TOOLCHAIN_GCC_AT_LEAST_4_8=y
+BR2_TOOLCHAIN_GCC_AT_LEAST_4_9=y
+BR2_TOOLCHAIN_GCC_AT_LEAST="4.9"
 BR2_TOOLCHAIN_HAS_SYNC_1=y
 BR2_TOOLCHAIN_HAS_SYNC_2=y
 BR2_TOOLCHAIN_HAS_SYNC_4=y
+BR2_TOOLCHAIN_HAS_ATOMIC=y
 
 #
 # System configuration
@@ -384,6 +385,7 @@ BR2_PACKAGE_LAME=y
 #
 # BR2_PACKAGE_MJPEGTOOLS is not set
 # BR2_PACKAGE_MODPLUGTOOLS is not set
+# BR2_PACKAGE_MPD is not set
 # BR2_PACKAGE_MPD_MPC is not set
 # BR2_PACKAGE_MPG123 is not set
 BR2_PACKAGE_MPLAYER_ARCH_SUPPORTS=y
@@ -815,10 +817,7 @@ BR2_PACKAGE_MICROPYTHON=y
 BR2_PACKAGE_MICROPYTHON_LIB=y
 BR2_PACKAGE_MONO_ARCH_SUPPORTS=y
 # BR2_PACKAGE_MONO is not set
-
-#
-# nodejs needs a toolchain w/ C++, dynamic library, threads, gcc >= 4.8, wchar
-#
+# BR2_PACKAGE_NODEJS is not set
 # BR2_PACKAGE_PERL is not set
 # BR2_PACKAGE_PHP is not set
 BR2_PACKAGE_PYTHON=y
@@ -1098,16 +1097,10 @@ BR2_PACKAGE_OPENSSL=y
 #
 # BR2_PACKAGE_ASSIMP is not set
 # BR2_PACKAGE_ATK is not set
-
-#
-# atkmm needs a toolchain w/ C++, wchar, threads, gcc >= 4.8
-#
+# BR2_PACKAGE_ATKMM is not set
 # BR2_PACKAGE_BULLET is not set
 # BR2_PACKAGE_CAIRO is not set
-
-#
-# cairomm needs a toolchain w/ C++, wchar, threads, gcc >= 4.8
-#
+# BR2_PACKAGE_CAIROMM is not set
 # BR2_PACKAGE_EXIV2 is not set
 # BR2_PACKAGE_FONTCONFIG is not set
 BR2_PACKAGE_FREETYPE=y
@@ -1115,10 +1108,7 @@ BR2_PACKAGE_FREETYPE=y
 # BR2_PACKAGE_GDK_PIXBUF is not set
 # BR2_PACKAGE_GIFLIB is not set
 # BR2_PACKAGE_GRAPHITE2 is not set
-
-#
-# gtkmm3 needs a toolchain w/ C++, wchar, threads, gcc >= 4.8
-#
+# BR2_PACKAGE_GTKMM3 is not set
 # BR2_PACKAGE_HARFBUZZ is not set
 # BR2_PACKAGE_IJS is not set
 # BR2_PACKAGE_IMLIB2 is not set
@@ -1176,10 +1166,7 @@ BR2_PACKAGE_PROVIDES_JPEG="libjpeg"
 # BR2_PACKAGE_OPENCV3 is not set
 # BR2_PACKAGE_OPENJPEG is not set
 # BR2_PACKAGE_PANGO is not set
-
-#
-# pangomm needs a toolchain w/ C++, wchar, threads, gcc >= 4.8
-#
+# BR2_PACKAGE_PANGOMM is not set
 # BR2_PACKAGE_PIXMAN is not set
 # BR2_PACKAGE_POPPLER is not set
 # BR2_PACKAGE_TIFF is not set
@@ -1280,10 +1267,7 @@ BR2_PACKAGE_EXPAT=y
 # BR2_PACKAGE_LIBROXML is not set
 # BR2_PACKAGE_LIBUCL is not set
 # BR2_PACKAGE_LIBXML2 is not set
-
-#
-# libxml++ needs a toolchain w/ C++, wchar, threads, gcc >= 4.8
-#
+# BR2_PACKAGE_LIBXMLPP is not set
 # BR2_PACKAGE_LIBXMLRPC is not set
 # BR2_PACKAGE_LIBXSLT is not set
 # BR2_PACKAGE_LIBYAML is not set
@@ -1442,10 +1426,7 @@ BR2_PACKAGE_BOOST_ARCH_SUPPORTS=y
 # BR2_PACKAGE_FFTW is not set
 # BR2_PACKAGE_FLANN is not set
 # BR2_PACKAGE_GFLAGS is not set
-
-#
-# glibmm needs a toolchain w/ C++, wchar, threads, gcc >= 4.8
-#
+# BR2_PACKAGE_GLIBMM is not set
 # BR2_PACKAGE_GLM is not set
 # BR2_PACKAGE_GMOCK is not set
 # BR2_PACKAGE_GMP is not set

@@ -32,6 +32,11 @@ struct audio_capture_st audio_capture[] = {
     .enable = 0,
   },
   {
+    .card = 1,
+    .pcm = NULL,
+    .enable = 0,
+  },
+  {
     .card = 2,
     .pcm = NULL,
     .enable = 0,
@@ -67,7 +72,7 @@ static const struct pcm_config *AudioConfig = &AudioConfig_atomcam;
 char *AudioCapture(int fd, char *p, char *tokenPtr) {
 
   int ch = 0;
-  if(p && (!strcmp(p, "0") || !strcmp(p, "1"))) {
+  if(p && (!strcmp(p, "0") || !strcmp(p, "1") || !strcmp(p, "2"))) {
     ch = atoi(p);
     p = strtok_r(NULL, " \t\r\n", &tokenPtr);
   }
@@ -92,7 +97,7 @@ char *AudioCapture(int fd, char *p, char *tokenPtr) {
 
 static int audio_pcm_capture(struct frames_st *frames) {
 
-  for(int ch = 0; ch < 2; ch++) {
+  for(int ch = 0; ch < 3; ch++) {
 
     if(!audio_capture[ch].pcm) {
       audio_capture[ch].pcm = pcm_open(audio_capture[ch].card, 1, PCM_OUT | PCM_MMAP, AudioConfig);

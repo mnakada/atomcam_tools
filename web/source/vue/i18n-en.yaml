@@ -100,12 +100,15 @@ RTSP:
     URL:
       title: URL
       tooltip: Copy and paste this URL into VLC etc.
-    format:
-      title: Format
-      tooltip: Select streaming format
-      text:
-        - 'HEVC '
-        - 'AVC '
+  mainHEVC:
+    title: MainHEVC
+    tooltip: Start Main HEVC RTSP(1080p)
+    audio:
+      title: Audio
+      tooltip: Activaet Audio on Main HEVC RTSP
+    URL:
+      title: URL
+      tooltip: Copy and paste this URL into VLC etc.
   sub:
     title: Sub
     tooltip: Start Sub RTSP (360p/320p)

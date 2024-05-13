@@ -30,6 +30,7 @@ RUN \
   gawk \
   libtool-bin \
   sudo \
+  upx \
   bison
 
 ENV PATH="$PATH:/usr/local/node/bin"

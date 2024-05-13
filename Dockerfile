@@ -30,7 +30,6 @@ RUN \
   gawk \
   libtool-bin \
   sudo \
-  golang \
   upx \
   bison
 

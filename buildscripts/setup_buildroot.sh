@@ -51,6 +51,16 @@ cd /usr/local
 curl https://nodejs.org/dist/${NODEVER}/node-${NODEVER}-linux-${NODEARCH}.tar.xz | tar Jxvf -
 ln -s /usr/local/node-${NODEVER}-linux-${NODEARCH} /usr/local/node
 
+# go
+GO_VER=1.22.3
+GO_ARCH=`uname -m` # x64 or arm64
+[ "$GO_ARCH" = "aarch64" ] && GO_ARCH="arm64"
+[ "$GO_ARCH" = "x86_64" ] && GO_ARCH="x86_64"
+cd /usr/local
+
+curl https://dl.google.com/go/go$(GO_VER).linux-$(GO_ARCH).tar.gz | tar zxvf -
+ln -s /usr/local/go/bin/go /usr/local/bin
+
 # Start the build process
 cd /atomtools/build/buildroot-2016.02
 make clean

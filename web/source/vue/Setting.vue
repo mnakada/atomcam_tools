@@ -142,11 +142,15 @@
           <SettingSwitch i18n="RTSP.main" v-model="config.RTSP_VIDEO0" />
           <SettingSwitch v-if="config.RTSP_VIDEO0 === 'on'" i18n="RTSP.main.audio" :titleOffset="2" v-model="config.RTSP_AUDIO0" />
           <SettingInput v-if="config.RTSP_VIDEO0 === 'on'" i18n="RTSP.main.URL" :titleOffset="2" :span="10" type="readonly" v-model="RtspUrl0" />
-          <SettingSwitch v-if="(config.RTSP_VIDEO0 === 'on') && (distributor === 'ATOM')" i18n="RTSP.main.format" :titleOffset="2" v-model="config.RTSP_MAIN_FORMAT_HEVC" />
+          <div v-if="distributor === 'ATOM'">
+            <SettingSwitch i18n="RTSP.mainHEVC" v-model="config.RTSP_VIDEO2" />
+            <SettingSwitch v-if="config.RTSP_VIDEO2 === 'on'" i18n="RTSP.mainHEVC.audio" :titleOffset="2" v-model="config.RTSP_AUDIO2" />
+            <SettingInput v-if="config.RTSP_VIDEO2 === 'on'" i18n="RTSP.mainHEVC.URL" :titleOffset="2" :span="10" type="readonly" v-model="RtspUrl2" />
+          </div>
           <SettingSwitch i18n="RTSP.sub" v-model="config.RTSP_VIDEO1" />
           <SettingSwitch v-if="config.RTSP_VIDEO1 === 'on'" i18n="RTSP.sub.audio" :titleOffset="2" v-model="config.RTSP_AUDIO1" />
           <SettingInput v-if="config.RTSP_VIDEO1 === 'on'" i18n="RTSP.sub.URL" :titleOffset="2" :span="10" type="readonly" v-model="RtspUrl1" />
-          <div v-if="(config.RTSP_VIDEO0 === 'on') || (config.RTSP_VIDEO1 === 'on')">
+          <div v-if="(config.RTSP_VIDEO0 === 'on') || (config.RTSP_VIDEO1 === 'on') || (config.RTSP_VIDEO2 === 'on')">
             <SettingSwitch i18n="RTSP.http" v-model="config.RTSP_OVER_HTTP" />
             <SettingSwitch i18n="RTSP.auth" v-model="config.RTSP_AUTH" />
             <SettingInput v-if="config.RTSP_AUTH === 'on'" i18n="RTSP.account" type="text" :titleOffset="2" v-model="config.RTSP_USER" />
@@ -296,9 +300,10 @@
           REBOOT_SCHEDULE: '0 2 * * 7', // -> /var/spool/crontabs/root
           RTSP_VIDEO0: 'off',
           RTSP_AUDIO0: 'off',
-          RTSP_MAIN_FORMAT_HEVC: 'off',
           RTSP_VIDEO1: 'off',
           RTSP_AUDIO1: 'off',
+          RTSP_VIDEO2: 'off',
+          RTSP_AUDIO2: 'off',
           RTSP_OVER_HTTP: 'off',
           RTSP_AUTH: 'off',
           RTSP_USER: '',
@@ -445,6 +450,11 @@
         const port = (this.config.RTSP_OVER_HTTP  === 'on') ? 8080 : 8554;
         const auth = (this.config.RTSP_AUTH === 'on') && (this.config.RTSP_USER !== '') && (this.config.RTSP_PASSWD !== '') ? `${this.config.RTSP_USER}:${this.config.RTSP_PASSWD}@` : '';
         return `rtsp://${auth}${window.location.host}:${port}/video1_unicast`;
+      },
+      RtspUrl2() {
+        const port = (this.config.RTSP_OVER_HTTP  === 'on') ? 8080 : 8554;
+        const auth = (this.config.RTSP_AUTH === 'on') && (this.config.RTSP_USER !== '') && (this.config.RTSP_PASSWD !== '') ? `${this.config.RTSP_USER}:${this.config.RTSP_PASSWD}@` : '';
+        return `rtsp://${auth}${window.location.host}:${port}/video2_unicast`;
       },
     },
     async mounted() {

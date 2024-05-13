@@ -86,7 +86,7 @@ BR2_JLEVEL=0
 # BR2_ENABLE_DEBUG is not set
 BR2_STRIP_strip=y
 # BR2_STRIP_none is not set
-BR2_STRIP_EXCLUDE_FILES=""
+BR2_STRIP_EXCLUDE_FILES="go2rtc_homekit"
 BR2_STRIP_EXCLUDE_DIRS=""
 # BR2_OPTIMIZE_0 is not set
 # BR2_OPTIMIZE_1 is not set
@@ -373,6 +373,7 @@ BR2_PACKAGE_FFMPEG_OUTDEVS=y
 BR2_PACKAGE_FFMPEG_EXTRACONF="--enable-indev=alsa --enable-outdev=alsa --enable-libmp3lame"
 # BR2_PACKAGE_FLAC is not set
 # BR2_PACKAGE_FLITE is not set
+BR2_PACKAGE_GO2RTC=y
 # BR2_PACKAGE_GSTREAMER is not set
 # BR2_PACKAGE_GSTREAMER1 is not set
 # BR2_PACKAGE_JACK2 is not set

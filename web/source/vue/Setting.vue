@@ -474,7 +474,7 @@
         this.account = this.config.DIGEST.replace(/:.*$/, '');
       }
 
-      for(let schedule in ['periodicRec', 'alarmRec']) {
+      for(let schedule of ['periodicRec', 'alarmRec']) {
         const confKey = schedule.toUpperCase() + '_SCHEDULE_LIST';
         const innerKey = schedule + 'Schedule';
         if(this.config[confKey]) {
@@ -641,7 +641,6 @@
       },
       AddSchedule(schedule) {
         this[schedule].push({
-          allDay: true,
           startTime: '00:00',
           endTime: '23:59',
           dayOfWeekSelect: [0, 1, 2, 3, 4, 5, 6],
@@ -714,7 +713,7 @@
           this.config.DIGEST='';
         }
 
-        for(let schedule in ['periodicRec', 'alarmRec']) {
+        for(let schedule of ['periodicRec', 'alarmRec']) {
           const confKey = schedule.toUpperCase() + '_SCHEDULE_LIST';
           const innerKey = schedule + 'Schedule';
           let str = '';

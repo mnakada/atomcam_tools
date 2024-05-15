@@ -103,7 +103,7 @@ RTSP:
       title: URL
       tooltip: VLC playerなどにURLをcopy&pasteしてください
   mainHEVC:
-    title: MainHEVC
+    title: Main HEVC
     tooltip: RTSP Main HEVC(1080p)を開始します
     audio:
       title: 音声
@@ -132,6 +132,13 @@ RTSP:
   password:
     title: パスワード
     tooltip: RTSPのパスワードを設定します
+
+HomeKit:
+  title: HomeKit
+  tooltip: RTSP Main AVCをonにする必要があります
+  unpair:
+    title: 強制接続解除
+    tooltip: HomeKitの接続を強制的に解除します
 
 event:
   tab: イベント通知

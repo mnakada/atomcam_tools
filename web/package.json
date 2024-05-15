@@ -19,6 +19,7 @@
     "eslint-webpack-plugin": "^3.2.0",
     "html-webpack-plugin": "^5.5.0",
     "js-md5": "^0.7.3",
+    "qrcode.vue": "^1.7.0",
     "style-loader": "^3.3.1",
     "vue": "^2.7.9",
     "vue-i18n": "^8.27.2",

@@ -8,7 +8,7 @@
         </h4>
       </ElCol>
       <ElCol :span="textLabel?8:4">
-        <ElSwitch :value="value" @input="$emit('input', $event)" @change="$emit('change', $event)" :active-value="onOff ? 'on' : true" :inactive-value="onOff ? 'off' : false" :active-color="textLabel?'#13ce66':'#409eff'" :active-text="textLabel && textLabel[0]" :inactive-color="textLabel?'#409eff':'#c0ccda'" :inactive-text="textLabel && textLabel[1]" :key="i18n + title" />
+        <ElSwitch :value="value" @input="$emit('input', $event)" @change="$emit('change', $event)" :active-value="onOff ? 'on' : true" :inactive-value="onOff ? 'off' : false" :active-color="textLabel?'#13ce66':'#409eff'" :active-text="textLabel && textLabel[0]" :inactive-color="textLabel?'#409eff':'#c0ccda'" :inactive-text="textLabel && textLabel[1]" :disabled="disabled" :key="i18n + title" />
       </ElCol>
       <ElCol v-if="commentValid" :span="textLabel?7:11">
         <span v-t="i18n + '.comment'">
@@ -61,6 +61,10 @@
       comment: {
         type: String,
         default: '',
+      },
+      disabled: {
+        type: Boolean,
+        default: false,
       },
     },
     computed: {

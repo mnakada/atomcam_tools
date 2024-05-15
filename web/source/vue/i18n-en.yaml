@@ -101,7 +101,7 @@ RTSP:
       title: URL
       tooltip: Copy and paste this URL into VLC etc.
   mainHEVC:
-    title: MainHEVC
+    title: Main HEVC
     tooltip: Start Main HEVC RTSP(1080p)
     audio:
       title: Audio
@@ -130,6 +130,13 @@ RTSP:
   password:
     title: Password
     tooltip: set RTSP password
+
+HomeKit:
+  title: HomeKit
+  tooltip: RTSP Main AVC must be on.
+  unpair:
+    title: Force Unpairing
+    tooltip: Force HomeKit unpairing.
 
 event:
   tab: Notification

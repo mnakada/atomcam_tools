@@ -29,7 +29,6 @@
 
     <div>
       <ElTabs tabPosition="left" @tab-click="HandleTabsClick">
-
         <!-- Camera Tab -->
         <ElTabPane class="well-transparent container-no-submit" :label="$t('camera.tab')">
           <div class="image-frame">
@@ -163,6 +162,24 @@
             <SettingInput v-if="config.RTSP_AUTH === 'on'" i18n="RTSP.account" type="text" :titleOffset="2" v-model="config.RTSP_USER" />
             <SettingInput v-if="config.RTSP_AUTH === 'on'" i18n="RTSP.password" type="password" :titleOffset="2" v-model="config.RTSP_PASSWD" show-password />
           </div>
+
+          <h3 v-t="'HomeKit.title'" />
+          <SettingSwitch i18n="HomeKit" v-model="config.HOMEKIT_ENABLE" :disabled="config.RTSP_VIDEO0 !== 'on'" />
+          <div v-if="homeKitSetupURI !== '' && homekitPairing !== '' && config.RTSP_VIDEO0 === 'on'">
+            <SettingDangerButton v-if="homeKitPairing == 'paired'" i18n="HomeKit.unpair" button="Unpair" icon="el-icon-scissors" :titleOffset="2" @click="UnpairHomeKit" />
+            <ElRow v-else>
+              <ElCol :offset="9" :span="10">
+                <QrcodeVue class="hap-qr" :value="homeKitSetupURI" size="150" />
+              </ElCol>
+            </ElRow>
+            <ElRow>
+              <ElCol :offset="9" :span="10">
+                <h5>
+                  DeviceID : {{ config.HOMEKIT_DEVICE_ID }}
+                </h5>
+              </ElCol>
+            </ElRow>
+          </div>
         </ElTabPane>
 
         <!-- Event Webhook Tab -->
@@ -273,6 +290,7 @@
   import SettingSchedule from './SettingSchedule.vue';
   import SettingProgress from './SettingProgress.vue';
   import SettingCruise from './SettingCruise.vue';
+  import QrcodeVue from 'qrcode.vue';
 
   import 'element-ui/lib/theme-chalk/drawer.css';
   import 'element-ui/lib/theme-chalk/slider.css';
@@ -297,6 +315,7 @@
       SettingSchedule,
       SettingProgress,
       SettingCruise,
+      QrcodeVue,
     },
     data() {
       return {
@@ -319,6 +338,11 @@
           RTSP_AUTH: 'off',
           RTSP_USER: '',
           RTSP_PASSWD: '',
+          HOMEKIT_ENABLE: 'off',
+          HOMEKIT_SETUP_ID: '',
+          HOMEKIT_DEVICE_ID: '',
+          HOMEKIT_PIN: '',
+          HOMEKIT_SOURCE: '',
           PERIODICREC_SDCARD: 'on',
           PERIODICREC_SDCARD_REMOVE: 'off',
           PERIODICREC_SDCARD_REMOVE_DAYS: 30,
@@ -403,6 +427,8 @@
           busy: false,
           abort: false,
         },
+        homeKitPairing: '',
+        homeKitSetupURI: '',
         cruiseList: [],
         cruiseSelect: -1,
         reboot: {
@@ -453,9 +479,8 @@
       },
       RtspUrl0() {
         const port = (this.config.RTSP_OVER_HTTP  === 'on') ? 8080 : 8554;
-        const video = (this.config.RTSP_MAIN_FORMAT_HEVC === 'on') ? 'video2' : 'video0';
         const auth = (this.config.RTSP_AUTH === 'on') && (this.config.RTSP_USER !== '') && (this.config.RTSP_PASSWD !== '') ? `${this.config.RTSP_USER}:${this.config.RTSP_PASSWD}@` : '';
-        return `rtsp://${auth}${window.location.host}:${port}/${video}_unicast`;
+        return `rtsp://${auth}${window.location.host}:${port}/video0_unicast`;
       },
       RtspUrl1() {
         const port = (this.config.RTSP_OVER_HTTP  === 'on') ? 8080 : 8554;
@@ -493,6 +518,24 @@
       if(this.config.DIGEST.length) {
         this.loginAuth = 'on';
         this.account = this.config.DIGEST.replace(/:.*$/, '');
+      }
+
+      if(!this.config.HOMEKIT_SETUP_ID.length) {
+        let sid = '';
+        for(let i = 0; i < 4; i++) {
+          sid += String.fromCharCode(Math.floor(Math.random() * 26) + 0x41);
+        }
+        this.config.HOMEKIT_SETUP_ID = sid;
+      }
+      if(!this.config.HOMEKIT_PIN.length) {
+        this.config.HOMEKIT_PIN = Math.floor(Math.random() * 100000000).toString().padStart(8, '0');
+      }
+      if(!this.config.HOMEKIT_DEVICE_ID.length) {
+        let did = '';
+        for(let i = 0; i < 6; i++) {
+          did += Math.floor(Math.random()*256).toString(16).padStart(2, '0').toUpperCase() + ':';
+        }
+        this.config.HOMEKIT_DEVICE_ID = did.slice(0, 17);
       }
 
       for(let schedule of ['periodicRec', 'alarmRec']) {
@@ -628,8 +671,51 @@
         }
       }, 1000);
       this.StillImageInterval();
+      this.KickHomeKit();
+      this.CheckHomeKit();
     },
     methods: {
+      async CheckHomeKit() {
+        if((this.oldConfig.HOMEKIT_ENABLE !== 'on') || (this.config.HOMEKIT_ENABLE !== 'on')) return;
+
+        const pairingInfo = (await axios.get('./cgi-bin/cmd.cgi?name=homekit').catch(err => {
+          // eslint-disable-next-line no-console
+          console.log('axios.get ./cgi-bin/cmd.cgi?name=homekit', err);
+          return '';
+        }))?.data;
+        // eslint-disable-next-line no-console
+        console.log('pairingInfo : ', pairingInfo);
+
+        if(pairingInfo?.video0) {
+          this.homeKitPairing = pairingInfo.video0.status;
+          if(pairingInfo.video0.setup_uri.indexOf('X-HM://') === 0) {
+            this.homeKitSetupURI =  pairingInfo.video0.setup_uri;
+          }
+        }
+        if(this.homeKitPairing === '' || this.homeKitSetupURI === '') {
+          setTimeout(this.CheckHomeKit, 1000);
+        } else {
+          setTimeout(this.CheckHomeKit, 5000);
+        }
+      },
+      async UnpairHomeKit() {
+        await axios.get('./cgi-bin/cmd.cgi?name=unpair-homekit').catch(err => {
+          // eslint-disable-next-line no-console
+          console.log('axios.get ./cgi-bin/cmd.cgi?name=unpair-homekit', err);
+          return '';
+        });
+        this.homeKitPairing = '';
+        this.homeKitSetupURI = '';
+        this.KickHomeKit();
+        this.CheckHomeKit();
+      },
+      async KickHomeKit() {
+        await axios.get('./cgi-bin/cmd.cgi?name=kick-homekit').catch(err => {
+          // eslint-disable-next-line no-console
+          console.log('axios.get ./cgi-bin/cmd.cgi?name=kick-homekit', err);
+          return '';
+        });
+      },
       HandleTabsClick(tab) {
         this.selectedTab = parseInt(tab.index);
       },
@@ -777,6 +863,9 @@
           parseInt(this.reboot.startTime.slice(0, 2)) + ' * * ' +
           this.reboot.dayOfWeekSelect.sort((a, b) => a - b).reduce((v, d) => v + (v.length ? ':' : '') + ((d + 1) % 7).toString(), '');
 
+        if(this.config.RTSP_VIDEO0 === 'off') this.config.HOMEKIT_ENABLE = 'off';
+        this.config.HOMEKIT_SOURCE = this.RtspUrl0.replace(/^rtsp:\/\/.*:/, 'rtsp://localhost:');
+
         await axios.post('./cgi-bin/hack_ini.cgi', this.config).catch(err => {
           // eslint-disable-next-line no-console
           console.log('axios.post ./cgi-bin/hack_ini.cgi', err);
@@ -834,10 +923,10 @@
         }
         if((this.config.RTSP_VIDEO0 === 'on') || (this.config.RTSP_VIDEO1 === 'on')) {
           if((this.config.RTSP_OVER_HTTP !== this.oldConfig.RTSP_OVER_HTTP) ||
-             (this.config.RTSP_MAIN_FORMAT_HEVC !== this.oldConfig.RTSP_MAIN_FORMAT_HEVC) ||
              (this.config.RTSP_AUTH !== this.oldConfig.RTSP_AUTH) ||
              (this.config.RTSP_USER !== this.oldConfig.RTSP_USER) ||
-             (this.config.RTSP_PASSWD !== this.oldConfig.RTSP_PASSWD)) {
+             (this.config.RTSP_PASSWD !== this.oldConfig.RTSP_PASSWD) ||
+             (this.config.HOMEKIT_ENABLE !== this.oldConfig.HOMEKIT_ENABLE)) {
             execCmds.push('rtspserver restart');
           } else if((this.config.RTSP_VIDEO0 !== this.oldConfig.RTSP_VIDEO0) ||
                     (this.config.RTSP_VIDEO1 !== this.oldConfig.RTSP_VIDEO1) ||
@@ -1025,6 +1114,15 @@
 
   .link-button {
     text-decoration: none;
+  }
+
+  .hap-qr {
+    display: inline-block;
+    vertical-align: middle;
+    padding: 15px;
+    margin: 15px;
+    border: solid 2px;
+    border-radius: 15px;
   }
 
   .submit {

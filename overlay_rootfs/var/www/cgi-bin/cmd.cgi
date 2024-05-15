@@ -49,6 +49,15 @@ if [ "$REQUEST_METHOD" = "GET" ]; then
       ' /atom/configs/.user_config
     fi
   fi
+  if [ "$NAME" = "kick-homekit" ] ; then
+    curl http://localhost:1984/api/homekit
+  fi
+  if [ "$NAME" = "homekit" ] ; then
+    curl http://localhost:1984/api/homekit/pairing
+  fi
+  if [ "$NAME" = "unpair-homekit" ] ; then
+    curl -X DELETE http://localhost:1984/api/homekit/pairing?stream=video0
+  fi
 fi
 
 if [ "$REQUEST_METHOD" = "POST" ]; then

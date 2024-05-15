@@ -1,0 +1,139 @@
+From 74915f2b086f131be9d1d7adf1c96c98acf83ef6 Mon Sep 17 00:00:00 2001
+From: Mitsuru Nakada <mitsuru.nakada@sony.com>
+Date: Wed, 15 May 2024 22:54:28 +0900
+Subject: [PATCH] HomeKit QR-Code interface - Added API for HomeKit pairing. -
+ Supports pairing with QR-Code.
+
+---
+ internal/homekit/api.go     | 52 +++++++++++++++++++++++++++++++++++++
+ internal/homekit/homekit.go |  4 +++
+ pkg/hap/server.go           |  3 ++-
+ 3 files changed, 58 insertions(+), 1 deletion(-)
+
+diff --git a/internal/homekit/api.go b/internal/homekit/api.go
+index abd8e97..2272367 100644
+--- a/internal/homekit/api.go
++++ b/internal/homekit/api.go
+@@ -6,6 +6,7 @@ import (
+ 	"net/http"
+ 	"net/url"
+ 	"strings"
++	"strconv"
+ 
+ 	"github.com/AlexxIT/go2rtc/internal/api"
+ 	"github.com/AlexxIT/go2rtc/internal/app"
+@@ -137,3 +138,54 @@ func findHomeKitURLs() map[string]*url.URL {
+ 	}
+ 	return urls
+ }
++
++type PairingInfo struct {
++	Name         string     `json:"name"`
++	DeviceID     string     `json:"device_id"`
++	SetupURI     string     `json:"setup_uri"`
++	Status       string     `json:"status"`
++}
++
++func setupURI(host string, s *server) PairingInfo {
++	// for QR-Code
++	category, _ := strconv.ParseInt(hap.CategoryCamera, 10, 64)
++	pin, _ := strconv.ParseInt(strings.Replace(s.hap.Pin, "-", "", -1), 10, 64)
++	payload := "00000000" + strconv.FormatInt(category << 31 + 1 << 28 + pin, 36)
++	uri := strings.ToUpper("X-HM://" + payload[len(payload)-9:] + s.hap.SetupID[:4])
++	status := "unpaired"
++	if len(s.pairings) > 0 {
++		status = "paired"
++	}
++	return PairingInfo {
++		Name: s.mdns.Name ,
++		DeviceID: s.hap.DeviceID,
++		SetupURI: uri,
++		Status: status,
++	}
++}
++
++func apiPairingHandler(w http.ResponseWriter, r *http.Request) {
++	switch r.Method {
++	case "GET":
++		pairingInfo := map[string]PairingInfo{}
++		for host, s := range servers {
++			pairingInfo[s.stream] = setupURI(host, s)
++		}
++		api.ResponseJSON(w, pairingInfo)
++
++	case "DELETE":
++		query := r.URL.Query()
++		name := query.Get("name")
++		stream := query.Get("stream")
++		device_id := query.Get("device_id")
++		for _, s := range servers {
++			if name == s.mdns.Name || stream == s.stream || device_id == s.hap.DeviceID {
++				s.pairings = nil
++				s.UpdateStatus()
++				s.PatchConfig()
++				break;
++			}
++		}
++
++	}
++}
+diff --git a/internal/homekit/homekit.go b/internal/homekit/homekit.go
+index bfe3e97..86a5d4b 100644
+--- a/internal/homekit/homekit.go
++++ b/internal/homekit/homekit.go
+@@ -26,6 +26,7 @@ func Init() {
+ 			Name          string   `yaml:"name"`
+ 			DeviceID      string   `yaml:"device_id"`
+ 			DevicePrivate string   `yaml:"device_private"`
++			SetupID       string   `yaml:"setup_id"`
+ 			Pairings      []string `yaml:"pairings"`
+ 		} `yaml:"homekit"`
+ 	}
+@@ -36,6 +37,7 @@ func Init() {
+ 	streams.HandleFunc("homekit", streamHandler)
+ 
+ 	api.HandleFunc("api/homekit", apiHandler)
++	api.HandleFunc("api/homekit/pairing", apiPairingHandler)
+ 
+ 	if cfg.Mod == nil {
+ 		return
+@@ -62,6 +64,7 @@ func Init() {
+ 		}
+ 
+ 		deviceID := calcDeviceID(conf.DeviceID, id) // random MAC-address
++		setupID := (conf.SetupID + "HMXS")[:4] // default setup ID
+ 		name := calcName(conf.Name, deviceID)
+ 
+ 		srv := &server{
+@@ -73,6 +76,7 @@ func Init() {
+ 		srv.hap = &hap.Server{
+ 			Pin:           pin,
+ 			DeviceID:      deviceID,
++			SetupID:       setupID,
+ 			DevicePrivate: calcDevicePrivate(conf.DevicePrivate, id),
+ 			GetPair:       srv.GetPair,
+ 			AddPair:       srv.AddPair,
+diff --git a/pkg/hap/server.go b/pkg/hap/server.go
+index 2a91232..a4b6171 100644
+--- a/pkg/hap/server.go
++++ b/pkg/hap/server.go
+@@ -23,6 +23,7 @@ type HandlerFunc func(net.Conn) error
+ type Server struct {
+ 	Pin           string
+ 	DeviceID      string
++	SetupID       string
+ 	DevicePrivate []byte
+ 
+ 	GetPair func(conn net.Conn, id string) []byte
+@@ -45,7 +46,7 @@ func (s *Server) ServerPublic() []byte {
+ func (s *Server) SetupHash() string {
+ 	// should be setup_id (random 4 alphanum) + device_id (mac address)
+ 	// but device_id is random, so OK
+-	b := sha512.Sum512([]byte(s.DeviceID))
++	b := sha512.Sum512([]byte(s.SetupID[:4] + s.DeviceID))
+ 	return base64.StdEncoding.EncodeToString(b[:4])
+ }
+ 
+-- 
+2.39.3 (Apple Git-146)
+

@@ -1,0 +1,46 @@
+From e89952b3a3521b4d93dd66a24e6b5ff75c79fe9f Mon Sep 17 00:00:00 2001
+From: Mitsuru Nakada <mitsuru.nakada@sony.com>
+Date: Wed, 15 May 2024 22:57:35 +0900
+Subject: [PATCH] minimize HomeKit
+
+---
+ examples/homekit/main.go | 27 +++++++++++++++++++++++++++
+ 1 file changed, 27 insertions(+)
+ create mode 100644 examples/homekit/main.go
+
+diff --git a/examples/homekit/main.go b/examples/homekit/main.go
+new file mode 100644
+index 0000000..63a5b69
+--- /dev/null
++++ b/examples/homekit/main.go
+@@ -0,0 +1,27 @@
++package main
++
++import (
++	"github.com/AlexxIT/go2rtc/internal/app"
++	"github.com/AlexxIT/go2rtc/internal/api"
++	"github.com/AlexxIT/go2rtc/internal/streams"
++	"github.com/AlexxIT/go2rtc/internal/rtsp"
++	"github.com/AlexxIT/go2rtc/internal/http"
++	"github.com/AlexxIT/go2rtc/internal/homekit"
++	"github.com/AlexxIT/go2rtc/internal/srtp"
++//	"github.com/AlexxIT/go2rtc/internal/api/ws"
++//	"github.com/AlexxIT/go2rtc/internal/webrtc"
++	"github.com/AlexxIT/go2rtc/pkg/shell" // loop
++)
++
++func main() {
++	app.Init()       // application
++	api.Init()       // /api, /api/homekit
++	streams.Init()   // streams module
++	rtsp.Init()      // for rtsp source stream
++	http.Init()      // for jpeg source stream
++	homekit.Init()   // homekit source
++	srtp.Init()      // SRTP server
++//	ws.Init()        // init WS API endpoint (WebRTC server)
++//	webrtc.Init()    // webrtc source, WebRTC server
++	shell.RunUntilSignal()
++}
+-- 
+2.39.3 (Apple Git-146)
+

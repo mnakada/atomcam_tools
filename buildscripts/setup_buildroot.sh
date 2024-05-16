@@ -58,7 +58,7 @@ GO_ARCH=`uname -m` # x64 or arm64
 [ "$GO_ARCH" = "x86_64" ] && GO_ARCH="x86_64"
 cd /usr/local
 
-curl https://dl.google.com/go/go$(GO_VER).linux-$(GO_ARCH).tar.gz | tar zxvf -
+curl https://dl.google.com/go/go${GO_VER}.linux-${GO_ARCH}.tar.gz | tar zxvf -
 ln -s /usr/local/go/bin/go /usr/local/bin
 
 # Start the build process

@@ -1,17 +1,5 @@
-From 74915f2b086f131be9d1d7adf1c96c98acf83ef6 Mon Sep 17 00:00:00 2001
-From: Mitsuru Nakada <mitsuru.nakada@sony.com>
-Date: Wed, 15 May 2024 22:54:28 +0900
-Subject: [PATCH] HomeKit QR-Code interface - Added API for HomeKit pairing. -
- Supports pairing with QR-Code.
-
----
- internal/homekit/api.go     | 52 +++++++++++++++++++++++++++++++++++++
- internal/homekit/homekit.go |  4 +++
- pkg/hap/server.go           |  3 ++-
- 3 files changed, 58 insertions(+), 1 deletion(-)
-
 diff --git a/internal/homekit/api.go b/internal/homekit/api.go
-index abd8e97..2272367 100644
+index abd8e97..96c8ad3 100644
 --- a/internal/homekit/api.go
 +++ b/internal/homekit/api.go
 @@ -6,6 +6,7 @@ import (
@@ -22,7 +10,7 @@ index abd8e97..2272367 100644
  
  	"github.com/AlexxIT/go2rtc/internal/api"
  	"github.com/AlexxIT/go2rtc/internal/app"
-@@ -137,3 +138,54 @@ func findHomeKitURLs() map[string]*url.URL {
+@@ -137,3 +138,42 @@ func findHomeKitURLs() map[string]*url.URL {
  	}
  	return urls
  }
@@ -31,6 +19,7 @@ index abd8e97..2272367 100644
 +	Name         string     `json:"name"`
 +	DeviceID     string     `json:"device_id"`
 +	SetupURI     string     `json:"setup_uri"`
++	Pin          string     `json:"pin"`
 +	Status       string     `json:"status"`
 +}
 +
@@ -48,6 +37,7 @@ index abd8e97..2272367 100644
 +		Name: s.mdns.Name ,
 +		DeviceID: s.hap.DeviceID,
 +		SetupURI: uri,
++		Pin: s.hap.Pin,
 +		Status: status,
 +	}
 +}
@@ -60,20 +50,6 @@ index abd8e97..2272367 100644
 +			pairingInfo[s.stream] = setupURI(host, s)
 +		}
 +		api.ResponseJSON(w, pairingInfo)
-+
-+	case "DELETE":
-+		query := r.URL.Query()
-+		name := query.Get("name")
-+		stream := query.Get("stream")
-+		device_id := query.Get("device_id")
-+		for _, s := range servers {
-+			if name == s.mdns.Name || stream == s.stream || device_id == s.hap.DeviceID {
-+				s.pairings = nil
-+				s.UpdateStatus()
-+				s.PatchConfig()
-+				break;
-+			}
-+		}
 +
 +	}
 +}
@@ -134,6 +110,3 @@ index 2a91232..a4b6171 100644
  	return base64.StdEncoding.EncodeToString(b[:4])
  }
  
--- 
-2.39.3 (Apple Git-146)
-

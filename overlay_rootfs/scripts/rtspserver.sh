@@ -43,9 +43,9 @@ if [ "$1" = "on" -o "$1" = "restart" -o "$1" = "watchdog" -o "$RTSP_VIDEO0" = "o
   /scripts/cmd video 0 $RTSP_VIDEO0 > /dev/null
   /scripts/cmd video 1 $RTSP_VIDEO1 > /dev/null
   /scripts/cmd video 2 $RTSP_VIDEO2 > /dev/null
-  /scripts/cmd audio 0 on > /dev/null
-  /scripts/cmd audio 1 on > /dev/null
-  /scripts/cmd audio 2 on > /dev/null
+  [ "$RTSP_VIDEO0" = "on" ] && /scripts/cmd audio 0 on > /dev/null
+  [ "$RTSP_VIDEO1" = "on" ] && /scripts/cmd audio 1 on > /dev/null
+  [ "$RTSP_VIDEO2" = "on" ] && /scripts/cmd audio 2 on > /dev/null
   if ! pidof v4l2rtspserver > /dev/null ; then
     while netstat -ltn 2> /dev/null | egrep ":(8554|8080)"; do
       sleep 0.5
@@ -53,17 +53,17 @@ if [ "$1" = "on" -o "$1" = "restart" -o "$1" = "watchdog" -o "$RTSP_VIDEO0" = "o
     echo `date +"%Y/%m/%d %H:%M:%S"` ": v4l2rtspserever start"
     [ "$RTSP_OVER_HTTP" = "on" ] && option="-p 8080"
     [ "$RTSP_AUTH" = "on" -a "$RTSP_USER" != "" -a "$RTSP_PASSWD" != "" ] && option="$option -U $RTSP_USER:$RTSP_PASSWD"
-    [ "$RTSP_VIDEO0" = "on" -o "$RTSP_AUDIO0" = "on" ] && path="/dev/video0,hw:0,0 "
-    [ "$RTSP_VIDEO1" = "on" -o "$RTSP_AUDIO1" = "on" ] && path="$path /dev/video1,hw:1,0 "
-    [ "$RTSP_VIDEO2" = "on" -o "$RTSP_AUDIO2" = "on" ] && path="$path /dev/video2,hw:2,0 "
+    [ "$RTSP_VIDEO0" = "on" ] && path="/dev/video0,hw:0,0 "
+    [ "$RTSP_VIDEO1" = "on" ] && path="$path /dev/video1,hw:1,0 "
+    [ "$RTSP_VIDEO2" = "on" ] && path="$path /dev/video2,hw:2,0 "
     /usr/bin/v4l2rtspserver $option -C 1 -a S16_LE $path >> /tmp/log/rtspserver.log 2>&1 &
   fi
   while [ "`pidof v4l2rtspserver`" = "" ]; do
     sleep 0.5
   done
-  /scripts/cmd audio 0 $RTSP_AUDIO0 > /dev/null
-  /scripts/cmd audio 1 $RTSP_AUDIO1 > /dev/null
-  /scripts/cmd audio 2 $RTSP_AUDIO2 > /dev/null
+  [ "$RTSP_VIDEO0" = "on" ] && /scripts/cmd audio 0 $RTSP_AUDIO0 > /dev/null
+  [ "$RTSP_VIDEO1" = "on" ] && /scripts/cmd audio 1 $RTSP_AUDIO1 > /dev/null
+  [ "$RTSP_VIDEO2" = "on" ] && /scripts/cmd audio 2 $RTSP_AUDIO2 > /dev/null
 
   [ "$HOMEKIT_SETUP_ID" = "" -o "$HOMEKIT_PIN" = "" -o "$HOMEKIT_DEVICE_ID" = "" -o "$HOMEKIT_SOURCE" = "" ] && exit 0
   
@@ -78,17 +78,17 @@ api:
     static_dir: '/var/www-redirect'
 homekit:
     video0:
-        device_id: ${HOMEKIT_DEVICE_ID:}
-        setup_id: ${HOMEKIT_SETUP_ID:}
+        device_id: \${HOMEKIT_DEVICE_ID:}
+        setup_id: \${HOMEKIT_SETUP_ID:}
         image_stream: jpeg
-        name: ${HOMEKIT_NAME:}
-        pin: ${HOMEKIT_PIN:}
+        name: \${HOMEKIT_NAME:}
+        pin: \${HOMEKIT_PIN:}
         pairings: []
 rtsp:
     listen: ''
 streams:
     jpeg: http://localhost/cgi-bin/get_jpeg.cgi
-    video0: ${HOMEKIT_SOURCE:}
+    video0: \${HOMEKIT_SOURCE:}
 EOF
   fi
   [ "$HOMEKIT_ENABLE" = "on" ] && /usr/bin/go2rtc_homekit -config $HOMEKIT_CONFIG -daemon

@@ -8,3 +8,12 @@
  		videoformatList.push_back(V4L2_PIX_FMT_H264);
  		videoformatList.push_back(V4L2_PIX_FMT_MJPEG);
  		videoformatList.push_back(V4L2_PIX_FMT_JPEG);
+@@ -326,7 +326,7 @@
+ 			
+ 			std::string baseUrl;
+ 			std::string output(outputFile);
+-			if (devList.size() > 1)
++			if (devList.size() > 0)
+ 			{
+ 				baseUrl = getDeviceName(videoDev);
+ 				baseUrl.append("_");

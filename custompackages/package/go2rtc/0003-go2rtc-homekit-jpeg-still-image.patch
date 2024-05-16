@@ -1,15 +1,6 @@
-From d3b0cf5220a114a5d593e4d4cde047efa0db22bd Mon Sep 17 00:00:00 2001
-From: Mitsuru Nakada <mitsuru.nakada@sony.com>
-Date: Wed, 15 May 2024 22:57:02 +0900
-Subject: [PATCH] HomeKit still image - JPEG stream can be passed to HomeKit.
-
----
- internal/homekit/homekit.go | 2 ++
- internal/homekit/server.go  | 7 ++++++-
- 2 files changed, 8 insertions(+), 1 deletion(-)
 
 diff --git a/internal/homekit/homekit.go b/internal/homekit/homekit.go
-index 86a5d4b..1bb4c5f 100644
+index 24b8a60..04cc513 100644
 --- a/internal/homekit/homekit.go
 +++ b/internal/homekit/homekit.go
 @@ -27,6 +27,7 @@ func Init() {
@@ -29,7 +20,7 @@ index 86a5d4b..1bb4c5f 100644
  			pairings: conf.Pairings,
  		}
 diff --git a/internal/homekit/server.go b/internal/homekit/server.go
-index cb114fe..958bbe7 100644
+index 7aa79f2..75654c6 100644
 --- a/internal/homekit/server.go
 +++ b/internal/homekit/server.go
 @@ -25,6 +25,7 @@ import (
@@ -53,6 +44,3 @@ index cb114fe..958bbe7 100644
  	cons := magic.NewKeyframe()
  
  	if err := stream.AddConsumer(cons); err != nil {
--- 
-2.39.3 (Apple Git-146)
-

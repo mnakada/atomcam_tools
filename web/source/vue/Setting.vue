@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="title" :class="'title_' + distributor">
+    <div v-if="distributer !== ''" class="title" :class="'title_' + distributor">
       <div>
         {{ distributor }}Cam Hack
         <span class="version">
@@ -169,14 +169,19 @@
             <SettingDangerButton v-if="homeKitPairing == 'paired'" i18n="HomeKit.unpair" button="Unpair" icon="el-icon-scissors" :titleOffset="2" @click="UnpairHomeKit" />
             <ElRow v-else>
               <ElCol :offset="9" :span="10">
-                <QrcodeVue class="hap-qr" :value="homeKitSetupURI" size="150" />
+                <div class="homekit">
+                  <QrcodeVue class="homekit-qrcode" :value="homeKitSetupURI" size="150" />
+                  <div class="homekit-setupcode">
+                    {{ homeKitSetupCode }}
+                  </div>
+                </div>
               </ElCol>
             </ElRow>
             <ElRow>
               <ElCol :offset="9" :span="10">
-                <h5>
+                <h4 class="homekit-deviceid">
                   DeviceID : {{ config.HOMEKIT_DEVICE_ID }}
-                </h5>
+                </h4>
               </ElCol>
             </ElRow>
           </div>
@@ -429,6 +434,7 @@
         },
         homeKitPairing: '',
         homeKitSetupURI: '',
+        homeKitSetupCode: '',
         cruiseList: [],
         cruiseSelect: -1,
         reboot: {
@@ -671,7 +677,6 @@
         }
       }, 1000);
       this.StillImageInterval();
-      this.KickHomeKit();
       this.CheckHomeKit();
     },
     methods: {
@@ -689,7 +694,9 @@
         if(pairingInfo?.video0) {
           this.homeKitPairing = pairingInfo.video0.status;
           if(pairingInfo.video0.setup_uri.indexOf('X-HM://') === 0) {
+            if(this.homeKitSetupURI === '') this.KickHomeKit();
             this.homeKitSetupURI =  pairingInfo.video0.setup_uri;
+            this.homeKitSetupCode = pairingInfo.video0.pin;
           }
         }
         if(this.homeKitPairing === '' || this.homeKitSetupURI === '') {
@@ -710,6 +717,7 @@
         this.CheckHomeKit();
       },
       async KickHomeKit() {
+        if((this.oldConfig.HOMEKIT_ENABLE !== 'on') || (this.config.HOMEKIT_ENABLE !== 'on')) return;
         await axios.get('./cgi-bin/cmd.cgi?name=kick-homekit').catch(err => {
           // eslint-disable-next-line no-console
           console.log('axios.get ./cgi-bin/cmd.cgi?name=kick-homekit', err);
@@ -829,8 +837,8 @@
             str += `[index_${(i - 0 + 1).toString().padStart(2, '0')}];`;
             const val = timeTable.dayOfWeekSelect.reduce((v, d) => v | (2 << d), 0);
             str += `Rule=${val};`;
-            const stime = parseInt(timeTable.startTime.slice(0, 2)) * 60 + parseInt(timeTable.startTime.slice(-2));
-            const etime = parseInt(timeTable.endTime.slice(0, 2)) * 60 + parseInt(timeTable.endTime.slice(-2)) + 1;
+            const stime = parseInt((timeTable.startTime ?? '0').slice(0, 2)) * 60 + parseInt((timeTable.startTime ?? '0').slice(-2));
+            const etime = parseInt((timeTable.endTime ?? '0').slice(0, 2)) * 60 + parseInt((timeTable.endTime ?? '0').slice(-2)) + 1;
             str += `ContinueTime=${etime - stime};`;
             str += `StartTime=${stime};`;
             str += `Status=1;`;
@@ -864,6 +872,10 @@
           this.reboot.dayOfWeekSelect.sort((a, b) => a - b).reduce((v, d) => v + (v.length ? ':' : '') + ((d + 1) % 7).toString(), '');
 
         if(this.config.RTSP_VIDEO0 === 'off') this.config.HOMEKIT_ENABLE = 'off';
+        if(this.distributor !== 'ATOM') {
+          this.config.RTSP_VIDEO2 = 'off';
+          this.config.RTSP_AUDIO2 = 'off';
+        }
         this.config.HOMEKIT_SOURCE = this.RtspUrl0.replace(/^rtsp:\/\/.*:/, 'rtsp://localhost:');
 
         await axios.post('./cgi-bin/hack_ini.cgi', this.config).catch(err => {
@@ -914,25 +926,27 @@
           execCmds.push(`curl upload ${this.config.AWS_VIDEO_DISABLE === 'on' ? 'disable' : 'enable'}`);
         }
         if(((this.config.RTSP_VIDEO0 !== this.oldConfig.RTSP_VIDEO0) ||
-            (this.config.RTSP_VIDEO1 !== this.oldConfig.RTSP_VIDEO1)) &&
-           (this.config.RTSP_VIDEO0 === 'off') && (this.config.RTSP_VIDEO1 === 'off')) {
+            (this.config.RTSP_VIDEO1 !== this.oldConfig.RTSP_VIDEO1) ||
+            (this.config.RTSP_VIDEO2 !== this.oldConfig.RTSP_VIDEO2)) &&
+           (this.config.RTSP_VIDEO0 === 'off') && (this.config.RTSP_VIDEO1 === 'off') && (this.config.RTSP_VIDEO2 === 'off')) {
           execCmds.push('rtspserver off');
         }
         if(this.config.STORAGE_SDCARD_PUBLISH !== this.oldConfig.STORAGE_SDCARD_PUBLISH) {
           execCmds.push(`samba ${this.config.STORAGE_SDCARD_PUBLISH}`);
         }
-        if((this.config.RTSP_VIDEO0 === 'on') || (this.config.RTSP_VIDEO1 === 'on')) {
+        if((this.config.RTSP_VIDEO0 === 'on') || (this.config.RTSP_VIDEO1 === 'on') || (this.config.RTSP_VIDEO2 === 'on')) {
           if((this.config.RTSP_OVER_HTTP !== this.oldConfig.RTSP_OVER_HTTP) ||
              (this.config.RTSP_AUTH !== this.oldConfig.RTSP_AUTH) ||
              (this.config.RTSP_USER !== this.oldConfig.RTSP_USER) ||
              (this.config.RTSP_PASSWD !== this.oldConfig.RTSP_PASSWD) ||
-             (this.config.HOMEKIT_ENABLE !== this.oldConfig.HOMEKIT_ENABLE)) {
+             (this.config.HOMEKIT_ENABLE !== this.oldConfig.HOMEKIT_ENABLE) ||
+             (this.config.RTSP_VIDEO0 !== this.oldConfig.RTSP_VIDEO0) ||
+             (this.config.RTSP_VIDEO1 !== this.oldConfig.RTSP_VIDEO1) ||
+             (this.config.RTSP_VIDEO2 !== this.oldConfig.RTSP_VIDEO2) ||
+             (this.config.RTSP_AUDIO0 !== this.oldConfig.RTSP_AUDIO0) ||
+             (this.config.RTSP_AUDIO1 !== this.oldConfig.RTSP_AUDIO1) ||
+             (this.config.RTSP_AUDIO2 !== this.oldConfig.RTSP_AUDIO2)) {
             execCmds.push('rtspserver restart');
-          } else if((this.config.RTSP_VIDEO0 !== this.oldConfig.RTSP_VIDEO0) ||
-                    (this.config.RTSP_VIDEO1 !== this.oldConfig.RTSP_VIDEO1) ||
-                    (this.config.RTSP_AUDIO0 !== this.oldConfig.RTSP_AUDIO0) ||
-                    (this.config.RTSP_AUDIO1 !== this.oldConfig.RTSP_AUDIO1)) {
-            execCmds.push('rtspserver on');
           }
         }
         if(Object.keys(this.config).some(prop => (prop.search(/WEBHOOK/) === 0) && (this.config[prop] !== this.oldConfig[prop]))) {
@@ -959,6 +973,7 @@
             if(href) window.location.href = href;
           });
         }
+        this.CheckHomeKit();
       },
       async Exec(cmd, port) {
         return await axios.post(`./cgi-bin/cmd.cgi?port=${port}`, { exec: cmd }).catch(err => {
@@ -1116,13 +1131,28 @@
     text-decoration: none;
   }
 
-  .hap-qr {
+  .homekit {
     display: inline-block;
-    vertical-align: middle;
-    padding: 15px;
-    margin: 15px;
-    border: solid 2px;
+    padding: 10px 20px;
+    margin: 20px;
+    border: solid 4px;
     border-radius: 15px;
+  }
+
+  .homekit-qrcode {
+    vertical-align: middle;
+    padding: 5px;
+  }
+
+  .homekit-setupcode {
+    font-weight: 600;
+    display:inline-block;
+    vertical-align: middle;
+    font-size: 2em;
+  }
+
+  .homekit-deviceid {
+    font-weight: 400;
   }
 
   .submit {

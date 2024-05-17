@@ -21,8 +21,8 @@ RTSP_VIDEO0=$(awk -F "=" '/^RTSP_VIDEO0 *=/ {print $2}' $HACK_INI)
 RTSP_AUDIO0=$(awk -F "=" '/^RTSP_AUDIO0 *=/ {print $2}' $HACK_INI)
 RTSP_VIDEO1=$(awk -F "=" '/^RTSP_VIDEO1 *=/ {print $2}' $HACK_INI)
 RTSP_AUDIO1=$(awk -F "=" '/^RTSP_AUDIO1 *=/ {print $2}' $HACK_INI)
-RTSP_VIDEO2=$(awk -F "=" '/^RTSP_VIDEO1 *=/ {print $2}' $HACK_INI)
-RTSP_AUDIO2=$(awk -F "=" '/^RTSP_AUDIO1 *=/ {print $2}' $HACK_INI)
+RTSP_VIDEO2=$(awk -F "=" '/^RTSP_VIDEO2 *=/ {print $2}' $HACK_INI)
+RTSP_AUDIO2=$(awk -F "=" '/^RTSP_AUDIO2 *=/ {print $2}' $HACK_INI)
 RTSP_OVER_HTTP=$(awk -F "=" '/^RTSP_OVER_HTTP *=/ {print $2}' $HACK_INI)
 RTSP_AUTH=$(awk -F "=" '/^RTSP_AUTH *=/ {print $2}' $HACK_INI)
 RTSP_USER=$(awk -F "=" '/^RTSP_USER *=/ {print $2}' $HACK_INI)
@@ -54,8 +54,8 @@ if [ "$1" = "on" -o "$1" = "restart" -o "$1" = "watchdog" -o "$RTSP_VIDEO0" = "o
     [ "$RTSP_OVER_HTTP" = "on" ] && option="-p 8080"
     [ "$RTSP_AUTH" = "on" -a "$RTSP_USER" != "" -a "$RTSP_PASSWD" != "" ] && option="$option -U $RTSP_USER:$RTSP_PASSWD"
     [ "$RTSP_VIDEO0" = "on" ] && path="/dev/video0,hw:0,0 "
-    [ "$RTSP_VIDEO1" = "on" ] && path="$path /dev/video1,hw:1,0 "
-    [ "$RTSP_VIDEO2" = "on" ] && path="$path /dev/video2,hw:2,0 "
+    [ "$RTSP_VIDEO1" = "on" ] && path="$path /dev/video1,hw:2,0 "
+    [ "$RTSP_VIDEO2" = "on" ] && path="$path /dev/video2,hw:4,0 "
     /usr/bin/v4l2rtspserver $option -C 1 -a S16_LE $path >> /tmp/log/rtspserver.log 2>&1 &
   fi
   while [ "`pidof v4l2rtspserver`" = "" ]; do

@@ -32,12 +32,12 @@ struct audio_capture_st audio_capture[] = {
     .enable = 0,
   },
   {
-    .card = 1,
+    .card = 2,
     .pcm = NULL,
     .enable = 0,
   },
   {
-    .card = 2,
+    .card = 4,
     .pcm = NULL,
     .enable = 0,
   },
@@ -76,6 +76,7 @@ char *AudioCapture(int fd, char *p, char *tokenPtr) {
     ch = atoi(p);
     p = strtok_r(NULL, " \t\r\n", &tokenPtr);
   }
+  if(wyze && (ch == 2)) return "error";
   if(!p) {
     if(!audio_capture[ch].pcm) return "disabled";
     return audio_capture[ch].enable ? "on" : "off";
@@ -97,7 +98,7 @@ char *AudioCapture(int fd, char *p, char *tokenPtr) {
 
 static int audio_pcm_capture(struct frames_st *frames) {
 
-  for(int ch = 0; ch < 3; ch++) {
+  for(int ch = 0; ch < (wyze ? 2 : 3); ch++) {
 
     if(!audio_capture[ch].pcm) {
       audio_capture[ch].pcm = pcm_open(audio_capture[ch].card, 1, PCM_OUT | PCM_MMAP, AudioConfig);

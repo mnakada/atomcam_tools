@@ -10,7 +10,7 @@
 
 > [!IMPORTANT]
 >
-> **Ver.2.3.xからVer.2.4.xのVer. Upは設定を記録しているhack.iniが変換されます**。  
+> **Ver.2.3.xからVer.2.4.0以降へのVer. Upは設定を記録しているhack.iniが変換されます**。  
 > Ver. 2.3.x以下にVer.Downする場合はSD-Cardに保存されている```hack.ini_0_9_9.bak```ファイルを```hack.ini```に上書きしてください。
 >
 > 設定項目が増えてきて分かりにくくなってきたのでVer.2.4.0からメニュー構成を変更しました。
@@ -374,11 +374,13 @@ NASにアクセスするためのパスワードを指定します。（この�
 
 **※ 負荷が重いためSD-Cardのネットワークアクセスと同時使用は推奨しません。**
 
+**画面は説明のために全てonにしていますが、使わないところはできるだけoffにしてください。**
+
 ####  Main
 
 Main(video0)側のRTSPストリーミングを行います。 
 
-HD(AVC or HEVC(ATOMCamのみ))の出力になります。
+HD AVCの出力になります。
 
 ##### - 音声
 
@@ -388,9 +390,19 @@ Main側の音声をon/offします。
 
 Main側のVLC media playerの「ネットワークストリーミングを開く」で入力するURLが表示されます。
 
-##### - フォーマット (ATOMCamのみ)
+####  Main HEVC (ATOMCamのみ)
 
-Main側のストリームフォーマットをAVC/HEVCのいずれかに切り替えます。
+Main(video2)側のRTSPストリーミングを行います。 
+
+HD HEVCの出力になります。
+
+##### - 音声
+
+Main側の音声をon/offします。
+
+##### - URL
+
+Main HEVC側のVLC media playerの「ネットワークストリーミングを開く」で入力するURLが表示されます。
 
 #### Sub
 
@@ -425,6 +437,30 @@ RTSPのアカウントを設定します。
 ##### - パスワード
 
 RTSPのパスワードを設定します。
+
+#### HomeKit
+
+HomeKitのOn/Offを設定します。
+
+Onにしたあと設定ボタンを押すとしばらくしてQR-Codeが表示されます。
+
+iOSのホームアプリで右上の＋を開いてアクセサリを追加の画面でQR-Codeを読み取ってください。
+
+登録完了するとQR-Codeが消えて下記の画面に切り替わります。
+
+**HomeKitには音声はつながりません**
+
+<kbd><img src="https://github.com/mnakada/atomcam_tools/blob/images/streaming.jpg" /></kbd>
+
+##### 強制接続解除
+
+iOS側で登録を解除しても、解除のタイミングによっては設定が残ることがあります。
+
+iOSで解除してもQR-Codeが表示されない場合は強制接続解除を実行してください。
+
+HomeKitのアクセサリーは同時に複数のiOS/HomeHUBには接続できません。
+
+（iOS/HomeHUBに複数のアクセサリーは登録できます）
 
 <br>
 

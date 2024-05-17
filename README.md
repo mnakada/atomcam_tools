@@ -448,8 +448,6 @@ iOSのホームアプリで右上の＋を開いてアクセサリを追加の�
 
 登録完了するとQR-Codeが消えて下記の画面に切り替わります。
 
-**HomeKitには音声はつながりません**
-
 <kbd><img src="https://github.com/mnakada/atomcam_tools/blob/images/homekit.jpg" /></kbd>
 
 ##### 強制接続解除
@@ -461,6 +459,8 @@ iOSで解除してもQR-Codeが表示されない場合は強制接続解除を�
 HomeKitのアクセサリーは同時に複数のiOS/HomeHUBには接続できません。
 
 （iOS/HomeHUBに複数のアクセサリーは登録できます）
+
+**HomeKitには音声はつながりません**
 
 <br>
 

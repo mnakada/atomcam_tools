@@ -165,7 +165,7 @@
 
           <h3 v-t="'HomeKit.title'" />
           <SettingSwitch i18n="HomeKit" v-model="config.HOMEKIT_ENABLE" :disabled="config.RTSP_VIDEO0 !== 'on'" />
-          <div v-if="homeKitSetupURI !== '' && homekitPairing !== '' && config.RTSP_VIDEO0 === 'on'">
+          <div v-if="homeKitSetupURI !== '' && homekitPairing !== '' && config.RTSP_VIDEO0 === 'on' && config.HOMEKIT_ENABLE === 'on'">
             <SettingDangerButton v-if="homeKitPairing == 'paired'" i18n="HomeKit.unpair" button="Unpair" icon="el-icon-scissors" :titleOffset="2" @click="UnpairHomeKit" />
             <ElRow v-else>
               <ElCol :offset="9" :span="10">

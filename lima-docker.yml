@@ -11,9 +11,9 @@ images:
   - location: "https://cloud-images.ubuntu.com/releases/22.04/release/ubuntu-22.04-server-cloudimg-arm64.img"
     arch: "aarch64"
 
-cpus: 4
-memory: "8GiB"
-disk: "60GiB"
+cpus: 8
+memory: "12GiB"
+disk: "80GiB"
 
 mountType: "virtiofs"
 

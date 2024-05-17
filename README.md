@@ -450,7 +450,7 @@ iOSのホームアプリで右上の＋を開いてアクセサリを追加の�
 
 **HomeKitには音声はつながりません**
 
-<kbd><img src="https://github.com/mnakada/atomcam_tools/blob/images/streaming.jpg" /></kbd>
+<kbd><img src="https://github.com/mnakada/atomcam_tools/blob/images/homekit.jpg" /></kbd>
 
 ##### 強制接続解除
 

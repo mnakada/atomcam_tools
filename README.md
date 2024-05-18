@@ -100,10 +100,12 @@ WyzeCamV3の画面
 
 - FAT32＋exFAT構成に対応(FAT32上限の2TB以上のSD-Cardを使いたい場合)
 
+  - **但し、256MB以上のメディアではAtomCamのFWのbugでSD-Cardのrecordフォルダのファイルが消されていきます** 
+    - [SD-Cardのrecord以下のファイルが保存日数前に削除される #91](https://github.com/mnakada/atomcam_tools/issues/91#top)
+
   - u-bootがFATFSしか見えないので、以下の構成でSD-Cardにpartitionを切った構成に対応
   - 1st partition : FATFS boot  将来の余裕をみて16MB以上
     - factory_t31_ZMC6tiIDQNのみ入れる
-
   - 2nd partition : ExFAT atomtools (残りのサイズ）
     - 残りのrootfs_hack.squashfs, hostname, authorized_keys, etcを入れてください
 

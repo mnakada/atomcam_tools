@@ -80,7 +80,7 @@ if [ "$ALARMREC_SCHEDHULE" = "on" ]; then
       }
       if(FLAG) print strftime("%Y%m%d_%H%M%S");
     }
-  ' /media/mmc/local_schedule`
+  '`
 else
   FMT=`date +"%Y%m%d_%H%M%S"`
 fi

@@ -6,8 +6,8 @@ if [ "$1" = "off" -o "$1" = "restart" ]; then
   /scripts/cmd video 0 off > /dev/null
   /scripts/cmd video 1 off > /dev/null
   /scripts/cmd video 2 off > /dev/null
-  kill `pidof v4l2rtspserver` > /dev/null 2>&1
-  kill `pidof go2rtc_homekit` > /dev/null 2>&1
+  killall v4l2rtspserver > /dev/null 2>&1
+  killall go2rtc > /dev/null 2>&1
   [ "$1" = "off" ] && exit 0
   while pidof v4l2rtspserver > /dev/null ; do
     sleep 0.5
@@ -66,32 +66,57 @@ if [ "$1" = "on" -o "$1" = "restart" -o "$1" = "watchdog" -o "$RTSP_VIDEO0" = "o
   [ "$RTSP_VIDEO2" = "on" ] && /scripts/cmd audio 2 $RTSP_AUDIO2 > /dev/null
 
   [ "$HOMEKIT_SETUP_ID" = "" -o "$HOMEKIT_PIN" = "" -o "$HOMEKIT_DEVICE_ID" = "" -o "$HOMEKIT_SOURCE" = "" ] && exit 0
-  
+  if [ -f $HOMEKIT_CONFIG ] && grep 'image_stream:' $HOMEKIT_CONFIG > /dev/null ; then
+    awk '
+      /pairings:/ {
+        if($0 !~ /pairings:[ \t]*\[\]/) pairing = 1;
+        print;
+        next;
+      }
+      {
+        if($0 !~ /[ \t]*-/) {
+          pairing = 0;
+          next;
+        }
+        if(pairing) print;
+      }
+    ' $HOMEKIT_CONFIG > $HOMEKIT_CONFIG.pairing
+    rm -f $HOMEKIT_CONFIG
+  fi
+
   if [ ! -f $HOMEKIT_CONFIG ] ; then
-    cat > $HOMEKIT_CONFIG << EOF
+    cat >> $HOMEKIT_CONFIG << EOF
 log:
     api: trace
     streams: error
-    webrtc: fatal
 api:
     origin: '*'
     static_dir: '/var/www-redirect'
+rtsp:
+    listen: ''
+webrtc:
+    listen: ''
+streams:
+    video0:
+      - http://localhost/cgi-bin/get_jpeg.cgi
+      - \${HOMEKIT_SOURCE:}
 homekit:
     video0:
         device_id: \${HOMEKIT_DEVICE_ID:}
         setup_id: \${HOMEKIT_SETUP_ID:}
-        image_stream: jpeg
         name: \${HOMEKIT_NAME:}
         pin: \${HOMEKIT_PIN:}
-        pairings: []
-rtsp:
-    listen: ''
-streams:
-    jpeg: http://localhost/cgi-bin/get_jpeg.cgi
-    video0: \${HOMEKIT_SOURCE:}
 EOF
+    if [ -f $HOMEKIT_CONFIG.pairing ] ; then
+      cat $HOMEKIT_CONFIG.pairing >> $HOMEKIT_CONFIG
+      rm -f $HOMEKIT_CONFIG.pairing
+    fi
+    sync
   fi
-  [ "$HOMEKIT_ENABLE" = "on" ] && /usr/bin/go2rtc_homekit -config $HOMEKIT_CONFIG -daemon
+  if [ "$HOMEKIT_ENABLE" = "on" ] ; then
+    echo -n "go2rtc: "
+    /usr/bin/go2rtc -config $HOMEKIT_CONFIG -daemon
+  fi
 fi
 
 exit 0

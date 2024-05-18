@@ -1,0 +1,43 @@
+diff --git a/internal/homekit/api.go b/internal/homekit/api.go
+index b9c6b2a..e853b9a 100644
+--- a/internal/homekit/api.go
++++ b/internal/homekit/api.go
+@@ -188,5 +188,6 @@ func apiPairingHandler(w http.ResponseWriter, r *http.Request) {
+ 				break;
+ 			}
+ 		}
++		discovery()
+ 	}
+ }
+diff --git a/internal/homekit/homekit.go b/internal/homekit/homekit.go
+index 86a5d4b..1ac7d85 100644
+--- a/internal/homekit/homekit.go
++++ b/internal/homekit/homekit.go
+@@ -132,6 +132,7 @@ func Init() {
+ 			log.Error().Err(err).Caller().Send()
+ 		}
+ 	}()
++	discovery()
+ }
+ 
+ var log zerolog.Logger
+diff --git a/internal/homekit/server.go b/internal/homekit/server.go
+index 7aa79f2..fa40f40 100644
+--- a/internal/homekit/server.go
++++ b/internal/homekit/server.go
+@@ -203,6 +203,7 @@ func (s *server) AddPair(conn net.Conn, id string, public []byte, permissions by
+ 		s.UpdateStatus()
+ 		s.PatchConfig()
+ 	}
++	discovery()
+ }
+ 
+ func (s *server) DelPair(conn net.Conn, id string) {
+@@ -223,6 +224,7 @@ func (s *server) DelPair(conn net.Conn, id string) {
+ 		s.PatchConfig()
+ 		break
+ 	}
++	discovery()
+ }
+ 
+ func (s *server) PatchConfig() {

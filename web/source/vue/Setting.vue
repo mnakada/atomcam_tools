@@ -284,6 +284,8 @@
 
 <script>
   import axios from 'axios';
+  axios.defaults.headers.post['Content-Type'] = 'application/json;charset=utf-8';
+  axios.defaults.headers.post['Access-Control-Allow-Origin'] = '*';
   import md5 from 'js-md5';
   import { Drawer, Slider, ButtonGroup, Tabs, TabPane } from 'element-ui';
   import SettingSwitch from './SettingSwitch.vue';
@@ -683,20 +685,21 @@
       async CheckHomeKit() {
         if((this.oldConfig.HOMEKIT_ENABLE !== 'on') || (this.config.HOMEKIT_ENABLE !== 'on')) return;
 
-        const pairingInfo = (await axios.get('./cgi-bin/cmd.cgi?name=homekit').catch(err => {
+        const localhost = window.location.origin;
+        const pairingInfo = (await axios.get(`${localhost}:1984/api/homekit/pairing`).catch(err => {
           // eslint-disable-next-line no-console
-          console.log('axios.get ./cgi-bin/cmd.cgi?name=homekit', err);
-          return '';
+          console.log(`${localhost}:1984/api/homekit/pairing: ${err.message}`);
+          return null;
         }))?.data;
         // eslint-disable-next-line no-console
         console.log('pairingInfo : ', pairingInfo);
 
         if(pairingInfo?.video0) {
-          this.homeKitPairing = pairingInfo.video0.status;
-          if(pairingInfo.video0.setup_uri.indexOf('X-HM://') === 0) {
+          this.homeKitPairing = pairingInfo.video0.Status ?? '';
+          if((pairingInfo.video0.SetupURI ?? '').indexOf('X-HM://') === 0) {
             if(this.homeKitSetupURI === '') this.KickHomeKit();
-            this.homeKitSetupURI =  pairingInfo.video0.setup_uri;
-            this.homeKitSetupCode = pairingInfo.video0.pin;
+            this.homeKitSetupURI =  pairingInfo.video0.SetupURI;
+            this.homeKitSetupCode = pairingInfo.video0.Pin;
           }
         }
         if(this.homeKitPairing === '' || this.homeKitSetupURI === '') {
@@ -706,9 +709,10 @@
         }
       },
       async UnpairHomeKit() {
-        await axios.get('./cgi-bin/cmd.cgi?name=unpair-homekit').catch(err => {
+        const localhost = window.location.origin;
+        await axios.delete(`${localhost}:1984/api/homekit/pairing?stream=video0`).catch(err => {
           // eslint-disable-next-line no-console
-          console.log('axios.get ./cgi-bin/cmd.cgi?name=unpair-homekit', err);
+          console.log(`delete ${localhost}:1984/api/homekit/pairing?stream=video0`, err);
           return '';
         });
         this.homeKitPairing = '';
@@ -718,9 +722,10 @@
       },
       async KickHomeKit() {
         if((this.oldConfig.HOMEKIT_ENABLE !== 'on') || (this.config.HOMEKIT_ENABLE !== 'on')) return;
-        await axios.get('./cgi-bin/cmd.cgi?name=kick-homekit').catch(err => {
+        const localhost = window.location.origin;
+        await axios.get(`${localhost}:1984/api/homekit`).catch(err => {
           // eslint-disable-next-line no-console
-          console.log('axios.get ./cgi-bin/cmd.cgi?name=kick-homekit', err);
+          console.log(`${localhost}:1984/api/homekit`, err);
           return '';
         });
       },

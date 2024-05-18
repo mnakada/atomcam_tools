@@ -1,12 +1,41 @@
-
 diff --git a/internal/homekit/api.go b/internal/homekit/api.go
-index d0a3c1c..2272367 100644
+index abd8e97..cb84057 100644
 --- a/internal/homekit/api.go
 +++ b/internal/homekit/api.go
-@@ -173,5 +173,19 @@ func apiPairingHandler(w http.ResponseWriter, r *http.Request) {
- 		}
- 		api.ResponseJSON(w, pairingInfo)
- 
+@@ -137,3 +137,48 @@ func findHomeKitURLs() map[string]*url.URL {
+ 	}
+ 	return urls
+ }
++
++type PairingInfo struct {
++	Name         string     `yaml:"name"`
++	DeviceID     string     `yaml:"device_id"`
++	Pin          string     `yaml:"pin"`
++	Status       string     `yaml:"status"`
++}
++
++func getPairingInfo(host string, s *server) PairingInfo {
++	status := "unpaired"
++	if len(s.pairings) > 0 {
++		status = "paired"
++	}
++	return PairingInfo {
++		Name: s.mdns.Name ,
++		DeviceID: s.hap.DeviceID,
++		Pin: s.hap.Pin,
++		Status: status,
++	}
++}
++
++func apiPairingHandler(w http.ResponseWriter, r *http.Request) {
++	switch r.Method {
++	case "GET":
++		pairingInfo := map[string]PairingInfo{}
++		for host, s := range servers {
++			pairingInfo[s.stream] = getPairingInfo(host, s)
++		}
++		api.ResponseJSON(w, pairingInfo)
++
 +	case "DELETE":
 +		query := r.URL.Query()
 +		name := query.Get("name")
@@ -20,22 +49,20 @@ index d0a3c1c..2272367 100644
 +				break;
 +			}
 +		}
-+
- 	}
- }
++	}
++}
 diff --git a/internal/homekit/homekit.go b/internal/homekit/homekit.go
-index 86a5d4b..24b8a60 100644
+index bfe3e97..ceadcae 100644
 --- a/internal/homekit/homekit.go
 +++ b/internal/homekit/homekit.go
-@@ -132,6 +132,8 @@ func Init() {
- 			log.Error().Err(err).Caller().Send()
- 		}
- 	}()
-+
-+  discovery() // mdns scan
- }
+@@ -36,6 +36,7 @@ func Init() {
+ 	streams.HandleFunc("homekit", streamHandler)
  
- var log zerolog.Logger
+ 	api.HandleFunc("api/homekit", apiHandler)
++	api.HandleFunc("api/homekit/pairing", apiPairingHandler)
+ 
+ 	if cfg.Mod == nil {
+ 		return
 diff --git a/internal/homekit/server.go b/internal/homekit/server.go
 index cb114fe..7aa79f2 100644
 --- a/internal/homekit/server.go
@@ -53,3 +80,4 @@ index cb114fe..7aa79f2 100644
  		s.UpdateStatus()
  		s.PatchConfig()
  		break
+

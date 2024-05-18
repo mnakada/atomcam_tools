@@ -45,12 +45,12 @@ WyzeCamV3の画面
 
   - 定期的に周期と回数を指定してTime Lapse録画を実行します。
   - SD-Cardのtime_lapse/フォルダに中間ファイルを生成し、最後にmp4に変換して指定メディアに記録します。
-  
+
 - RTSPServer(Port:8554,8080)
   - RTSP streaming を送出します。
   - AtomCamの場合、Main(video0)に1080p AVC/HEVC、Sub(video1)に360p HEVCを出しています。
   - WyzeCamV3の場合、Main(video0)に1080p AVC、Sub(video1)に320p AVCを出しています。
-  
+
 - avahi(mDNS)機能(Port:5353)
   - microSDカードのhostnameファイルを編集することでデバイス名を変更できます（WebUIからも変更可能）
   - hostnameの命名規則は英数と-(hyphen)のみ（RFC952,1123で規定)です。\_(underscore)は使用できません。defaultはatomcamになっています。
@@ -105,7 +105,7 @@ WyzeCamV3の画面
     - factory_t31_ZMC6tiIDQNのみ入れる
 
   - 2nd partition : ExFAT atomtools (残りのサイズ）
-    - 残りのrootfs_hack.squashfs, hostname, authorized_keys, etcを入れる
+    - 残りのrootfs_hack.squashfs, hostname, authorized_keys, etcを入れてください
 
 - Videoのbitrateの設定
 
@@ -118,6 +118,12 @@ WyzeCamV3の画面
 
   - 1~30fpsの範囲
     - 25くらいまでが妥当、それ以上を設定するとたまに間に合わなくなって動作がおかしくなります
+
+- HomeKit対応
+
+  - Apple HomeKitのアクセサリーとして機能します
+  - 登録の途中で認証されていないデバイスとでますが、そのまま登録してください。
+
 
 <br>
 

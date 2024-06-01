@@ -86,7 +86,7 @@ BR2_JLEVEL=0
 # BR2_ENABLE_DEBUG is not set
 BR2_STRIP_strip=y
 # BR2_STRIP_none is not set
-BR2_STRIP_EXCLUDE_FILES="go2rtc_homekit"
+BR2_STRIP_EXCLUDE_FILES="go2rtc"
 BR2_STRIP_EXCLUDE_DIRS=""
 # BR2_OPTIMIZE_0 is not set
 # BR2_OPTIMIZE_1 is not set

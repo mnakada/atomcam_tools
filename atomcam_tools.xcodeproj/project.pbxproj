@@ -12,6 +12,7 @@
 		1541FB8D1F1116CE006343F3 /* license */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = license; sourceTree = "<group>"; };
 		156A36DA1F5AE96F0026EC60 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		159AA925276B6D0E00C8D898 /* target */ = {isa = PBXFileReference; lastKnownFileType = folder; path = target; sourceTree = "<group>"; };
+		15AB59AE2C0994AF00C80E77 /* timelapse_samples */ = {isa = PBXFileReference; lastKnownFileType = folder; path = timelapse_samples; sourceTree = "<group>"; };
 		15AD4A35273934B30093AC3F /* build.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = build.md; sourceTree = "<group>"; };
 		15B1B2D22765CEB60034BDCF /* patches */ = {isa = PBXFileReference; lastKnownFileType = folder; path = patches; sourceTree = "<group>"; };
 		15B1B2D32765CEB60034BDCF /* configs */ = {isa = PBXFileReference; lastKnownFileType = folder; path = configs; sourceTree = "<group>"; };
@@ -46,6 +47,7 @@
 				15F0A889282B79A400E95C1D /* custompackages */,
 				15B1B2D52765CEB60034BDCF /* web */,
 				152FF2AD284C76810070E05F /* network_samples */,
+				15AB59AE2C0994AF00C80E77 /* timelapse_samples */,
 				159AA925276B6D0E00C8D898 /* target */,
 			);
 			sourceTree = "<group>";

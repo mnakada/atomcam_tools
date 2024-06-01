@@ -3,18 +3,27 @@
 HACK_INI=/tmp/hack.ini
 mkdir -p /tmp/log
 [ -f /media/mmc/atom-log ] && ATOM_LOG="on"
+[ -f /media/mmc/timelapse_hook.sh ] && TIMELAPSE_HOOK="on"
 awk '
 BEGIN {
   FS = "=";
   while(getline < HACK_INI) {
     ENV[$1]=$2;
   }
+  FS = " ";
   "hostname" | getline HOSTNAME;
   logDisable = 1;
   lastTimestamp = 0;
   logPause = 0;
   if(ATOM_LOG == "on") logDisable = 0;
   if(ENV["WEBHOOK_INSECURE"] == "on") INSECURE_FLAG = "-k ";
+}
+
+/\[webhook\] time_lapse_event/ {
+  if(TIMELAPSE_HOOK == "on") {
+    split($4, count, "/");
+    system("/media/mmc/timelapse_hook.sh " $3 " " count[1] " " count[2] " >/dev/null 2>&1 &");
+  }
 }
 
 /\[webhook\] time_lapse_finish/ {
@@ -87,4 +96,4 @@ function Post(event, data) {
     system("curl -X POST -m 3 -H \x27Content-Type: application/json\x27 -d \x27{\"type\":\"" event "\", \"device\":\"" HOSTNAME "\", \"data\":" data "}\x27 " INSECURE_FLAG ENV["WEBHOOK_URL"] " > /dev/null 2>&1");
   }
 }
-' -v HACK_INI=$HACK_INI -v ATOM_LOG=$ATOM_LOG /var/run/atomapp
+' -v HACK_INI=$HACK_INI -v ATOM_LOG=$ATOM_LOG -v TIMELAPSE_HOOK=$TIMELAPSE_HOOK /var/run/atomapp

@@ -52,6 +52,7 @@
                   off
                 </ElButton>
               </ElButtonGroup>
+              <ElButton class="center-mark" size="mini" type="primary" icon="el-icon-aim" @click="CenterMark" />
             </div>
           </div>
         </ElTabPane>
@@ -452,6 +453,7 @@
         tilt: 0,
         posValid: false,
         selectedTab: 0,
+        centerMark: false,
       };
     },
     computed: {
@@ -680,6 +682,11 @@
       this.CheckHomeKit();
     },
     methods: {
+      CenterMark() {
+        this.centerMark = !this.centerMark;
+        const mode = this.centerMark ? 'on' : 'off';
+        this.Exec(`center ${mode}`, 'socket');
+      },
       async CheckHomeKit() {
         if((this.oldConfig.HOMEKIT_ENABLE !== 'on') || (this.config.HOMEKIT_ENABLE !== 'on')) return;
 
@@ -1101,6 +1108,12 @@
   .ir-led {
     font-size: 24px;
     color: gray;
+  }
+
+  .center-mark {
+    margin-left: 10px;
+    padding: 1px 10px;
+    font-size: 20px;
   }
 
   .still-image {

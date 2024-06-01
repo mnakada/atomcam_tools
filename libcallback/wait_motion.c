@@ -21,8 +21,8 @@ struct RectInfoSt {
   int right;
   int top;
   int bottom;
-  int dummy1;
-  int dummt2;
+  int width;
+  int color; // 0: black 1:white 2: red 3:green 4:blue
 };
 
 static int (*original_local_sdk_video_osd_update_rect)(int ch, int display, struct RectInfoSt *rectInfo);

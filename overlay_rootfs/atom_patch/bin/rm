@@ -97,8 +97,9 @@ TMPFILE="${SPATH}/rm_`cat /proc/sys/kernel/random/uuid`"
     fi
   fi
   if [ "$FMT" != "" ] ; then
+    NOW=`date +"%Y%m%d%H%M.%S"`
     if [ "$ALARMREC_CIFS" = "on" ] && /tmp/system/bin/mount_cifs.sh ; then
-      CIFSFILE=`date +"alarm_record/$ALARMREC_CIFS_PATH.${FILE##*.}"`
+      CIFSFILE=`date -d $NOW +"alarm_record/$ALARMREC_CIFS_PATH.${FILE##*.}"`
       OUTFILE="/mnt/$HOSTNAME/$CIFSFILE"
       DIR_PATH=${OUTFILE%/*}
       mkdir -p $DIR_PATH
@@ -107,7 +108,7 @@ TMPFILE="${SPATH}/rm_`cat /proc/sys/kernel/random/uuid`"
     fi
 
     if [ "$ALARMREC_SDCARD" = "on" ]; then
-      SDCARDFILE=`date +"alarm_record/$ALARMREC_SDCARD_PATH.${FILE##*.}"`
+      SDCARDFILE=`date -d $NOW +"alarm_record/$ALARMREC_SDCARD_PATH.${FILE##*.}"`
       OUTFILE="/media/mmc/$SDCARDFILE"
       DIR_PATH=${OUTFILE%/*}
       mkdir -p $DIR_PATH

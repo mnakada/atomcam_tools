@@ -1,7 +1,7 @@
 #!/bin/sh
 
 if [ "$1" = "off" ]; then
-  kill `pidof lighttpd` > /dev/null 2>&1
+  killall lighttpd > /dev/null 2>&1
   echo `date +"%Y/%m/%d %H:%M:%S"` ": lighttpd stop"
   exit 0
 fi
@@ -21,7 +21,7 @@ else
 fi
 
 if [ "$1" = "restart" ]; then
-  kill `pidof lighttpd` > /dev/null 2>&1
+  killall lighttpd > /dev/null 2>&1
   while netstat -ltn 2> /dev/null | grep ':80 ' > /dev/null; do
     sleep 0.5
   done

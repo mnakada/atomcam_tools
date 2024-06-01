@@ -35,7 +35,7 @@ provision:
       command -v docker >/dev/null 2>&1 && exit 0
       export DEBIAN_FRONTEND=noninteractive
       curl -fsSL https://get.docker.com | sh
-      apt install -y docker-compose binfmt-support qemu-user-static
+      apt install -y docker-compose
       if [ ! -e /etc/systemd/system/docker.socket.d/override.conf ]; then
         mkdir -p /etc/systemd/system/docker.service.d/
         cat <<EOF > /etc/systemd/system/docker.service.d/override.conf

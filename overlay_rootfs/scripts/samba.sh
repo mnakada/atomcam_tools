@@ -16,6 +16,6 @@ if [ "$1" == "on" ]; then
 fi
 
 if [ "$1" = "off" ]; then
-  kill -9 `pidof smbd` > /dev/null 2>&1
-  kill -9 `pidof nmbd` > /dev/null 2>&1
+  killall -9 smbd > /dev/null 2>&1
+  killall -9 nmbd > /dev/null 2>&1
 fi

@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 struct RgnInfoSt {
   int type;
@@ -24,94 +25,89 @@ struct RgnGrpInfoSt {
   int layer;
 };
 
-extern int IMP_OSD_ShowRgn(int handler, int params, int display);
+extern int IMP_OSD_ShowRgn(int handle, int params, int display);
 extern int IMP_OSD_CreateRgn(struct RgnInfoSt *info);
-extern int IMP_OSD_RegisterRgn(int handler, int grp, struct RgnGrpInfoSt *grpInfo);
+extern int IMP_OSD_RegisterRgn(int handle, int grp, struct RgnGrpInfoSt *grpInfo);
 
 char *CenterMark(int fd, char *tokenPtr) {
+
+  static const int Grp = 0;
+  static const int ViewWidth = 640;
+  static const int ViewHeight = 360;
+  int x = ViewWidth / 2;
+  int y = ViewHeight / 2;
+  unsigned int color = 0xffffa060;
+  int width = 2;
+  static int handle[16] = {[0 ... 15] = -1};
+  static int handleNum = 0;
 
   char *p = strtok_r(NULL, " \t\r\n", &tokenPtr);
   int display = 0;
   if(!strcmp(p, "on")) display = 1;
 
-  int x = 320;
-  int y = 180;
-  int ch = 0;
-  int grp = 0;
-  static int handler[16] = {[0 ... 15] = -1};
-  static int hn = 0;
-
   if(display) {
-    if(handler[0] >= 0) {
-      for(int i = 0; i < hn; i++) {
-        IMP_OSD_ShowRgn(handler[i], grp, 1);
+    if(handleNum > 0) {
+      for(int i = 0; i < handleNum; i++) {
+        IMP_OSD_ShowRgn(handle[i], Grp, display);
       }
     } else {
       struct RgnGrpInfoSt grpInfo;
-      grpInfo.show = 1;
+      grpInfo.show = display;
       grpInfo.x = 0;
       grpInfo.y = 0;
-      grpInfo.scalex = 3.0;
-      grpInfo.scaley = 3.0;
-      grpInfo.galphaEn = 1;
-      grpInfo.fgAlpha = 255;
+      grpInfo.scalex = 3.0; // 1920 / 640 = 3
+      grpInfo.scaley = 3.0; // 1080 / 360 = 3
+      grpInfo.galphaEn = 0;
+      grpInfo.fgAlpha = 0;
       grpInfo.bgAlpha = 0;
       grpInfo.layer = 3;
 
-      // vertical / horizontal line
       struct RgnInfoSt info;
       info.type = 1; // line
+      info.pixfmt = 8;
+      info.color = color; // red
+      info.width = width;
+
+      // vertical / horizontal line
       info.x1 = 0;
       info.y1 = y;
       info.x2 = x - 3;
       info.y2 = y;
-      info.pixfmt = 8;
-      info.color = 0xffff0000;
-      info.width = 2;
-      handler[hn] = IMP_OSD_CreateRgn(&info);
-      IMP_OSD_RegisterRgn(handler[hn++], grp, &grpInfo);
-      fprintf(stderr, "handler %x\n", handler[0]);
+      IMP_OSD_RegisterRgn(handle[handleNum++] = IMP_OSD_CreateRgn(&info), Grp, &grpInfo);
 
       info.x1 = x + 3;
-      info.x2 = x * 2 - 1;
-      handler[hn] = IMP_OSD_CreateRgn(&info);
-      IMP_OSD_RegisterRgn(handler[hn++], grp, &grpInfo);
+      info.x2 = ViewWidth - 1;
+      IMP_OSD_RegisterRgn(handle[handleNum++] = IMP_OSD_CreateRgn(&info), Grp, &grpInfo);
 
       info.x1 = x;
       info.y1 = 0;
       info.x2 = x;
       info.y2 = y - 3;
-      handler[hn] = IMP_OSD_CreateRgn(&info);
-      IMP_OSD_RegisterRgn(handler[hn++], grp, &grpInfo);
+      IMP_OSD_RegisterRgn(handle[handleNum++] = IMP_OSD_CreateRgn(&info), Grp, &grpInfo);
 
       info.y1 = y + 3;
-      info.y2 = y * 2 - 1;
-      handler[hn] = IMP_OSD_CreateRgn(&info);
-      IMP_OSD_RegisterRgn(handler[hn++], grp, &grpInfo);
+      info.y2 = ViewHeight - 1;
+      IMP_OSD_RegisterRgn(handle[handleNum++] = IMP_OSD_CreateRgn(&info), Grp, &grpInfo);
 
       // daiamond1
       info.x1 = x;
       info.y1 = y + 10;
       info.x2 = x + 10;
       info.y2 = y;
-      handler[hn] = IMP_OSD_CreateRgn(&info);
-      IMP_OSD_RegisterRgn(handler[hn++], grp, &grpInfo);
+      IMP_OSD_RegisterRgn(handle[handleNum++] = IMP_OSD_CreateRgn(&info), Grp, &grpInfo);
 
       info.y1 = y - 10;
-      handler[hn] = IMP_OSD_CreateRgn(&info);
-      IMP_OSD_RegisterRgn(handler[hn++], grp, &grpInfo);
+      IMP_OSD_RegisterRgn(handle[handleNum++] = IMP_OSD_CreateRgn(&info), Grp, &grpInfo);
 
       info.x2 = x - 10;
-      handler[hn] = IMP_OSD_CreateRgn(&info);
-      IMP_OSD_RegisterRgn(handler[hn++], grp, &grpInfo);
+      IMP_OSD_RegisterRgn(handle[handleNum++] = IMP_OSD_CreateRgn(&info), Grp, &grpInfo);
 
       info.y1 = y + 10;
-      handler[hn] = IMP_OSD_CreateRgn(&info);
-      IMP_OSD_RegisterRgn(handler[hn++], grp, &grpInfo);
+      IMP_OSD_RegisterRgn(handle[handleNum++] = IMP_OSD_CreateRgn(&info), Grp, &grpInfo);
     }
   } else {
-    for(int i = 0; i < hn; i++) {
-      if(handler[i]) IMP_OSD_ShowRgn(handler[i], grp, 0);
+    for(int i = 0; i < handleNum; i++) {
+      if(handle[i]) IMP_OSD_ShowRgn(handle[i], Grp, display);
     }
   }
   return "ok";

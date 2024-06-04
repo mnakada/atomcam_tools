@@ -460,6 +460,7 @@
     },
     computed: {
       distributor() {
+        if(this.config.PRODUCT_MODEL === 'AC1') return 'ATOM';
         return this.config.PRODUCT_MODEL.replace(/_.*$/, '');
       },
       storage_sdcard() {

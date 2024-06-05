@@ -177,6 +177,9 @@ https://github.com/mnakada/atomcam_tools/releases/latest
 <img src="https://github.com/mnakada/atomcam_tools/blob/images/extract.png">
 
 解凍されて出てきたすべてのファイルを、ATOMCamで使用可能なmicroSDカードのルートフォルダに保存します 。
+
+**複数台運用する場合はhostnameを修正して重複しない様に設定してください。**
+
 保存したmicroSDカードをATOMCamに入れて電源を入れます。
 
 **SD-Cardはできるだけ高速なものをFAT-FSで使用してください。**

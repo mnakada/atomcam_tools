@@ -34,10 +34,12 @@ for retry in 0 1 2 3 4 5; do
       [ "$?" = "100" ] && exit 0
     else
       if ifconfig | grep wlan0 > /dev/null 2>&1 ; then
+        HWADDR=$(awk -F "=" '/(CONFIG_INFO|NETRELATED_MAC)=/ { print substr($2,1,2) ":" substr($2,3,2) ":" substr($2,5,2) ":" substr($2,7,2) ":" substr($2,9,2) ":" substr($2,11,2); exit;}' /atom/configs/.product_config)
+        killall -SIGKILL wpa_supplicant udhcpc
         ifconfig wlan0 down
-        ifconfig wlan0 up
-        killall -USR1 udhcpc
-        ps | grep -v grep | grep udhcpc || udhcpc -i wlan0 -x hostname:ATOM -p /var/run/udhcpc.pid -b >> /media/mmc/healthcheck.log 2>&1
+        ifconfig wlan0 hw ether $HWADDR up
+        wpa_supplicant -f /tmp/log/wpa_supplicant.log -D nl80211 -i wlan0 -c /configs/etc/wpa_supplicant.conf -B
+        udhcpc -i wlan0 -b >> /media/mmc/healthcheck.log 2>&1
       fi
     fi
   fi

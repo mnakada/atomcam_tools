@@ -79,7 +79,7 @@
           <div v-if="config.PERIODICREC_SDCARD === 'on' || config.PERIODICREC_CIFS === 'on'">
             <SettingSwitch i18n="record.recordingSchedule" v-model="config.PERIODICREC_SCHEDULE" @change="(config.PERIODICREC_SCHEDULE === 'on') && !periodicRecSchedule.length && AddSchedule('periodicRecSchedule')" />
             <div v-if="config.PERIODICREC_SCHEDULE === 'on'">
-              <SettingSchedule v-for="(timeTable, idx) of periodicRecSchedule" :key="'timetable'+idx" :timeRange="true" v-model="periodicRecSchedule[idx]" @add="AddSchedule('periodicRecSchedule')" @remove="DeleteSchedule('periodicRecSchedule', idx, 'PERIODICREC_SCHEDULE')" />
+              <SettingSchedule v-for="(timeTable, idx) of periodicRecSchedule" :key="'timetable'+idx" :timeRange="true" :removeSchedule="true" v-model="periodicRecSchedule[idx]" @add="AddSchedule('periodicRecSchedule')" @remove="DeleteSchedule('periodicRecSchedule', idx, 'PERIODICREC_SCHEDULE')" />
             </div>
           </div>
 
@@ -99,7 +99,7 @@
           <div v-if="config.ALARMREC_SDCARD === 'on' || config.ALARMREC_CIFS === 'on'">
             <SettingSwitch i18n="record.recordingSchedule" v-model="config.ALARMREC_SCHEDULE" @change="(config.ALARMREC_SCHEDULE === 'on') && !alarmRecSchedule.length && AddSchedule('alarmRecSchedule')" />
             <div v-if="config.ALARMREC_SCHEDULE === 'on'">
-              <SettingSchedule v-for="(timeTable, idx) of alarmRecSchedule" :key="'timetable'+idx" :timeRange="true" v-model="alarmRecSchedule[idx]" @add="AddSchedule('alarmRecSchedule')" @remove="DeleteSchedule('alarmRecSchedule', idx, 'ALARMREC_SCHEDULE')" />
+              <SettingSchedule v-for="(timeTable, idx) of alarmRecSchedule" :key="'timetable'+idx" :timeRange="true" :removeSchedule="true" v-model="alarmRecSchedule[idx]" @add="AddSchedule('alarmRecSchedule')" @remove="DeleteSchedule('alarmRecSchedule', idx, 'ALARMREC_SCHEDULE')" />
             </div>
           </div>
         </ElTabPane>
@@ -120,7 +120,7 @@
             <SettingInputNumber v-if="config.TIMELAPSE_CIFS_REMOVE === 'on'" i18n="record.NAS.daysToKeep" :titleOffset="2" :span="3" v-model="config.TIMELAPSE_CIFS_REMOVE_DAYS" :min="1" />
           </div>
           <div v-if="config.TIMELAPSE_SDCARD === 'on' || config.TIMELAPSE_CIFS === 'on'">
-            <SettingSchedule v-model="timelapse" :timelapse="true" i18n="timelapse.setting" />
+            <SettingSchedule v-for="(timeTable, idx) of timelapseSchedule" :key="'timetable'+idx" :timelapse="true" :removeSchedule="timelapseSchedule.length > 1" :i18n="idx?'':'timelapse.setting'" v-model="timelapseSchedule[idx]" @add="AddTimelapseSchedule()" @remove="DeleteTimelapseSchedule(idx)" />
             <SettingComment i18n="timelapse.note" />
             <SettingInputNumber i18n="timelapse.fps" :span="3" v-model="config.TIMELAPSE_FPS" :min="1" :max="60" />
             <SettingProgress v-if="timelapseInfo.busy" i18n="timelapse.start" :percentage="timelapseInfo.count * 100 / timelapseInfo.max" :label="timelapseInfo.count.toString() + '/' + timelapseInfo.max.toString()" />
@@ -328,7 +328,7 @@
     data() {
       return {
         config: {
-          CONFIG_VER: '1.0.0',
+          CONFIG_VER: '1.0.1',
           appver: '', // ATOMCam app_ver (/atom/config/app.ver)
           ATOMHACKVER: '', // AtomHack Ver (/etc/atomhack.ver)
           PRODUCT_MODEL: '', // ATOMCam Model (/atom/configs/.product_config)
@@ -378,9 +378,7 @@
           TIMELAPSE_CIFS_PATH: '%Y%m%d%H%M',
           TIMELAPSE_CIFS_REMOVE: 'off',
           TIMELAPSE_CIFS_REMOVE_DAYS: 30,
-          TIMELAPSE_SCHEDULE: '0 4 * * 0:1:2:3:4:5:6', // -> /var/spool/crontabs/root
-          TIMELAPSE_INTERVAL: 60,
-          TIMELAPSE_COUNT: 960,
+          TIMELAPSE_SCHEDULE: '0 4 * * 0:1:2:3:4:5:6 /scripts/timelapse.sh start 60 960;', // -> /var/spool/crontabs/root
           TIMELAPSE_FPS: 20,
           STORAGE_SDCARD_PUBLISH: 'off',
           STORAGE_SDCARD_DIRECT_WRITE: 'off',
@@ -425,12 +423,12 @@
         },
         alarmRecSchedule: [],
         periodicRecSchedule: [],
-        timelapse: {
+        timelapseSchedule: [{
           dayOfWeekSelect: [0, 1, 2, 3, 4, 5, 6],
           startTime: '04:00',
           interval: 60,
           count: 960,
-        },
+        }],
         timelapseInfo: {
           busy: false,
           abort: false,
@@ -583,14 +581,18 @@
       }
 
       if(this.config.TIMELAPSE_SCHEDULE) {
-        const str = this.config.TIMELAPSE_SCHEDULE.split(' ');
-        const days = (str[4] || '').split(':');
-        this.timelapse = {
-          startTime: `${str[1].padStart(2, '0')}:${str[0].padStart(2, '0')}`,
-          dayOfWeekSelect: days.map(d => (parseInt(d) + 6) % 7),
-          interval: this.config.TIMELAPSE_INTERVAL,
-          count: this.config.TIMELAPSE_COUNT,
-        };
+        this.timelapseSchedule = this.config.TIMELAPSE_SCHEDULE.split(';').flatMap(schedule => {
+          if(schedule === '') return [];
+          const str = schedule.split(' ');
+          const days = (str[4] || '').split(':');
+          return [{
+            startTime: `${str[1].padStart(2, '0')}:${str[0].padStart(2, '0')}`,
+            dayOfWeekSelect: days.map(d => (parseInt(d) + 6) % 7),
+            interval: str[7],
+            count: str[8],
+          }];
+        });
+        console.log(this.timelapseSchedule);
       }
 
       this.cruiseList = (this.config.CRUISE_LIST || '').split(';').reduce((array, cmd) => {
@@ -778,6 +780,18 @@
         this[schedule].splice(i, 1);
         if(!this[schedule].length) this.$set(this.config, confKey, 'off');
       },
+      AddTimelapseSchedule() {
+        this.timelapseSchedule.push({
+          dayOfWeekSelect: [0, 1, 2, 3, 4, 5, 6],
+          startTime: '04:00',
+          interval: 60,
+          count: 960,
+        });
+      },
+      DeleteTimelapseSchedule(i) {
+        if(!this.timelapseSchedule.length) this.$set(this.config, 'timelapse', 'off');
+        this.timelapseSchedule.splice(i, 1);
+      },
       AddCruise() {
         this.cruiseList.push({
           pan: this.pan,
@@ -863,11 +877,14 @@
         if(this.config.PERIODICREC_SDCARD !== 'on' && this.config.ALARMREC_SDCARD !== 'on' && this.config.TIMELAPSE_SDCARD !== 'on') this.config.STORAGE_SDCARD_PUBLISH = 'off';
 
         this.config.LOCALE = this.$i18n.locale;
-        this.config.TIMELAPSE_INTERVAL = this.timelapse.interval;
-        this.config.TIMELAPSE_COUNT = this.timelapse.count;
-        this.config.TIMELAPSE_SCHEDULE = parseInt(this.timelapse.startTime.slice(-2)) + ' ' +
-          parseInt(this.timelapse.startTime.slice(0, 2)) + ' * * ' +
-          this.timelapse.dayOfWeekSelect.sort((a, b) => a - b).reduce((v, d) => v + (v.length ? ':' : '') + ((d + 1) % 7).toString(), '');
+        console.log(this.timelapseSchedule);
+        this.config.TIMELAPSE_SCHEDULE = this.timelapseSchedule.reduce((str, schedule) => {
+          str += parseInt(schedule.startTime.slice(-2)) + ' ' +
+          parseInt(schedule.startTime.slice(0, 2)) + ' * * ' +
+          schedule.dayOfWeekSelect.sort((a, b) => a - b).reduce((v, d) => v + (v.length ? ':' : '') + ((d + 1) % 7).toString(), '') +
+          ' /scripts/timelapse.sh start ' + schedule.interval + ' ' + schedule.count + ';';
+          return str;
+        }, '');
 
         this.config.CRUISE_LIST = this.cruiseList.reduce((str, cruise) => {
           str += `move ${cruise.pan} ${cruise.tilt} ${cruise.speed};`;

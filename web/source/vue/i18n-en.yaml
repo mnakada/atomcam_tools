@@ -49,7 +49,7 @@ timelapse:
   note:
     comment: |
       Allow at least 5 minutes for processing between time lapse recordings.
-      If the time overlaps, errors will occur and the recordings will fail.
+      If the time overlaps, it will not be recorded. Make sure that there is no overlap.
   start:
     title: progress
     tooltip: timelapse in progress.

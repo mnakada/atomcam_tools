@@ -2,6 +2,49 @@
 
 HACK_INI=/media/mmc/hack.ini
 CONFIG_VER=$(awk -F "=" '/CONFIG_VER *=/ {print $2}' $HACK_INI)
+[ "$CONFIG_VER" = "1.0.1" ] && exit 0
+
+cp $HACK_INI ${HACK_INI}_1_0_0.bak
+rm -f $HACK_INI.new
+awk -F "=" '
+BEGIN {
+  printf("CONFIG_VER=1.0.1\n");
+}
+
+{
+  if((TIMELAPSE_SCHEDULE != "") && (TIMELAPSE_INTERVAL != "") && (TIMELAPSE_COUNT != "")) {
+    printf("TIMELAPSE_SCHEDULE=%s /scripts/timelapse.sh start %s %s;\n",TIMELAPSE_SCHEDULE, TIMELAPSE_INTERVAL, TIMELAPSE_COUNT);
+    TIMELAPSE_SCHEDULE = "";
+    TIMELAPSE_INTERVAL = "";
+    TIMELAPSE_COUNT = "";
+  }
+}
+
+/^CONFIG_VER *=/ {
+  next;
+}
+
+/^TIMELAPSE_SCHEDULE *=/ {
+  TIMELAPSE_SCHEDULE = $2;
+  next;
+}
+
+/^TIMELAPSE_INTERVAL *=/ {
+  TIMELAPSE_INTERVAL = $2;
+  next;
+}
+
+/^TIMELAPSE_COUNT *=/ {
+  TIMELAPSE_COUNT = $2;
+  next;
+}
+
+{
+  print $0;
+}
+' $HACK_INI > $HACK_INI.new
+mv $HACK_INI.new $HACK_INI
+
 [ "$CONFIG_VER" = "1.0.0" ] && exit 0
 TIMELAPSE=$(awk -F "=" '/TIMELAPSE *=/ {print $2}' $HACK_INI)
 

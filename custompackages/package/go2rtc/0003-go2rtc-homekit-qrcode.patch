@@ -2,7 +2,7 @@ diff --git a/README.md b/README.md
 index 0ec1f0d..04bb9a8 100644
 --- a/README.md
 +++ b/README.md
-@@ -970,7 +970,7 @@ HomeKit module can work in two modes:
+@@ -973,7 +973,7 @@ HomeKit module can work in two modes:
  streams:
    dahua1: rtsp://admin:password@192.168.1.123/cam/realmonitor?channel=1&subtype=0
  homekit:
@@ -11,7 +11,7 @@ index 0ec1f0d..04bb9a8 100644
  ```
  
  **Full config**
-@@ -985,6 +985,7 @@ streams:
+@@ -988,6 +988,7 @@ streams:
  homekit:
    dahua1:                   # same stream ID from streams list
      pin: 12345678           # custom PIN, default: 19550224
@@ -108,7 +108,7 @@ diff --git a/www/links.html b/www/links.html
 index 940de9f..96b8099 100644
 --- a/www/links.html
 +++ b/www/links.html
-@@ -218,5 +218,40 @@ Telegram: rtmps://xxx-x.rtmp.t.me/s/xxxxxxxxxx:xxxxxxxxxxxxxxxxxxxxxx</pre>
+@@ -223,5 +223,40 @@ Telegram: rtmps://xxx-x.rtmp.t.me/s/xxxxxxxxxx:xxxxxxxxxxxxxxxxxxxxxx</pre>
      webrtcLinksUpdate();
  </script>
  

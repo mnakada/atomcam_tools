@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-GO2RTC_VERSION = bd73b07ed809d40ee75632f2ff06069976c2d321
+GO2RTC_VERSION = cd777ba2b4c08f3d5aae2cb83704612a5937e85d
 GO2RTC_SITE = https://github.com/AlexxIT/go2rtc.git
 GO2RTC_SITE_METHOD = git
 GO2RTC_LICENSE = MIT

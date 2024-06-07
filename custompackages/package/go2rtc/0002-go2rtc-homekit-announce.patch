@@ -2,7 +2,7 @@ diff --git a/internal/homekit/api.go b/internal/homekit/api.go
 index b9c6b2a..e853b9a 100644
 --- a/internal/homekit/api.go
 +++ b/internal/homekit/api.go
-@@ -188,5 +188,6 @@ func apiPairingHandler(w http.ResponseWriter, r *http.Request) {
+@@ -180,5 +180,6 @@ func apiPairingHandler(w http.ResponseWriter, r *http.Request) {
  				break;
  			}
  		}
@@ -13,7 +13,7 @@ diff --git a/internal/homekit/homekit.go b/internal/homekit/homekit.go
 index 86a5d4b..1ac7d85 100644
 --- a/internal/homekit/homekit.go
 +++ b/internal/homekit/homekit.go
-@@ -132,6 +132,7 @@ func Init() {
+@@ -129,6 +129,7 @@ func Init() {
  			log.Error().Err(err).Caller().Send()
  		}
  	}()

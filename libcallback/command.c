@@ -31,6 +31,7 @@ extern char *CenterMark(int fd, char *tokenPtr);
 
 char *CommandResBuf[256];
 int wyze = 0;
+int swing = 0;
 
 struct CommandTableSt {
   const char *cmd;
@@ -216,6 +217,7 @@ static void __attribute ((constructor)) command_init(void) {
   unsetenv("LD_PRELOAD");
   char *p = getenv("PRODUCT_MODEL");
   if(!strcmp(p, "WYZE_CAKP2JFUS")) wyze = 1;
+  if(!strcmp(p, "ATOM_CAKP1JZJP")) swing = 1;
 
   if(pipe(SelfPipe)) {
     fprintf(stderr, "pipe error\n");

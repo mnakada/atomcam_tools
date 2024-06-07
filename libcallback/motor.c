@@ -11,6 +11,7 @@ extern int local_sdk_motor_move_abs_angle(float pan, float tilt, int speed, void
 extern int IMP_ISP_Tuning_GetISPHflip(int *pmode);
 extern int IMP_ISP_Tuning_GetISPVflip(int *pmode);
 extern void CommandResponse(int fd, const char *res);
+extern int swing;
 
 int MotorFd = 0;
 struct timeval MotorLastMovedTime = { 0, 0 };
@@ -33,13 +34,15 @@ static void motor_move_done(float pan, float tilt) {
 
 static void motor_move_canceled() {
 
-  if(MotorFd) CommandResponse(MotorFd, "error");
+  if(MotorFd) CommandResponse(MotorFd, "error : canceled");
   MotorFd = 0;
   gettimeofday(&MotorLastMovedTime, NULL);
 }
 
 char *MotorMove(int fd, char *tokenPtr) {
 
+  if(!swing) return "error";
+  
   int vflip, hflip;
   IMP_ISP_Tuning_GetISPHflip(&hflip);
   IMP_ISP_Tuning_GetISPVflip(&vflip);
@@ -80,9 +83,11 @@ char *MotorMove(int fd, char *tokenPtr) {
   if(pri < 0) pri = 0;
   if(pri > 3) pri = 3;
 
-  if(MotorFd) CommandResponse(MotorFd, "error : multiple request error");
-  MotorFd = fd;
-
-  int res = local_sdk_motor_move_abs_angle(pan, tilt, speed, &motor_move_done, &motor_move_canceled, pri);
+  if(MotorFd) {
+    CommandResponse(fd, "error : multiple request error");
+  } else {
+    MotorFd = fd;
+    int res = local_sdk_motor_move_abs_angle(pan, tilt, speed, &motor_move_done, &motor_move_canceled, pri);
+  }
   return NULL;
 }

@@ -45,15 +45,13 @@ if [ "$1" = "start" ] ; then
   [ "$TIMELAPSE_SDCARD" = "on" -o "$TIMELAPSE_CIFS" = "on" ] || exit 0
 
   WEBHOOK_TIMELAPSE_START=$(awk -F "=" '/^WEBHOOK_TIMELAPSE_START *=/ {print $2}' $HACK_INI)
-  TIMELAPSE_INTERVAL=$(awk -F "=" '/^TIMELAPSE_INTERVAL *=/ {print $2}' $HACK_INI)
-  TIMELAPSE_COUNT=$(awk -F "=" '/^TIMELAPSE_COUNT *=/ {print $2}' $HACK_INI)
   TIMELAPSE_FPS=$(awk -F "=" '/^TIMELAPSE_FPS *=/ {print $2}' $HACK_INI)
   TIMELAPSE_SDCARD_PATH=$(awk -F "=" '/^TIMELAPSE_SDCARD_PATH *=/ {print $2}' $HACK_INI)
   TIMELAPSE_FILE=`date +"/media/mmc/time_lapse/$TIMELAPSE_SDCARD_PATH.mp4"`
   TIMELAPSE_DIR=${TIMELAPSE_FILE%/*}
   mkdir -p $TIMELAPSE_DIR
 
-  res=`/scripts/cmd timelapse $TIMELAPSE_FILE $TIMELAPSE_INTERVAL $TIMELAPSE_COUNT $TIMELAPSE_FPS`
+  res=`/scripts/cmd timelapse $TIMELAPSE_FILE $2 $3 $TIMELAPSE_FPS`
   [ "$res" = "ok" ] || exit 1
   [ -f /media/mmc/timelapse_hook.sh ] && /media/mmc/timelapse_hook.sh
   if [ "$WEBHOOK_URL" != "" ] && [ "$WEBHOOK_TIMELAPSE_START" = "on" ]; then

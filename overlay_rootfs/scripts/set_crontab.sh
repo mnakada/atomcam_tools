@@ -13,15 +13,18 @@ BEGIN {
   printf("* * * * * /atom_patch/system_bin/mount_cifs.sh watchdog >> /media/mmc/atomhack.log\n");
 }
 
-/REBOOT_SCHEDULE *=/ {
+/^REBOOT_SCHEDULE *=/ {
   if($2 == "") next;
   gsub(/:/,",", $2);
   printf("%s /scripts/reboot.sh\n", $2);
 }
 
-/TIMELAPSE_SCHEDULE *=/ {
-  if($2 == "") next;
-  gsub(/:/,",", $2);
-  printf("%s /scripts/timelapse.sh start\n", $2);
+/^TIMELAPSE_SCHEDULE *=/ {
+  split($2, schedule, ";");
+  for(i in schedule) {
+    if(schedule[i] == "") continue;
+    gsub(/:/,",", schedule[i]);
+    printf("%s\n", schedule[i]);
+  }
 }
 ' $HACK_INI | crontab -

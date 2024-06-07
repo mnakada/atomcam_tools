@@ -14,7 +14,7 @@
               {{ day }}
             </ElCheckboxButton>
           </ElCheckboxGroup>
-          <ElButton v-if="timeRange" class="schedule-button" type="text" size="small" circle icon="el-icon-minus" @click="$emit('remove', $event)" />
+          <ElButton v-if="removeSchedule" class="schedule-button" type="text" size="small" circle icon="el-icon-minus" @click="$emit('remove', $event)" />
         </div>
         <div v-if="timeRange" class="schedule-week">
           <div class="schedule-time">
@@ -25,7 +25,7 @@
               <ElTimePicker class="time-picker" v-model="innerValue.endTime" :placeholder="$t('schedule.endTime')" value-format="HH:mm" format="HH:mm" @change="TimeSet" />
             </div>
           </div>
-          <ElButton v-if="timeRange" class="schedule-button" type="text" size="small" circle icon="el-icon-plus" @click="$emit('add', $event)" />
+          <ElButton class="schedule-button" type="text" size="small" circle icon="el-icon-plus" @click="$emit('add', $event)" />
         </div>
         <div v-else-if="timelapse">
           <div class="schedule-time">
@@ -39,6 +39,7 @@
             <ElInputNumber class="timelapse-number" v-model="innerValue.count" @change="TimeSet" :min="1" :controls="false" :step-strictly="true" size="mini" />
             <span class="strings" v-t="'schedule.timelapse.interval.count'" />
           </div>
+          <ElButton class="schedule-button" type="text" size="small" circle icon="el-icon-plus" @click="$emit('add', $event)" />
         </div>
         <div v-else class="schedule-week schedule-time">
           <ElTimePicker class="time-picker" v-model="innerValue.startTime" :placeholder="$t('schedule.time')" value-format="HH:mm" format="HH:mm" @change="TimeSet" />
@@ -75,6 +76,10 @@
       i18n: {
         type: String,
         default: '',
+      },
+      removeSchedule: {
+        type: Boolean,
+        default: false,
       },
       timeRange: {
         type: Boolean,

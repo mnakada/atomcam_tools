@@ -28,6 +28,7 @@ struct RgnGrpInfoSt {
 extern int IMP_OSD_ShowRgn(int handle, int params, int display);
 extern int IMP_OSD_CreateRgn(struct RgnInfoSt *info);
 extern int IMP_OSD_RegisterRgn(int handle, int grp, struct RgnGrpInfoSt *grpInfo);
+int display = 0;
 
 char *CenterMark(int fd, char *tokenPtr) {
 
@@ -42,8 +43,14 @@ char *CenterMark(int fd, char *tokenPtr) {
   static int handleNum = 0;
 
   char *p = strtok_r(NULL, " \t\r\n", &tokenPtr);
-  int display = 0;
-  if(!strcmp(p, "on")) display = 1;
+  if(!p) {
+    return display ? "on" : "off";
+  }
+  if(!strcmp(p, "on")) {
+    display = 1;
+  } else if(!strcmp(p, "off")) {
+    display = 0;
+  }
 
   if(display) {
     if(handleNum > 0) {

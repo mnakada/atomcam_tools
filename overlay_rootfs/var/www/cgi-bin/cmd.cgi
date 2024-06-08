@@ -42,9 +42,9 @@ if [ "$REQUEST_METHOD" = "GET" ]; then
           v = $2;
         }
         END {
-          if(h == 1) x = 350 - x;
+          if(h == 1) x = 355 - x;
           if(v == 1) y = 180 - y;
-          printf("MOTORPOS=%d %d\n", x, y);
+          printf("MOTORPOS=%f %f %d %d 0\n", x, y, h, v);
         }
       ' /atom/configs/.user_config
     fi

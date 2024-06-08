@@ -2,7 +2,38 @@
 
 # move [<pan(0-355 deg)> <tilt(0-180 deg)> [<speed(low:1-high:9)> [<pri(0:top-3:weak)>]]]
 # move -> <pan(deg)> <tilt(deg)>
+
+if [ "$1" = "reboot" ] ; then
+  pos=`awk '
+    BEGIN {
+      FS = "=";
+      x = 0;
+      y = 0;
+    }
+    /slide_x/ {
+      x = $2 / 100;
+    }
+    /slide_y/ {
+      y = $2 / 100;
+    }
+    /horSwitch/ {
+      h = $2;
+    }
+    /verSwitch/ {
+      v = $2;
+    }
+    END {
+      if(h == 1) x = 350 - x;
+      if(v == 1) y = 180 - y;
+      printf("%d %d", x, y);
+    }
+  ' /atom/configs/.user_config`
+  /scripts/cmd move 0 0 7 0
+  /scripts/cmd move $pos 7 0
+  exit 0
+fi
+
 pos=`/scripts/cmd move`
-/scripts/cmd move 0 0 9 1
-/scripts/cmd move 355 180 9 1
-/scripts/cmd move $pos 9 1
+/scripts/cmd move 0 0 7 0
+/scripts/cmd move 355 180 7 0
+/scripts/cmd move $pos 7 0

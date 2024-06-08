@@ -452,6 +452,7 @@
         pan: 0,
         tilt: 0,
         posValid: false,
+        moveDone: false,
         selectedTab: 0,
         centerMark: false,
       };
@@ -668,6 +669,7 @@
           const pan = Math.round(parseFloat(pos[0]));
           const tilt = Math.round(parseFloat(pos[1]));
           this.posValid = true;
+          this.moveDone = pos[4] > 0;
           this.pan = pan;
           this.tilt = tilt;
         }
@@ -743,8 +745,8 @@
         this.selectedTab = parseInt(tab.index);
       },
       async Move() {
-        if(!this.posValid) return;
-        await this.Exec(`move ${this.pan} ${this.tilt}`, 'socket');
+        if(!this.posValid || !this.moveDone) return;
+        await this.Exec(`move ${this.pan} ${this.tilt} 5 3`, 'socket');
         this.StillImageInterval();
         if(this.moveTimeout) clearTimeout(this.moveTimeout);
         this.moveTimeout = setTimeout(() => {

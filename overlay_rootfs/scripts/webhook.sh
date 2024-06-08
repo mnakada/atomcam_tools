@@ -32,7 +32,8 @@ BEGIN {
 }
 
 /motor reset done./ {
-  if(!logPause) print "motor reset done !!!" >> "/tmp/log/atom.log";
+  system("/scripts/motor_init reboot");
+  if(!logDisable) print "motor reset done !!!" >> "/tmp/log/atom.log";
   print "motor reset done !!!" >> "/dev/console";
   print > "/tmp/motor_initialize_done";
 }

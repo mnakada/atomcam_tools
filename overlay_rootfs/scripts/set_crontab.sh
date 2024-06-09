@@ -11,6 +11,9 @@ BEGIN {
   printf("* * * * * /scripts/lighttpd.sh watchdog >> /media/mmc/atomhack.log\n");
   printf("* * * * * /scripts/rtspserver.sh watchdog >> /media/mmc/atomhack.log\n");
   printf("* * * * * /atom_patch/system_bin/mount_cifs.sh watchdog >> /media/mmc/atomhack.log\n");
+  while((getline line < "/media/mmc/crontab") == 1) {
+    print line;
+  }
 }
 
 /^REBOOT_SCHEDULE *=/ {

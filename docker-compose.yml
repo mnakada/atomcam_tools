@@ -1,6 +1,6 @@
 services:
   builder:
-    image: atomtools/atomtools:Ver.2.4.4
+    image: atomtools/atomtools:Ver.2.5.4
     volumes:
       - ".:/src"
     cap_add:

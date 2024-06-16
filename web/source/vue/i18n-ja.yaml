@@ -140,6 +140,13 @@ HomeKit:
     title: 強制接続解除
     tooltip: HomeKitの接続を強制的に解除します
 
+WebRTC:
+  title: WebRTC
+  tooltip: RTSP Main AVCをonにする必要があります
+  URL:
+    title: URL
+    tooltip: ブラウザーにURLをcopy&pasteしてください
+
 event:
   tab: イベント通知
   webhook:

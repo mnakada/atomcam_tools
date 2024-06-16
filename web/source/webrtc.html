@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <style>
+      body {
+        background-color: black;
+        margin: 0;
+        padding: 0;
+      }
+
+      html, body, video {
+        height: 100%;
+        width: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <video id="video" autoplay controls playsinline muted></video>
+    <script>
+      async function PeerConnection(media) {
+        const pc = new RTCPeerConnection({
+          iceServers: [{urls: 'stun:stun.l.google.com:19302'}]
+        });
+        const tracks = ['video', 'audio']
+          .filter(kind => media.indexOf(kind) >= 0)
+          .map(kind => pc.addTransceiver(kind, {direction: 'recvonly'}).receiver.track);
+        document.getElementById('video').srcObject = new MediaStream(tracks);
+        return pc;
+      }
+
+      async function connect(media) {
+        const pc = await PeerConnection(media);
+        const src = new URLSearchParams(location.search).get('src') || 'video0';
+        const url = new URL(`api/ws?src=${src}`, `${location.origin}:1984`);
+        const ws = new WebSocket(url.toString().replace(/^http/, 'ws'));
+
+        ws.addEventListener('open', () => {
+          pc.addEventListener('icecandidate', ev => {
+            if (!ev.candidate) return;
+            const msg = {type: 'webrtc/candidate', value: ev.candidate.candidate};
+            ws.send(JSON.stringify(msg));
+          });
+
+          pc.createOffer().then(offer => pc.setLocalDescription(offer)).then(() => {
+            const msg = {type: 'webrtc/offer', value: pc.localDescription.sdp};
+            ws.send(JSON.stringify(msg));
+          });
+        });
+
+        ws.addEventListener('message', ev => {
+          const msg = JSON.parse(ev.data);
+          if (msg.type === 'webrtc/candidate') {
+            pc.addIceCandidate({candidate: msg.value, sdpMid: '0'});
+          } else if (msg.type === 'webrtc/answer') {
+            pc.setRemoteDescription({type: 'answer', sdp: msg.value});
+          }
+        });
+      }
+
+      const media = new URLSearchParams(location.search).get('media');
+      connect(media || 'video');
+    </script>
+  </body>
+</html>

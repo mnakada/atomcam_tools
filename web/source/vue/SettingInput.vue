@@ -10,6 +10,9 @@
       <ElCol :span="span">
         <ElInput :value="value" :type="(type==='readonly')?'text':type" :readonly="type==='readonly'" @input="$emit('input', $event)" @change="$emit('change', $event)" :clearable="clearable" :placeholder="($te(i18n + '.placeholder') ? $t(i18n + '.placeholder') : '') + placeholder" :show-password="showPassword" />
       </ElCol>
+      <ElCol :offset="1" :span="14 - span">
+        <slot />
+      </ElCol>
     </ElRow>
   </ElTooltip>
 </template>

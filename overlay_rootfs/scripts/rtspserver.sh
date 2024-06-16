@@ -17,6 +17,7 @@ fi
 
 HACK_INI=/tmp/hack.ini
 HOMEKIT_CONFIG=/media/mmc/homekit.yaml
+GO2RTC_CONFIG=/media/mmc/go2rtc.yaml
 RTSP_VIDEO0=$(awk -F "=" '/^RTSP_VIDEO0 *=/ {print $2}' $HACK_INI)
 RTSP_AUDIO0=$(awk -F "=" '/^RTSP_AUDIO0 *=/ {print $2}' $HACK_INI)
 RTSP_VIDEO1=$(awk -F "=" '/^RTSP_VIDEO1 *=/ {print $2}' $HACK_INI)
@@ -28,11 +29,14 @@ RTSP_AUTH=$(awk -F "=" '/^RTSP_AUTH *=/ {print $2}' $HACK_INI)
 RTSP_USER=$(awk -F "=" '/^RTSP_USER *=/ {print $2}' $HACK_INI)
 RTSP_PASSWD=$(awk -F "=" '/^RTSP_PASSWD *=/ {print $2}' $HACK_INI)
 HOMEKIT_ENABLE=$(awk -F "=" '/^HOMEKIT_ENABLE *=/ {print $2}' $HACK_INI)
+[ "$HOMEKIT_ENABLE" = "on" ] && export HOMEKIT_KEY="homekit"
 export HOMEKIT_SETUP_ID=$(awk -F "=" '/^HOMEKIT_SETUP_ID *=/ {print $2}' $HACK_INI)
 export HOMEKIT_DEVICE_ID=$(awk -F "=" '/^HOMEKIT_DEVICE_ID *=/ {print $2}' $HACK_INI)
 export HOMEKIT_PIN=$(awk -F "=" '/^HOMEKIT_PIN *=/ {print $2}' $HACK_INI)
 export HOMEKIT_SOURCE=$(awk -F "=" '/^HOMEKIT_SOURCE *=/ {print $2}' $HACK_INI)
 export HOMEKIT_NAME=`hostname`
+WEBRTC_ENABLE=$(awk -F "=" '/^WEBRTC_ENABLE *=/ {print $2}' $HACK_INI)
+[ "$WEBRTC_ENABLE" = "on" ] && export WEBRTC_LISTEN=":8555/tcp"
 
 if [ "$1" = "watchdog" ]; then
   [ "$RTSP_VIDEO0" = "on" -o "$RTSP_VIDEO1" = "on" -o "$RTSP_VIDEO2" = "on" ] || exit 0
@@ -66,7 +70,9 @@ if [ "$1" = "on" -o "$1" = "restart" -o "$1" = "watchdog" -o "$RTSP_VIDEO0" = "o
   [ "$RTSP_VIDEO2" = "on" ] && /scripts/cmd audio 2 $RTSP_AUDIO2 > /dev/null
 
   [ "$HOMEKIT_SETUP_ID" = "" -o "$HOMEKIT_PIN" = "" -o "$HOMEKIT_DEVICE_ID" = "" -o "$HOMEKIT_SOURCE" = "" ] && exit 0
-  if [ -f $HOMEKIT_CONFIG ] && grep 'image_stream:' $HOMEKIT_CONFIG > /dev/null ; then
+  [ -f $HOMEKIT_CONFIG -a -f $GO2RTC_CONFIG ] && rm -f $HOMEKIT_CONFIG
+  [ -f $HOMEKIT_CONFIG ] && mv $HOMEKIT_CONFIG $GO2RTC_CONFIG
+  if [ -f $GO2RTC_CONFIG ] && ! grep '^# ver.1.0.0' $GO2RTC_CONFIG > /dev/null ; then
     awk '
       /pairings:/ {
         if($0 !~ /pairings:[ \t]*\[\]/) pairing = 1;
@@ -80,12 +86,13 @@ if [ "$1" = "on" -o "$1" = "restart" -o "$1" = "watchdog" -o "$RTSP_VIDEO0" = "o
         }
         if(pairing) print;
       }
-    ' $HOMEKIT_CONFIG > $HOMEKIT_CONFIG.pairing
-    rm -f $HOMEKIT_CONFIG
+    ' $GO2RTC_CONFIG > $GO2RTC_CONFIG.pairing
+    rm -f $GO2RTC_CONFIG
   fi
 
-  if [ ! -f $HOMEKIT_CONFIG ] ; then
-    cat >> $HOMEKIT_CONFIG << EOF
+  if [ ! -f $GO2RTC_CONFIG ] ; then
+    cat >> $GO2RTC_CONFIG << EOF
+# ver.1.0.0
 log:
     api: trace
     streams: error
@@ -95,27 +102,27 @@ api:
 rtsp:
     listen: ''
 webrtc:
-    listen: ''
+    listen: \${WEBRTC_LISTEN:}
 streams:
     video0:
       - http://localhost/cgi-bin/get_jpeg.cgi
       - \${HOMEKIT_SOURCE:}
-homekit:
+\${HOMEKIT_KEY:'zzz'}:
     video0:
         device_id: \${HOMEKIT_DEVICE_ID:}
         setup_id: \${HOMEKIT_SETUP_ID:}
         name: \${HOMEKIT_NAME:}
         pin: \${HOMEKIT_PIN:}
 EOF
-    if [ -f $HOMEKIT_CONFIG.pairing ] ; then
-      cat $HOMEKIT_CONFIG.pairing >> $HOMEKIT_CONFIG
-      rm -f $HOMEKIT_CONFIG.pairing
+    if [ -f $GO2RTC_CONFIG.pairing ] ; then
+      cat $GO2RTC_CONFIG.pairing >> $GO2RTC_CONFIG
+      rm -f $GO2RTC_CONFIG.pairing
     fi
     sync
   fi
-  if [ "$HOMEKIT_ENABLE" = "on" ] ; then
+  if [ "$HOMEKIT_ENABLE" = "on" -o "$WEBRTC_ENABLE" = "on" ] ; then
     echo -n "go2rtc: "
-    /usr/bin/go2rtc -config $HOMEKIT_CONFIG -daemon
+    /usr/bin/go2rtc -config $GO2RTC_CONFIG -daemon
   fi
 fi
 

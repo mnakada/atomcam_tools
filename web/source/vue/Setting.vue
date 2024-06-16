@@ -186,6 +186,13 @@
               </ElCol>
             </ElRow>
           </div>
+          <h3 v-t="'WebRTC.title'" />
+          <SettingSwitch i18n="WebRTC" v-model="config.WEBRTC_ENABLE" :disabled="config.RTSP_VIDEO0 !== 'on'" />
+          <div v-if="config.WEBRTC_ENABLE === 'on'">
+            <SettingInput i18n="WebRTC.URL" :titleOffset="2" :span="6" type="readonly" v-model="WebRTCUrl">
+              <a href="/webrtc.html" target="_blank" class="el-button el-button--primary el-button--mini link-button">Link</a>
+            </SettingInput>
+          </div>
         </ElTabPane>
 
         <!-- Event Webhook Tab -->
@@ -351,6 +358,7 @@
           HOMEKIT_DEVICE_ID: '',
           HOMEKIT_PIN: '',
           HOMEKIT_SOURCE: '',
+          WEBRTC_ENABLE: 'off',
           PERIODICREC_SDCARD: 'on',
           PERIODICREC_SDCARD_REMOVE: 'off',
           PERIODICREC_SDCARD_REMOVE_DAYS: 30,
@@ -501,6 +509,9 @@
         const port = (this.config.RTSP_OVER_HTTP  === 'on') ? 8080 : 8554;
         const auth = (this.config.RTSP_AUTH === 'on') && (this.config.RTSP_USER !== '') && (this.config.RTSP_PASSWD !== '') ? `${this.config.RTSP_USER}:${this.config.RTSP_PASSWD}@` : '';
         return `rtsp://${auth}${window.location.host}:${port}/video2_unicast`;
+      },
+      WebRTCUrl() {
+        return `http://${window.location.host}/webrtc.html`;
       },
     },
     async mounted() {
@@ -903,7 +914,10 @@
           parseInt(this.reboot.startTime.slice(0, 2)) + ' * * ' +
           this.reboot.dayOfWeekSelect.sort((a, b) => a - b).reduce((v, d) => v + (v.length ? ':' : '') + ((d + 1) % 7).toString(), '');
 
-        if(this.config.RTSP_VIDEO0 === 'off') this.config.HOMEKIT_ENABLE = 'off';
+        if(this.config.RTSP_VIDEO0 === 'off') {
+          this.config.HOMEKIT_ENABLE = 'off';
+          this.config.WEBRTC_ENABLE = 'off';
+        }
         if(this.distributor !== 'ATOM') {
           this.config.RTSP_VIDEO2 = 'off';
           this.config.RTSP_AUDIO2 = 'off';
@@ -972,6 +986,7 @@
              (this.config.RTSP_USER !== this.oldConfig.RTSP_USER) ||
              (this.config.RTSP_PASSWD !== this.oldConfig.RTSP_PASSWD) ||
              (this.config.HOMEKIT_ENABLE !== this.oldConfig.HOMEKIT_ENABLE) ||
+             (this.config.WEBRTC_ENABLE !== this.oldConfig.WEBRTC_ENABLE) ||
              (this.config.RTSP_VIDEO0 !== this.oldConfig.RTSP_VIDEO0) ||
              (this.config.RTSP_VIDEO1 !== this.oldConfig.RTSP_VIDEO1) ||
              (this.config.RTSP_VIDEO2 !== this.oldConfig.RTSP_VIDEO2) ||

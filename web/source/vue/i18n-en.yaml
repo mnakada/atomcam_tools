@@ -138,6 +138,13 @@ HomeKit:
     title: Force Unpairing
     tooltip: Force HomeKit unpairing.
 
+WebRTC:
+  title: WebRTC
+  tooltip: RTSP Main AVC must be on.
+  URL:
+    title: URL
+    tooltip: Copy and paste this URL into browser.
+
 event:
   tab: Notification
   title: WebHook

@@ -1,6 +1,6 @@
 --- a/Makefile	2021-03-07 23:30:35.225098650 +0000
 +++ b/Makefile	2021-04-21 01:32:30.033725972 +0000
-@@ -0,0 +1,63 @@
+@@ -0,0 +1,65 @@
 +ifneq ($(SRC),)
 +VPATH=$(SRC)
 +endif
@@ -16,12 +16,14 @@
 +CXXFLAGS += -I$(SRC) -W -Wall -std=c++11 -g -O3 -D_POSIX_C_SOURCE=2
 +CXXFLAGS += -Iinc -I$(PREFIX)/include -I$(PREFIX)/include/BasicUsageEnvironment -I$(PREFIX)/include/UsageEnvironment -I$(PREFIX)/include/liveMedia -I$(PREFIX)/include/groupsock
 +CXXFLAGS += $(EXTRA_CXXFLAGS)
-+LDFLAGS += -pthread -L$(PREFIX)/lib -lBasicUsageEnvironment -lUsageEnvironment -lliveMedia -lgroupsock -lv4l2wrapper -lmp3lame
++LDFLAGS += -pthread -L$(PREFIX)/lib -lBasicUsageEnvironment -lUsageEnvironment -lliveMedia -lgroupsock -lv4l2wrapper -lmp3lame -lopus
 +RM = rm -rf
 +
 +RTSPSERVER_OBJS = \
 +	src/V4L2DeviceSource.o \
 +	src/H264_V4l2DeviceSource.o \
++	src/H265_V4l2DeviceSource.o \
++	src/H26x_V4l2DeviceSource.o \
 +	src/HTTPServer.o \
 +	main.o \
 +	src/MemoryBufferSink.o \

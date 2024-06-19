@@ -1,0 +1,34 @@
+--- /dev/null	2024-06-18 05:07:24.540000011 +0000
++++ b/Makefile	2024-06-18 09:11:46.640007003 +0000
+@@ -0,0 +1,31 @@
++CXXFLAGS = -W -pthread -g -pipe $(EXTRA_CXXFLAGS)
++CXXFLAGS += -I inc
++RM = rm -rf
++CXX ?= $(CROSS)g++
++AR ?= $(CROSS)ar
++PREFIX?=/usr
++
++V4L2WRAPPER_CPP:=$(wildcard src/*.cpp)
++V4L2WRAPPER_OBJ:=$(V4L2WRAPPER_CPP:%.cpp=%.o)
++
++.DEFAULT_GOAL := all
++
++all: libv4l2wrapper.a libv4l2wrapper.so
++
++%.o: %.cpp
++	$(CXX) -c -o $@ $< $(CXXFLAGS)
++
++libv4l2wrapper.a: $(V4L2WRAPPER_OBJ)
++	$(AR) rcs $@ $^
++
++libv4l2wrapper.so: $(V4L2WRAPPER_OBJ)
++	$(CXX) -shared -fPIC $(CXXFLAGS) -o $@ $^
++
++clean:
++	-@$(RM) *.a *.so $(V4L2WRAPPER_OBJ)
++
++install:
++	mkdir -p $(PREFIX)/include/libv4l2cpp/
++	install -D -m 0755 inc/*.h $(PREFIX)/include/libv4l2cpp/
++	install -D -m 0755 *.a $(PREFIX)/lib
++	install -D -m 0755 *.so $(PREFIX)/lib

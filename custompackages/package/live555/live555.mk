@@ -4,7 +4,7 @@
 #
 ################################################################################
 
-LIVE555_VERSION = 2016.01.29
+LIVE555_VERSION = 2024.05.30
 LIVE555_SOURCE = live.$(LIVE555_VERSION).tar.gz
 LIVE555_SITE = http://www.live555.com/liveMedia/public
 LIVE555_LICENSE = LGPLv2.1+
@@ -12,6 +12,7 @@ LIVE555_LICENSE_FILES = COPYING
 LIVE555_INSTALL_STAGING = YES
 
 LIVE555_CFLAGS = $(TARGET_CFLAGS)
+LIVE555_CFLAGS += -DNO_STD_LIB
 
 ifeq ($(BR2_STATIC_LIBS),y)
 LIVE555_CONFIG_TARGET = linux

@@ -110,22 +110,6 @@ index 23ff2e0..360175a 100755
  		virtual ~DeviceInterface()                           {};
  };
  
-diff --git a/inc/V4l2RTSPServer.h b/inc/V4l2RTSPServer.h
-index 7099c13..557eacb 100644
---- a/inc/V4l2RTSPServer.h
-+++ b/inc/V4l2RTSPServer.h
-@@ -213,9 +213,11 @@ class V4l2RTSPServer {
-             }
-             return url;
-         }
-+        /*
-         int numClientSessions() {
-             return m_rtspServer->numClientSessions();        
-         }
-+        */
- 
-         void RemoveSession(ServerMediaSession* sms) {
-             m_rtspServer->deleteServerMediaSession(sms);
 diff --git a/main.cpp b/main.cpp
 index 6de2c47..11de924 100755
 --- a/main.cpp
@@ -151,7 +135,7 @@ index 6de2c47..11de924 100755
  				baseUrl = getDeviceName(videoDev);
  				baseUrl.append("_");
 diff --git a/src/ALSACapture.cpp b/src/ALSACapture.cpp
-index 3263e3c..2ff616c 100644
+index 3263e3c..b341d8d 100644
 --- a/src/ALSACapture.cpp
 +++ b/src/ALSACapture.cpp
 @@ -13,6 +13,8 @@
@@ -195,7 +179,7 @@ index 3263e3c..2ff616c 100644
  		LOG(ERROR) << "cannot set channel count device: " << m_params.m_devName << " error:" <<  snd_strerror (err);
  		this->close();
  	}
-+	else if ((err = snd_pcm_hw_params_set_period_size(m_pcm, hw_params, m_periodSize = m_params.m_sampleRate * 40 / 1000, 0)) < 0) {
++	else if ((err = snd_pcm_hw_params_set_period_size(m_pcm, hw_params, m_periodSize = m_params.m_sampleRate * 60 / 1000, 0)) < 0) {
 +		LOG(ERROR) << "cannot set sample rate device: " << m_params.m_devName << " error:" <<  snd_strerror (err);
 +		this->close();
 +	}

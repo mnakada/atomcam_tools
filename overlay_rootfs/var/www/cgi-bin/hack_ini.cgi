@@ -10,11 +10,12 @@ if [ "$REQUEST_METHOD" = "POST" ]; then
     RS="[{},]";
   }
   /^$/ { next; }
-  /appver/ { next; }
-  /PRODUCT_MODEL/ { next; }
-  /HOSTNAME/ { next; }
-  /KERNELVER/ { next; }
-  /ATOMHACKVER/ { next; }
+  /^appver/ { next; }
+  /^PRODUCT_MODEL/ { next; }
+  /^HOSTNAME/ { next; }
+  /^KERNELVER/ { next; }
+  /^ATOMHACKVER/ { next; }
+  /^HWADDR/ { next; }
   {
     gsub(/\"[ \t]*:[ \t]*\"?/, "=");
     gsub(/\"/, "");
@@ -30,4 +31,5 @@ awk '/^PRODUCT_MODEL/ { print }' /atom/configs/.product_config
 echo "HOSTNAME=`hostname`"
 echo "KERNELVER=`uname -a`"
 echo "ATOMHACKVER=`cat /etc/atomhack.ver`"
+ifconfig | awk '/HWaddr/ { gsub(/^.*HWaddr */, ""); print "HWADDR=" $0}'
 cat /tmp/hack.ini

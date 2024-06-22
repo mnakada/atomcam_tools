@@ -340,6 +340,7 @@
           ATOMHACKVER: '', // AtomHack Ver (/etc/atomhack.ver)
           PRODUCT_MODEL: '', // ATOMCam Model (/atom/configs/.product_config)
           HOSTNAME: 'atomcam', // ATOMHack hostname (/media/mmc/hostname)
+          HWADDR: '', // Ether MacAddr
           DIGEST: '',
           REBOOT: 'off',
           REBOOT_SCHEDULE: '0 2 * * 7', // -> /var/spool/crontabs/root
@@ -552,11 +553,7 @@
         this.config.HOMEKIT_PIN = Math.floor(Math.random() * 100000000).toString().padStart(8, '0');
       }
       if(!this.config.HOMEKIT_DEVICE_ID.length) {
-        let did = '';
-        for(let i = 0; i < 6; i++) {
-          did += Math.floor(Math.random()*256).toString(16).padStart(2, '0').toUpperCase() + ':';
-        }
-        this.config.HOMEKIT_DEVICE_ID = did.slice(0, 17);
+        this.config.HOMEKIT_DEVICE_ID = this.config.HWADDR;
       }
 
       for(let schedule of ['periodicRec', 'alarmRec']) {

@@ -97,6 +97,10 @@ RTSP:
     audio:
       title: Audio
       tooltip: Activaet Audio on Main RTSP
+      label:
+        - off
+        - PCM
+        - OPUS
     URL:
       title: URL
       tooltip: Copy and paste this URL into VLC etc.
@@ -106,6 +110,10 @@ RTSP:
     audio:
       title: Audio
       tooltip: Activaet Audio on Main HEVC RTSP
+      label:
+        - off
+        - PCM
+        - OPUS
     URL:
       title: URL
       tooltip: Copy and paste this URL into VLC etc.
@@ -115,6 +123,10 @@ RTSP:
     audio:
       title: Audio
       tooltip: Activate audio on Sub RTSP Sub
+      label:
+        - off
+        - PCM
+        - OPUS
     URL:
       title: URL
       tooltip: Copy and paste this URL into VLC etc.
@@ -137,6 +149,9 @@ HomeKit:
   unpair:
     title: Force Unpairing
     tooltip: Force HomeKit unpairing.
+  note:
+    comment: |
+      To output audio, the RTSP Main audio must be set to OPUS.
 
 WebRTC:
   title: WebRTC

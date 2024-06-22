@@ -147,15 +147,15 @@
         <ElTabPane class="well-transparent container" :label="$t('RTSP.tab')">
           <h3 v-t="'RTSP.title'" />
           <SettingSwitch i18n="RTSP.main" v-model="config.RTSP_VIDEO0" />
-          <SettingSwitch v-if="config.RTSP_VIDEO0 === 'on'" i18n="RTSP.main.audio" :titleOffset="2" v-model="config.RTSP_AUDIO0" />
+          <SettingSelect v-if="config.RTSP_VIDEO0 === 'on'" i18n="RTSP.main.audio" :titleOffset="2" v-model="config.RTSP_AUDIO0" :label="['off', 'S16_BE', 'OPUS']" />
           <SettingInput v-if="config.RTSP_VIDEO0 === 'on'" i18n="RTSP.main.URL" :titleOffset="2" :span="10" type="readonly" v-model="RtspUrl0" />
           <div v-if="distributor === 'ATOM'">
             <SettingSwitch i18n="RTSP.mainHEVC" v-model="config.RTSP_VIDEO2" />
-            <SettingSwitch v-if="config.RTSP_VIDEO2 === 'on'" i18n="RTSP.mainHEVC.audio" :titleOffset="2" v-model="config.RTSP_AUDIO2" />
+            <SettingSelect v-if="config.RTSP_VIDEO2 === 'on'" i18n="RTSP.mainHEVC.audio" :titleOffset="2" v-model="config.RTSP_AUDIO2" :label="['off', 'S16_BE', 'OPUS']" />
             <SettingInput v-if="config.RTSP_VIDEO2 === 'on'" i18n="RTSP.mainHEVC.URL" :titleOffset="2" :span="10" type="readonly" v-model="RtspUrl2" />
           </div>
           <SettingSwitch i18n="RTSP.sub" v-model="config.RTSP_VIDEO1" />
-          <SettingSwitch v-if="config.RTSP_VIDEO1 === 'on'" i18n="RTSP.sub.audio" :titleOffset="2" v-model="config.RTSP_AUDIO1" />
+          <SettingSwitch v-if="config.RTSP_VIDEO1 === 'on'" i18n="RTSP.sub.audio" :titleOffset="2" v-model="config.RTSP_AUDIO1" :label="['off', 'S16_BE', 'OPUS']" />
           <SettingInput v-if="config.RTSP_VIDEO1 === 'on'" i18n="RTSP.sub.URL" :titleOffset="2" :span="10" type="readonly" v-model="RtspUrl1" />
           <div v-if="(config.RTSP_VIDEO0 === 'on') || (config.RTSP_VIDEO1 === 'on') || (config.RTSP_VIDEO2 === 'on')">
             <SettingSwitch i18n="RTSP.http" v-model="config.RTSP_OVER_HTTP" />
@@ -166,6 +166,7 @@
 
           <h3 v-t="'HomeKit.title'" />
           <SettingSwitch i18n="HomeKit" v-model="config.HOMEKIT_ENABLE" :disabled="config.RTSP_VIDEO0 !== 'on'" />
+          <SettingComment v-if="config.RTSP_VIDEO0 === 'on' && config.RTSP_AUDIO0 !== 'OPUS' && config.HOMEKIT_ENABLE === 'on'" i18n="HomeKit.note" color="red" />
           <div v-if="homeKitSetupURI !== '' && homekitPairing !== '' && config.RTSP_VIDEO0 === 'on' && config.HOMEKIT_ENABLE === 'on'">
             <SettingDangerButton v-if="homeKitPairing == 'paired'" i18n="HomeKit.unpair" button="Unpair" icon="el-icon-scissors" :titleOffset="2" @click="UnpairHomeKit" />
             <ElRow v-else>
@@ -186,6 +187,7 @@
               </ElCol>
             </ElRow>
           </div>
+          <!--
           <h3 v-t="'WebRTC.title'" />
           <SettingSwitch i18n="WebRTC" v-model="config.WEBRTC_ENABLE" :disabled="config.RTSP_VIDEO0 !== 'on'" />
           <div v-if="config.WEBRTC_ENABLE === 'on'">
@@ -193,6 +195,7 @@
               <a href="/webrtc.html" target="_blank" class="el-button el-button--primary el-button--mini link-button">Link</a>
             </SettingInput>
           </div>
+          -->
         </ElTabPane>
 
         <!-- Event Webhook Tab -->
@@ -297,6 +300,7 @@
   import md5 from 'js-md5';
   import { Drawer, Slider, ButtonGroup, Tabs, TabPane } from 'element-ui';
   import SettingSwitch from './SettingSwitch.vue';
+  import SettingSelect from './SettingSelect.vue';
   import SettingInput from './SettingInput.vue';
   import SettingInputNumber from './SettingInputNumber.vue';
   import SettingButton from './SettingButton.vue';
@@ -322,6 +326,7 @@
       ElTabs: Tabs,
       ElTabPane: TabPane,
       SettingSwitch,
+      SettingSelect,
       SettingInput,
       SettingInputNumber,
       SettingButton,

@@ -7,8 +7,8 @@
       </h4>
     </ElCol>
     <ElCol :span="span">
-      <span class="comment" v-t="i18n + '.comment'" />
-      <span class="comment">
+      <span class="comment" v-t="i18n + '.comment'" :style="{ color: color }" />
+      <span class="comment" :style="{ color: color }">
         <slot />
       </span>
     </ElCol>
@@ -33,6 +33,10 @@
       span: {
         type: Number,
         default: 15,
+      },
+      color: {
+        type: String,
+        default: 'black',
       },
     },
   };

@@ -99,6 +99,10 @@ RTSP:
     audio:
       title: 音声
       tooltip: RTSP Main AVCの音声を設定します
+      label:
+        - off
+        - PCM
+        - OPUS
     URL:
       title: URL
       tooltip: VLC playerなどにURLをcopy&pasteしてください
@@ -108,6 +112,10 @@ RTSP:
     audio:
       title: 音声
       tooltip: RTSP Main HEVCの音声を設定します
+      label:
+        - off
+        - PCM
+        - OPUS
     URL:
       title: URL
       tooltip: VLC playerなどにURLをcopy&pasteしてください
@@ -117,6 +125,10 @@ RTSP:
     audio:
       title: 音声
       tooltip: RTSP Subの音声を設定します
+      label:
+        - off
+        - PCM
+        - OPUS
     URL:
       title: URL
       tooltip: VLC playerなどにURLをcopy&pasteしてください
@@ -139,6 +151,9 @@ HomeKit:
   unpair:
     title: 強制接続解除
     tooltip: HomeKitの接続を強制的に解除します
+  note:
+    comment: |
+      音声を出すにはRTSP Mainの音声をOPUSに設定してください。
 
 WebRTC:
   title: WebRTC

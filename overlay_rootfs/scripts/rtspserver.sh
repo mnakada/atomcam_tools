@@ -18,10 +18,19 @@ fi
 HACK_INI=/tmp/hack.ini
 RTSP_VIDEO0=$(awk -F "=" '/^RTSP_VIDEO0 *=/ {print $2}' $HACK_INI)
 RTSP_AUDIO0=$(awk -F "=" '/^RTSP_AUDIO0 *=/ {print $2}' $HACK_INI)
+[ "$RTSP_AUDIO0" = "on" ] && RTSP_AUDIO0="S16_BE"
+AUDIO0="on"
+[ "$RTSP_AUDIO0" = "off" -o "$RTSP_AUDIO0" = "" ] && AUDIO0="off"
 RTSP_VIDEO1=$(awk -F "=" '/^RTSP_VIDEO1 *=/ {print $2}' $HACK_INI)
 RTSP_AUDIO1=$(awk -F "=" '/^RTSP_AUDIO1 *=/ {print $2}' $HACK_INI)
+[ "$RTSP_AUDIO1" = "on" ] && RTSP_AUDIO1="S16_BE"
+AUDIO1="on"
+[ "$RTSP_AUDIO1" = "off" -o "$RTSP_AUDIO1" = "" ] && AUDIO1="off"
 RTSP_VIDEO2=$(awk -F "=" '/^RTSP_VIDEO2 *=/ {print $2}' $HACK_INI)
 RTSP_AUDIO2=$(awk -F "=" '/^RTSP_AUDIO2 *=/ {print $2}' $HACK_INI)
+[ "$RTSP_AUDIO2" = "on" ] && RTSP_AUDIO2="S16_BE"
+AUDIO2="on"
+[ "$RTSP_AUDIO2" = "off" -o "$RTSP_AUDIO2" = "" ] && AUDIO2="off"
 RTSP_OVER_HTTP=$(awk -F "=" '/^RTSP_OVER_HTTP *=/ {print $2}' $HACK_INI)
 RTSP_AUTH=$(awk -F "=" '/^RTSP_AUTH *=/ {print $2}' $HACK_INI)
 RTSP_USER=$(awk -F "=" '/^RTSP_USER *=/ {print $2}' $HACK_INI)
@@ -46,17 +55,17 @@ if ! pidof v4l2rtspserver > /dev/null ; then
   echo `date +"%Y/%m/%d %H:%M:%S"` ": v4l2rtspserever start"
   [ "$RTSP_OVER_HTTP" = "on" ] && option="-p 8080"
   [ "$RTSP_AUTH" = "on" -a "$RTSP_USER" != "" -a "$RTSP_PASSWD" != "" ] && option="$option -U $RTSP_USER:$RTSP_PASSWD"
-  [ "$RTSP_VIDEO0" = "on" ] && path="/dev/video0,hw:0,0@OPUS "
-  [ "$RTSP_VIDEO1" = "on" ] && path="$path /dev/video1,hw:2,0@S16_BE "
-  [ "$RTSP_VIDEO2" = "on" ] && path="$path /dev/video2,hw:4,0@OPUS "
+  [ "$RTSP_VIDEO0" = "on" ] && path="/dev/video0,hw:0,0@$RTSP_AUDIO0 "
+  [ "$RTSP_VIDEO1" = "on" ] && path="$path /dev/video1,hw:2,0@$RTSP_AUDIO1 "
+  [ "$RTSP_VIDEO2" = "on" ] && path="$path /dev/video2,hw:4,0@$RTSP_AUDIO2 "
   /usr/bin/v4l2rtspserver $option -C 1 -a S16_LE $path >> /tmp/log/rtspserver.log 2>&1 &
 fi
 while [ "`pidof v4l2rtspserver`" = "" ]; do
   sleep 0.5
 done
-[ "$RTSP_VIDEO0" = "on" ] && /scripts/cmd audio 0 $RTSP_AUDIO0 > /dev/null
-[ "$RTSP_VIDEO1" = "on" ] && /scripts/cmd audio 1 $RTSP_AUDIO1 > /dev/null
-[ "$RTSP_VIDEO2" = "on" ] && /scripts/cmd audio 2 $RTSP_AUDIO2 > /dev/null
+[ "$RTSP_VIDEO0" = "on" ] && /scripts/cmd audio 0 $AUDIO0 > /dev/null
+[ "$RTSP_VIDEO1" = "on" ] && /scripts/cmd audio 1 $AUDIO1 > /dev/null
+[ "$RTSP_VIDEO2" = "on" ] && /scripts/cmd audio 2 $AUDIO2 > /dev/null
 
 #
 # go2rtc

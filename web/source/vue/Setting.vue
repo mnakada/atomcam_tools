@@ -187,15 +187,14 @@
               </ElCol>
             </ElRow>
           </div>
-          <!--
           <h3 v-t="'WebRTC.title'" />
           <SettingSwitch i18n="WebRTC" v-model="config.WEBRTC_ENABLE" :disabled="config.RTSP_VIDEO0 !== 'on'" />
+          <SettingComment v-if="config.RTSP_VIDEO0 === 'on' && config.RTSP_AUDIO0 !== 'OPUS' && config.WEBRTC_ENABLE === 'on'" i18n="WebRTC.note" color="red" />
           <div v-if="config.WEBRTC_ENABLE === 'on'">
             <SettingInput i18n="WebRTC.URL" :titleOffset="2" :span="6" type="readonly" v-model="WebRTCUrl">
-              <a href="/webrtc.html" target="_blank" class="el-button el-button--primary el-button--mini link-button">Link</a>
+              <a :href="WebRTCUrl" target="_blank" class="el-button el-button--primary el-button--mini link-button">Link</a>
             </SettingInput>
           </div>
-          -->
         </ElTabPane>
 
         <!-- Event Webhook Tab -->
@@ -517,7 +516,8 @@
         return `rtsp://${auth}${window.location.host}:${port}/video2_unicast`;
       },
       WebRTCUrl() {
-        return `http://${window.location.host}/webrtc.html`;
+        const opt = this.config.RTSP_AUDIO0 === 'OPUS' ? '?media=video+audio' : '';
+        return `http://${window.location.host}/webrtc.html${opt}`;
       },
     },
     async mounted() {

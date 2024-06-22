@@ -159,6 +159,9 @@ WebRTC:
   URL:
     title: URL
     tooltip: Copy and paste this URL into browser.
+  note:
+    comment: |
+      To output audio, the RTSP Main audio must be set to OPUS.
 
 event:
   tab: Notification

@@ -71,6 +71,7 @@ done
 # go2rtc
 #
 HOMEKIT_CONFIG=/media/mmc/homekit.yaml
+OLD_GO2RTC_CONFIG=/media/mmc/go2rtc.yaml
 GO2RTC_CONFIG=/tmp/go2rtc.yaml
 HOMEKIT_ENABLE=$(awk -F "=" '/^HOMEKIT_ENABLE *=/ {print $2}' $HACK_INI)
 export HOMEKIT_SETUP_ID=$(awk -F "=" '/^HOMEKIT_SETUP_ID *=/ {print $2}' $HACK_INI)
@@ -87,19 +88,19 @@ WEBRTC_ENABLE=$(awk -F "=" '/^WEBRTC_ENABLE *=/ {print $2}' $HACK_INI)
 # go2rtc config
 cat > $GO2RTC_CONFIG << EOF
 log:
-  api: trace
-  streams: error
+    api: trace
+    streams: error
 api:
-  origin: '*'
-  static_dir: '/var/www-redirect'
+    origin: '*'
+    static_dir: '/var/www-redirect'
 rtsp:
-  listen: ''
+    listen: ''
 webrtc:
-  listen: \${WEBRTC_LISTEN:}
+    listen: \${WEBRTC_LISTEN:}
 streams:
-  video0:
-    - http://localhost/cgi-bin/get_jpeg.cgi
-    - \${HOMEKIT_SOURCE:}
+    video0:
+        - http://localhost/cgi-bin/get_jpeg.cgi
+        - \${HOMEKIT_SOURCE:}
 EOF
 
 option="-config $GO2RTC_CONFIG "
@@ -107,11 +108,13 @@ if [ "$HOMEKIT_ENABLE" = "on" ] ; then
   # homekit (go2rtc) config
   [ "$HOMEKIT_SETUP_ID" = "" -o "$HOMEKIT_PIN" = "" -o "$HOMEKIT_DEVICE_ID" = "" ] && exit 0
 
+  [ ! -f $HOMEKIT_CONFIG -a -f $OLD_GO2RTC_CONFIG ] && mv $OLD_GO2RTC_CONFIG $HOMEKIT_CONFIG
   if [ -f $HOMEKIT_CONFIG ] && ! grep '^# ver.1.0.0' $HOMEKIT_CONFIG > /dev/null ; then
     awk '
       /pairings:/ {
         if($0 !~ /pairings:[ \t]*\[\]/) pairing = 1;
-        print;
+        gsub(/^ */, "");
+        printf("        %s\n", $0);
         next;
       }
       {
@@ -119,7 +122,10 @@ if [ "$HOMEKIT_ENABLE" = "on" ] ; then
           pairing = 0;
           next;
         }
-        if(pairing) print;
+        if(pairing) {
+          gsub(/^ */, "");
+          printf("            %s\n", $0);
+        }
       }
     ' $HOMEKIT_CONFIG > $HOMEKIT_CONFIG.pairing
     rm -f $HOMEKIT_CONFIG
@@ -129,11 +135,11 @@ if [ "$HOMEKIT_ENABLE" = "on" ] ; then
     cat >> $HOMEKIT_CONFIG << EOF
 # ver.1.0.0
 homekit:
-  video0:
-      device_id: \${HOMEKIT_DEVICE_ID:}
-      setup_id: \${HOMEKIT_SETUP_ID:}
-      name: \${HOMEKIT_NAME:}
-      pin: \${HOMEKIT_PIN:}
+    video0:
+        device_id: \${HOMEKIT_DEVICE_ID:}
+        setup_id: \${HOMEKIT_SETUP_ID:}
+        name: \${HOMEKIT_NAME:}
+        pin: \${HOMEKIT_PIN:}
 EOF
     if [ -f $HOMEKIT_CONFIG.pairing ] ; then
       cat $HOMEKIT_CONFIG.pairing >> $HOMEKIT_CONFIG

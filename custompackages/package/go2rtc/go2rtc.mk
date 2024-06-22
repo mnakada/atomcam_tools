@@ -4,6 +4,11 @@
 #
 ################################################################################
 
+# 2024/05/28 v1.9.2+
+# GO2RTC_VERSION = 649de0131cbaf64bd3d3f11cf575e0d630f785b3
+# 2024/07/20 v1.9.4
+# GO2RTC_VERSION = a4885c2c3abce58074d04878bba0d72105642a9b
+# 2024/07/20 v1.9.3
 GO2RTC_VERSION = cd777ba2b4c08f3d5aae2cb83704612a5937e85d
 GO2RTC_SITE = https://github.com/AlexxIT/go2rtc.git
 GO2RTC_SITE_METHOD = git

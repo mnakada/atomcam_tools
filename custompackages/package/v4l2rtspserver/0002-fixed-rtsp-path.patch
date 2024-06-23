@@ -1,0 +1,14 @@
+diff --git a/main.cpp b/main.cpp
+index 6de2c47..6d9c7ca 100755
+--- a/main.cpp
++++ b/main.cpp
+@@ -274,7 +274,7 @@ int main(int argc, char** argv)
+ 			
+ 			std::string baseUrl;
+ 			std::string output(outputFile);
+-			if (devList.size() > 1)
++			if (devList.size() > 0)
+ 			{
+ 				baseUrl = getDeviceName(videoDev);
+ 				baseUrl.append("_");
+-- 

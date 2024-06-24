@@ -5,6 +5,7 @@
 
 extern int MotorFd;
 extern struct timeval MotorLastMovedTime;
+extern int swing;
 
 static struct tm *(*original_gmtime_r)(const time_t *timep, struct tm *result);
 
@@ -17,9 +18,11 @@ struct tm *gmtime_r(const time_t *timep, struct tm *result) {
 
   original_gmtime_r(timep, result);
   // While the camera is moving, the AI process is disabled by returning a day of the week that does not exist when motion is detected.
-  struct timeval tv;
-  gettimeofday(&tv, NULL);
-  timersub(&tv, &MotorLastMovedTime, &tv);
-  if(MotorFd || !tv.tv_sec) result->tm_wday = 8;
+  if(swing) {
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    timersub(&tv, &MotorLastMovedTime, &tv);
+    if(MotorFd >= 0 || !tv.tv_sec) result->tm_wday = 8;
+  }
   return result;
 }

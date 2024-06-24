@@ -14,6 +14,7 @@ extern int local_sdk_motor_get_position(float *step,float *angle);
 extern int IMP_ISP_Tuning_GetISPHflip(int *pmode);
 extern int IMP_ISP_Tuning_GetISPVflip(int *pmode);
 extern int MotorFd;
+extern int swing;
 extern struct timeval MotorLastMovedTime;
 
 struct RectInfoSt {
@@ -33,6 +34,8 @@ static pthread_cond_t WaitMotionCond = PTHREAD_COND_INITIALIZER;
 
 char *WaitMotion(int fd, char *tokenPtr) {
 
+  if(!swing) return "error";
+
   if(WaitMotionFd >= 0) {
     fprintf(stderr, "[command] wait motion error %d %d\n", WaitMotionFd, fd);
     return "error : wait motion error";
@@ -51,7 +54,7 @@ char *WaitMotion(int fd, char *tokenPtr) {
 
 int local_sdk_video_osd_update_rect(int ch, int display, struct RectInfoSt *rectInfo) {
 
-  if((WaitMotionFd >= 0) && (MotorFd <= 0) && !ch) {
+  if(swing && (WaitMotionFd >= 0) && (MotorFd < 0) && !ch) {
     struct timeval tv;
     gettimeofday(&tv, NULL);
     timersub(&tv, &MotorLastMovedTime, &tv);

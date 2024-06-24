@@ -104,7 +104,7 @@ index 23ff2e0..7d732e5 100755
  		virtual ~DeviceInterface()                           {};
  };
 diff --git a/main.cpp b/main.cpp
-index 6de2c47..11de924 100755
+index 6de2c47..035b2ad 100755
 --- a/main.cpp
 +++ b/main.cpp
 @@ -209,7 +209,9 @@ int main(int argc, char** argv)
@@ -118,15 +118,6 @@ index 6de2c47..11de924 100755
  				exit(0);
  			}
  		}
-@@ -274,7 +276,7 @@ int main(int argc, char** argv)
- 			
- 			std::string baseUrl;
- 			std::string output(outputFile);
--			if (devList.size() > 1)
-+			if (devList.size() > 0)
- 			{
- 				baseUrl = getDeviceName(videoDev);
- 				baseUrl.append("_");
 diff --git a/src/ALSACapture.cpp b/src/ALSACapture.cpp
 index 3263e3c..fb67086 100644
 --- a/src/ALSACapture.cpp
@@ -331,3 +322,4 @@ index fb33f28..0509743 100644
  		ALSACapture* audioCapture = ALSACapture::createNew(param);
  		if (audioCapture) 
  		{
+-- 

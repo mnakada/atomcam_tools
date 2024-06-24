@@ -102,6 +102,7 @@ RTSP:
       label:
         - off
         - PCM
+        - AAC
         - OPUS
     URL:
       title: URL
@@ -115,6 +116,7 @@ RTSP:
       label:
         - off
         - PCM
+        - AAC
         - OPUS
     URL:
       title: URL
@@ -128,6 +130,7 @@ RTSP:
       label:
         - off
         - PCM
+        - AAC
         - OPUS
     URL:
       title: URL
@@ -161,6 +164,9 @@ WebRTC:
   URL:
     title: URL
     tooltip: ブラウザーにURLをcopy&pasteしてください
+  note:
+    comment: |
+      音声を出すにはRTSP Mainの音声をOPUSに設定してください。
 
 event:
   tab: イベント通知

@@ -16,7 +16,7 @@
 +CXXFLAGS += -I$(SRC) -W -Wall -std=c++11 -g -O3 -D_POSIX_C_SOURCE=2
 +CXXFLAGS += -Iinc -I$(PREFIX)/include -I$(PREFIX)/include/BasicUsageEnvironment -I$(PREFIX)/include/UsageEnvironment -I$(PREFIX)/include/liveMedia -I$(PREFIX)/include/groupsock
 +CXXFLAGS += $(EXTRA_CXXFLAGS)
-+LDFLAGS += -pthread -L$(PREFIX)/lib -lBasicUsageEnvironment -lUsageEnvironment -lliveMedia -lgroupsock -lv4l2wrapper -lmp3lame -lopus
++LDFLAGS += -pthread -L$(PREFIX)/lib -lBasicUsageEnvironment -lUsageEnvironment -lliveMedia -lgroupsock -lv4l2wrapper -lmp3lame -lopus -lfdk-aac
 +RM = rm -rf
 +
 +RTSPSERVER_OBJS = \

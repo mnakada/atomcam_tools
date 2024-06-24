@@ -147,15 +147,15 @@
         <ElTabPane class="well-transparent container" :label="$t('RTSP.tab')">
           <h3 v-t="'RTSP.title'" />
           <SettingSwitch i18n="RTSP.main" v-model="config.RTSP_VIDEO0" />
-          <SettingSelect v-if="config.RTSP_VIDEO0 === 'on'" i18n="RTSP.main.audio" :titleOffset="2" v-model="config.RTSP_AUDIO0" :label="['off', 'S16_BE', 'OPUS']" />
+          <SettingSelect v-if="config.RTSP_VIDEO0 === 'on'" i18n="RTSP.main.audio" :titleOffset="2" v-model="config.RTSP_AUDIO0" :label="['off', 'S16_BE', 'AAC', 'OPUS']" />
           <SettingInput v-if="config.RTSP_VIDEO0 === 'on'" i18n="RTSP.main.URL" :titleOffset="2" :span="10" type="readonly" v-model="RtspUrl0" />
           <div v-if="distributor === 'ATOM'">
             <SettingSwitch i18n="RTSP.mainHEVC" v-model="config.RTSP_VIDEO2" />
-            <SettingSelect v-if="config.RTSP_VIDEO2 === 'on'" i18n="RTSP.mainHEVC.audio" :titleOffset="2" v-model="config.RTSP_AUDIO2" :label="['off', 'S16_BE', 'OPUS']" />
+            <SettingSelect v-if="config.RTSP_VIDEO2 === 'on'" i18n="RTSP.mainHEVC.audio" :titleOffset="2" v-model="config.RTSP_AUDIO2" :label="['off', 'S16_BE', 'AAC', 'OPUS']" />
             <SettingInput v-if="config.RTSP_VIDEO2 === 'on'" i18n="RTSP.mainHEVC.URL" :titleOffset="2" :span="10" type="readonly" v-model="RtspUrl2" />
           </div>
           <SettingSwitch i18n="RTSP.sub" v-model="config.RTSP_VIDEO1" />
-          <SettingSwitch v-if="config.RTSP_VIDEO1 === 'on'" i18n="RTSP.sub.audio" :titleOffset="2" v-model="config.RTSP_AUDIO1" :label="['off', 'S16_BE', 'OPUS']" />
+          <SettingSwitch v-if="config.RTSP_VIDEO1 === 'on'" i18n="RTSP.sub.audio" :titleOffset="2" v-model="config.RTSP_AUDIO1" :label="['off', 'S16_BE', 'AAC', 'OPUS']" />
           <SettingInput v-if="config.RTSP_VIDEO1 === 'on'" i18n="RTSP.sub.URL" :titleOffset="2" :span="10" type="readonly" v-model="RtspUrl1" />
           <div v-if="(config.RTSP_VIDEO0 === 'on') || (config.RTSP_VIDEO1 === 'on') || (config.RTSP_VIDEO2 === 'on')">
             <SettingSwitch i18n="RTSP.http" v-model="config.RTSP_OVER_HTTP" />
@@ -190,9 +190,10 @@
           <!--
           <h3 v-t="'WebRTC.title'" />
           <SettingSwitch i18n="WebRTC" v-model="config.WEBRTC_ENABLE" :disabled="config.RTSP_VIDEO0 !== 'on'" />
+          <SettingComment v-if="config.RTSP_VIDEO0 === 'on' && config.RTSP_AUDIO0 !== 'OPUS' && config.WEBRTC_ENABLE === 'on'" i18n="WebRTC.note" color="red" />
           <div v-if="config.WEBRTC_ENABLE === 'on'">
             <SettingInput i18n="WebRTC.URL" :titleOffset="2" :span="6" type="readonly" v-model="WebRTCUrl">
-              <a href="/webrtc.html" target="_blank" class="el-button el-button--primary el-button--mini link-button">Link</a>
+              <a :href="WebRTCUrl" target="_blank" class="el-button el-button--primary el-button--mini link-button">Link</a>
             </SettingInput>
           </div>
           -->
@@ -517,7 +518,8 @@
         return `rtsp://${auth}${window.location.host}:${port}/video2_unicast`;
       },
       WebRTCUrl() {
-        return `http://${window.location.host}/webrtc.html`;
+        const opt = this.config.RTSP_AUDIO0 === 'OPUS' ? '?media=video+audio' : '';
+        return `http://${window.location.host}/webrtc.html${opt}`;
       },
     },
     async mounted() {

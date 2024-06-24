@@ -100,6 +100,7 @@ RTSP:
       label:
         - off
         - PCM
+        - AAC
         - OPUS
     URL:
       title: URL
@@ -113,6 +114,7 @@ RTSP:
       label:
         - off
         - PCM
+        - AAC
         - OPUS
     URL:
       title: URL
@@ -126,6 +128,7 @@ RTSP:
       label:
         - off
         - PCM
+        - AAC
         - OPUS
     URL:
       title: URL
@@ -159,6 +162,9 @@ WebRTC:
   URL:
     title: URL
     tooltip: Copy and paste this URL into browser.
+  note:
+    comment: |
+      To output audio, the RTSP Main audio must be set to OPUS.
 
 event:
   tab: Notification

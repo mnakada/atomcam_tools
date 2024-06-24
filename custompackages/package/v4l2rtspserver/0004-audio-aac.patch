@@ -1,0 +1,259 @@
+diff --git a/inc/ALSACapture.h b/inc/ALSACapture.h
+index 66fbc68..a9858ee 100755
+--- a/inc/ALSACapture.h
++++ b/inc/ALSACapture.h
+@@ -17,6 +17,7 @@
+ 
+ #include <alsa/asoundlib.h>
+ #include <opus/opus.h>
++#include <fdk-aac/aacenc_lib.h>
+ #include "logger.h"
+ 
+ #include "DeviceInterface.h"
+@@ -66,6 +67,7 @@ class ALSACapture  : public DeviceInterface
+ 		snd_pcm_format_t      m_fmt;
+ 		std::list<int>        m_fmtList;
+ 		OpusEncoder*          m_opus;
++		HANDLE_AACENCODER     m_aac;
+ 		char*                 m_pcm_buffer;
+ };
+ 
+diff --git a/main.cpp b/main.cpp
+index 11de924..8154069 100755
+--- a/main.cpp
++++ b/main.cpp
+@@ -211,7 +211,7 @@ int main(int argc, char** argv)
+ 				std::cout << "\t Devices :"                                                                                                    << std::endl;
+ 				std::cout << "\t [V4L2 device][,ALSA device[@output format]]" << std::endl;
+ 				std::cout << "\t                 : V4L2 capture device or/and ALSA capture device (default "<< dev_name << ")"     << std::endl;
+-				std::cout << "\t                 : output format : [S16_BE | OPUS] (default S16_BE)" << std::endl;
++				std::cout << "\t                 : output format : [S16_BE|AAC|OPUS] (default S16_BE)" << std::endl;
+ 				exit(0);
+ 			}
+ 		}
+diff --git a/src/ALSACapture.cpp b/src/ALSACapture.cpp
+index fb67086..ee6136a 100644
+--- a/src/ALSACapture.cpp
++++ b/src/ALSACapture.cpp
+@@ -75,6 +75,7 @@ ALSACapture* ALSACapture::createNew(const ALSACaptureParameters & params)
+ ALSACapture::~ALSACapture()
+ {
+ 	if(m_opus) opus_encoder_destroy(m_opus);
++	if(m_aac) aacEncClose(&m_aac);
+ 	if(m_pcm_buffer)
+ 	{
+ 		delete[] m_pcm_buffer;
+@@ -97,7 +98,6 @@ ALSACapture::ALSACapture(const ALSACaptureParameters & params) : m_pcm(NULL), m_
+ 	LOG(NOTICE) << "Open ALSA device: \"" << params.m_devName << "\"";
+ 	
+ 	snd_pcm_hw_params_t *hw_params = NULL;
+-	unsigned long dummy;
+ 	int err = 0;
+ 	
+ 	// open PCM device
+@@ -129,50 +129,67 @@ ALSACapture::ALSACapture(const ALSACaptureParameters & params) : m_pcm(NULL), m_
+ 		LOG(ERROR) << "cannot set channel count device: " << m_params.m_devName << " error:" <<  snd_strerror (err);
+ 		this->close();
+ 	}
+-	else if ((err = snd_pcm_hw_params_set_period_size(m_pcm, hw_params, m_periodSize = m_params.m_sampleRate * 20 / 1000, 0)) < 0) {
+-		LOG(ERROR) << "cannot set sample rate device: " << m_params.m_devName << " error:" <<  snd_strerror (err);
+-		this->close();
+-	}
+-	else if ((err = snd_pcm_hw_params (m_pcm, hw_params)) < 0) {
+-		LOG(ERROR) << "cannot set parameters device: " << m_params.m_devName << " error:" <<  snd_strerror (err);
+-		this->close();
+-	}
+-	
+-	// get buffer size
+-	else if ((err = snd_pcm_get_params(m_pcm, &dummy, &m_periodSize)) < 0) {
+-		LOG(ERROR) << "cannot get parameters device: " << m_params.m_devName << " error:" <<  snd_strerror (err);
+-		this->close();
+-	}
+ 	
+-	// start capture
+-	else if ((err = snd_pcm_prepare (m_pcm)) < 0) {
+-		LOG(ERROR) << "cannot prepare audio interface for use device: " << m_params.m_devName << " error:" <<  snd_strerror (err);
+-		this->close();
+-	}			
+-	else if ((err = snd_pcm_start (m_pcm)) < 0) {
+-		LOG(ERROR) << "cannot start audio interface for use device: " << m_params.m_devName << " error:" <<  snd_strerror (err);
+-		this->close();
+-	}			
+-	
+-	// opus initialize
+ 	m_opus = NULL;
++	m_aac = NULL;
+ 	if(!err) {
+ 		if (m_params.m_format == std::string("OPUS")) {
++			// opus initialize
+ 			m_bufferSize = 4096;
++			m_periodSize = m_params.m_sampleRate * 20 / 1000;
+ 			m_pcm_buffer = new char[m_periodSize * snd_pcm_format_physical_width(m_fmt) / 8];
+-			int err = 0;
+ 			m_opus = opus_encoder_create(m_params.m_sampleRate, m_params.m_channels, OPUS_APPLICATION_VOIP, &err);
+ 			if((m_opus == NULL) || (err != 0)) {
+-				LOG(ERROR) << "opus_encoder_create : " << snd_strerror (err);
++				LOG(ERROR) << "opus_encoder_create : " << opus_strerror (err);
+ 				this->close();
+ 			} else {
+ 				opus_encoder_ctl(m_opus, OPUS_SET_LSB_DEPTH(snd_pcm_format_physical_width(m_fmt)));
+ 			}
++		} else if(m_params.m_format == std::string("AAC")) {
++			// AAC initialzie
++			err = aacEncOpen(&m_aac, 0, m_params.m_channels);
++			if(!err) err = aacEncoder_SetParam(m_aac, AACENC_AOT, 2);
++			if(!err) err = aacEncoder_SetParam(m_aac, AACENC_BITRATE, 128000);
++			if(!err) err = aacEncoder_SetParam(m_aac, AACENC_BITRATEMODE, 0);
++			if(!err) err = aacEncoder_SetParam(m_aac, AACENC_SAMPLERATE, m_params.m_sampleRate);
++			if(!err) err = aacEncoder_SetParam(m_aac, AACENC_CHANNELMODE, (m_params.m_channels == 1) ? MODE_1 : MODE_2);
++			if(!err) err = aacEncEncode(m_aac, NULL, NULL, NULL, NULL);
++			AACENC_InfoStruct info = {0};
++			if(!err) err = aacEncInfo(m_aac, &info);
++			m_periodSize = info.frameLength;
++			m_bufferSize = m_periodSize * snd_pcm_format_physical_width(m_fmt) / 8 * m_params.m_channels;
++			m_pcm_buffer = new char[m_bufferSize];
++			if((m_aac == NULL) || (err != 0)) {
++				LOG(ERROR) << "aacEncOpen : " << (err);
++				this->close();
++			}
+ 		} else {
++			// PCM initialize
++			m_periodSize = m_params.m_sampleRate * 120 / 1000;
+ 			m_bufferSize = m_periodSize * snd_pcm_format_physical_width(m_fmt) / 8 * m_params.m_channels;
+ 		}
+ 	}
+ 
++	if(!err) {
++		if ((err = snd_pcm_hw_params_set_period_size(m_pcm, hw_params, m_periodSize, 0)) < 0) {
++			LOG(ERROR) << "cannot set sample rate device: " << m_params.m_devName << " periodSize: " << m_periodSize << " error:" <<  snd_strerror (err);
++			this->close();
++		}
++		else if ((err = snd_pcm_hw_params (m_pcm, hw_params)) < 0) {
++			LOG(ERROR) << "cannot set parameters device: " << m_params.m_devName << " error:" <<  snd_strerror (err);
++			this->close();
++		}
++		// start capture
++		else if ((err = snd_pcm_prepare (m_pcm)) < 0) {
++			LOG(ERROR) << "cannot prepare audio interface for use device: " << m_params.m_devName << " error:" <<  snd_strerror (err);
++			this->close();
++		}
++		else if ((err = snd_pcm_start (m_pcm)) < 0) {
++			LOG(ERROR) << "cannot start audio interface for use device: " << m_params.m_devName << " error:" <<  snd_strerror (err);
++			this->close();
++		}
++	}
++
+ 	if (!err) {
+ 		// get supported format
+ 		for (int i = 0; i < (int)(sizeof(formats)/sizeof(formats[0])); ++i) {
+@@ -224,6 +241,43 @@ size_t ALSACapture::read(char* buffer, size_t bufferSize)
+ 				size = opus_encode(m_opus, (opus_int16 *)m_pcm_buffer, frameSize, (unsigned char *)buffer, bufferSize);
+ 				LOG(DEBUG) << "opus_encode pcm frameSize: " << frameSize * fmt_phys_width_bytes << "bytes opus outSize: " << size << "bytes interval: " <<  (diff.tv_sec*1000+diff.tv_usec/1000) << "ms\n";
+ 			}
++		} else if(m_params.m_format == "AAC") {
++			snd_pcm_sframes_t frameSize = snd_pcm_readi(m_pcm, m_pcm_buffer, m_periodSize);
++			LOG(DEBUG) << "pcm_readi periodSize:" << m_periodSize * fmt_phys_width_bytes << " frameSize:" << frameSize * fmt_phys_width_bytes;
++			if (frameSize > 0) {
++				AACENC_BufDesc iDesc = {0};
++				iDesc.numBufs = 1;
++				iDesc.bufs = (void **)&m_pcm_buffer;
++				int iidentify = IN_AUDIO_DATA;
++				iDesc.bufferIdentifiers = &iidentify;
++				int ibufSize = frameSize * fmt_phys_width_bytes;
++				iDesc.bufSizes = &ibufSize;
++				int ibufElementSize = 2; // 16bit
++				iDesc.bufElSizes = &ibufElementSize;
++
++				AACENC_BufDesc oDesc = {0};
++				oDesc.numBufs = 1;
++				oDesc.bufs = (void **)&buffer;
++				int oidentify = OUT_BITSTREAM_DATA;
++				oDesc.bufferIdentifiers = &oidentify;
++				int obufSize = bufferSize;
++				oDesc.bufSizes = &obufSize;
++				int obufElementSize = 2; // 16bit
++				oDesc.bufElSizes = &obufElementSize;
++
++				AACENC_InArgs iArgs = {0};
++				iArgs.numInSamples =  frameSize;
++
++				AACENC_OutArgs oArgs = {0};
++				int err = aacEncEncode(m_aac, &iDesc, &oDesc, &iArgs, &oArgs);
++				if(err) {
++					LOG(ERROR) << "aacEncEncode : " << err;
++					size = -1;
++				} else {
++					size = oArgs.numOutBytes;
++				}
++				LOG(DEBUG) << "aacEncEncode pcm frameSize: " << frameSize * fmt_phys_width_bytes << "bytes aac outSize: " << size << "bytes interval: " <<  (diff.tv_sec*1000+diff.tv_usec/1000) << "ms\n";
++			}
+ 		} else {
+ 			snd_pcm_sframes_t frameSize = snd_pcm_readi(m_pcm, buffer, m_periodSize);
+ 			LOG(DEBUG) << "pcm_readi periodSize:" << m_periodSize * fmt_phys_width_bytes << " frameSize:" << frameSize * fmt_phys_width_bytes;
+diff --git a/src/ServerMediaSubsession.cpp b/src/ServerMediaSubsession.cpp
+index 4e204fd..7cfc89b 100755
+--- a/src/ServerMediaSubsession.cpp
++++ b/src/ServerMediaSubsession.cpp
+@@ -101,11 +101,36 @@ RTPSink*  BaseServerMediaSubsession::createSink(UsageEnvironment& env, Groupsock
+ 		getline(is, sampleRate, '/');	
+ 		std::string channels("2");
+ 		getline(is, channels);	
+-		videoSink = SimpleRTPSink::createNew(env, rtpGroupsock,rtpPayloadTypeIfDynamic, atoi(sampleRate.c_str()), "audio", "L16", atoi(channels.c_str()), True, False); 
++		videoSink = SimpleRTPSink::createNew(env, rtpGroupsock, rtpPayloadTypeIfDynamic, atoi(sampleRate.c_str()), "audio", "L16", atoi(channels.c_str()), True, False);
+ 	}
+ 	else if (format.find("audio/OPUS") == 0)
+ 	{
+-		videoSink = SimpleRTPSink::createNew(env, rtpGroupsock,rtpPayloadTypeIfDynamic, 48000, "audio", "OPUS", 2, False, False);
++		videoSink = SimpleRTPSink::createNew(env, rtpGroupsock, rtpPayloadTypeIfDynamic, 48000, "audio", "OPUS", 2, False, False);
++	}
++	else if (format.find("audio/AAC") == 0)
++	{
++		std::istringstream is(format);
++		std::string dummy;
++		getline(is, dummy, '/');	
++		getline(is, dummy, '/');	
++		std::string sampleRate("44100");
++		getline(is, sampleRate, '/');	
++		std::string channels("2");
++		getline(is, channels);
++
++		const int aot = 2;
++		const int kSampleRates[] = {96000, 88200, 64000, 48000, 44100,
++					    32000, 24000, 22050, 16000, 12000,
++					    11025, 8000,  7350, 0};
++		unsigned int fs;
++		for(fs = 0; fs < sizeof(kSampleRates) / sizeof(int); fs++) {
++			if(atoi(sampleRate.c_str()) == kSampleRates[fs]) {
++				std::stringstream conf;
++				conf << std::hex << std::uppercase << std::setfill('0') << std::setw(2) << ((aot << 3) | (fs >> 1)) << (((fs & 1) << 7) | (atoi(channels.c_str()) << 3));
++				videoSink = MPEG4GenericRTPSink::createNew(env, rtpGroupsock, rtpPayloadTypeIfDynamic, atoi(sampleRate.c_str()), "audio", "AAC-hbr", conf.str().c_str(), atoi(channels.c_str()));
++				break;
++			}
++		}
+ 	}
+ 	else if (format.find("audio/MPEG") == 0)
+ 	{
+diff --git a/src/V4l2RTSPServer.cpp b/src/V4l2RTSPServer.cpp
+index 0509743..bae120e 100644
+--- a/src/V4l2RTSPServer.cpp
++++ b/src/V4l2RTSPServer.cpp
+@@ -12,6 +12,7 @@
+ #include <dirent.h>
+ 
+ #include <sstream>
++#include <algorithm>
+ 
+ #include "logger.h"
+ #include "V4l2Capture.h"
+@@ -208,7 +209,8 @@ StreamReplicator* V4l2RTSPServer::CreateAudioReplicator(
+ 		getline(is, device, '@');
+ 		std::string format;
+ 		getline(is, format);
+-		if(format != std::string("OPUS")) {
++		std::transform(format.begin(), format.end(), format.begin(), ::toupper);
++		if((format != std::string("OPUS")) && (format != std::string("AAC"))) {
+ 			format = "L16";
+ 		}
+ 
+-- 
+

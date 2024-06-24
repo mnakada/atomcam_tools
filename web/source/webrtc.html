@@ -24,7 +24,10 @@
         const tracks = ['video', 'audio']
           .filter(kind => media.indexOf(kind) >= 0)
           .map(kind => pc.addTransceiver(kind, {direction: 'recvonly'}).receiver.track);
-        document.getElementById('video').srcObject = new MediaStream(tracks);
+        const stream = new MediaStream(tracks);
+        console.log('audio tracks : ', stream.getAudioTracks());
+        document.getElementById('video').srcObject = stream;
+
         return pc;
       }
 

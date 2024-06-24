@@ -109,11 +109,11 @@ if [ "$HOMEKIT_ENABLE" = "on" ] ; then
   [ "$HOMEKIT_SETUP_ID" = "" -o "$HOMEKIT_PIN" = "" -o "$HOMEKIT_DEVICE_ID" = "" ] && exit 0
 
   [ ! -f $HOMEKIT_CONFIG -a -f $OLD_GO2RTC_CONFIG ] && mv $OLD_GO2RTC_CONFIG $HOMEKIT_CONFIG
-  if [ -f $HOMEKIT_CONFIG ] && ! grep '^# ver.1.0.0' $HOMEKIT_CONFIG > /dev/null ; then
+  if [ -f $HOMEKIT_CONFIG ] && ! grep '^# ver.1.0.1' $HOMEKIT_CONFIG > /dev/null ; then
     awk '
       /pairings:/ {
         if($0 !~ /pairings:[ \t]*\[\]/) pairing = 1;
-        gsub(/^ */, "");
+        gsub(/^[ \t]*/, "");
         printf("        %s\n", $0);
         next;
       }
@@ -123,7 +123,7 @@ if [ "$HOMEKIT_ENABLE" = "on" ] ; then
           next;
         }
         if(pairing) {
-          gsub(/^ */, "");
+          gsub(/^[ \t]*/, "");
           printf("            %s\n", $0);
         }
       }
@@ -133,7 +133,7 @@ if [ "$HOMEKIT_ENABLE" = "on" ] ; then
 
   if [ ! -f $HOMEKIT_CONFIG ] ; then
     cat >> $HOMEKIT_CONFIG << EOF
-# ver.1.0.0
+# ver.1.0.1
 homekit:
     video0:
         device_id: \${HOMEKIT_DEVICE_ID:}

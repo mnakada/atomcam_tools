@@ -102,6 +102,7 @@ RTSP:
       label:
         - off
         - PCM
+        - AAC
         - OPUS
     URL:
       title: URL
@@ -115,6 +116,7 @@ RTSP:
       label:
         - off
         - PCM
+        - AAC
         - OPUS
     URL:
       title: URL
@@ -128,6 +130,7 @@ RTSP:
       label:
         - off
         - PCM
+        - AAC
         - OPUS
     URL:
       title: URL

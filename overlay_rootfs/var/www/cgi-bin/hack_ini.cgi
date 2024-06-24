@@ -32,4 +32,13 @@ echo "HOSTNAME=`hostname`"
 echo "KERNELVER=`uname -a`"
 echo "ATOMHACKVER=`cat /etc/atomhack.ver`"
 ifconfig | awk '/HWaddr/ { gsub(/^.*HWaddr */, ""); print "HWADDR=" $0}'
-cat /tmp/hack.ini
+awk '
+  /^CONFIG_VER/ { next; }
+  /^appver/ { next; }
+  /^PRODUCT_MODEL/ { next; }
+  /^HOSTNAME/ { next; }
+  /^KERNELVER/ { next; }
+  /^ATOMHACKVER/ { next; }
+  /^HWaddr/ { next; }
+  { print; }
+' /tmp/hack.ini

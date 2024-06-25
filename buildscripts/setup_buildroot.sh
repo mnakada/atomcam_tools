@@ -63,13 +63,4 @@ ln -s /usr/local/go/bin/go /usr/local/bin
 
 # Start the build process
 cd /atomtools/build/buildroot-2016.02
-make clean
-for i in `make show-targets`
-do
-  echo `date '+%H:%M:%S'` "=== $i ==="
-  make $i > make_$i.log 2>&1 || {
-    cat make_$i.log
-    echo "XXXX $i XXXX"
-    break;
-  }
-done
+make clean && make

@@ -19,20 +19,20 @@ index 66fbc68..a9858ee 100755
  };
  
 diff --git a/main.cpp b/main.cpp
-index 11de924..8154069 100755
+index 9647c4a..8154069 100755
 --- a/main.cpp
 +++ b/main.cpp
 @@ -211,7 +211,7 @@ int main(int argc, char** argv)
  				std::cout << "\t Devices :"                                                                                                    << std::endl;
  				std::cout << "\t [V4L2 device][,ALSA device[@output format]]" << std::endl;
  				std::cout << "\t                 : V4L2 capture device or/and ALSA capture device (default "<< dev_name << ")"     << std::endl;
--				std::cout << "\t                 : output format : [S16_BE | OPUS] (default S16_BE)" << std::endl;
+-				std::cout << "\t                 : output format : [S16_BE|OPUS] (default S16_BE)" << std::endl;
 +				std::cout << "\t                 : output format : [S16_BE|AAC|OPUS] (default S16_BE)" << std::endl;
  				exit(0);
  			}
  		}
 diff --git a/src/ALSACapture.cpp b/src/ALSACapture.cpp
-index fb67086..ee6136a 100644
+index 85a6a4f..ee6136a 100644
 --- a/src/ALSACapture.cpp
 +++ b/src/ALSACapture.cpp
 @@ -75,6 +75,7 @@ ALSACapture* ALSACapture::createNew(const ALSACaptureParameters & params)
@@ -43,58 +43,15 @@ index fb67086..ee6136a 100644
  	if(m_pcm_buffer)
  	{
  		delete[] m_pcm_buffer;
-@@ -97,7 +98,6 @@ ALSACapture::ALSACapture(const ALSACaptureParameters & params) : m_pcm(NULL), m_
- 	LOG(NOTICE) << "Open ALSA device: \"" << params.m_devName << "\"";
- 	
- 	snd_pcm_hw_params_t *hw_params = NULL;
--	unsigned long dummy;
- 	int err = 0;
- 	
- 	// open PCM device
-@@ -129,50 +129,67 @@ ALSACapture::ALSACapture(const ALSACaptureParameters & params) : m_pcm(NULL), m_
- 		LOG(ERROR) << "cannot set channel count device: " << m_params.m_devName << " error:" <<  snd_strerror (err);
- 		this->close();
+@@ -130,6 +131,7 @@ ALSACapture::ALSACapture(const ALSACaptureParameters & params) : m_pcm(NULL), m_
  	}
--	else if ((err = snd_pcm_hw_params_set_period_size(m_pcm, hw_params, m_periodSize = m_params.m_sampleRate * 20 / 1000, 0)) < 0) {
--		LOG(ERROR) << "cannot set sample rate device: " << m_params.m_devName << " error:" <<  snd_strerror (err);
--		this->close();
--	}
--	else if ((err = snd_pcm_hw_params (m_pcm, hw_params)) < 0) {
--		LOG(ERROR) << "cannot set parameters device: " << m_params.m_devName << " error:" <<  snd_strerror (err);
--		this->close();
--	}
--	
--	// get buffer size
--	else if ((err = snd_pcm_get_params(m_pcm, &dummy, &m_periodSize)) < 0) {
--		LOG(ERROR) << "cannot get parameters device: " << m_params.m_devName << " error:" <<  snd_strerror (err);
--		this->close();
--	}
  	
--	// start capture
--	else if ((err = snd_pcm_prepare (m_pcm)) < 0) {
--		LOG(ERROR) << "cannot prepare audio interface for use device: " << m_params.m_devName << " error:" <<  snd_strerror (err);
--		this->close();
--	}			
--	else if ((err = snd_pcm_start (m_pcm)) < 0) {
--		LOG(ERROR) << "cannot start audio interface for use device: " << m_params.m_devName << " error:" <<  snd_strerror (err);
--		this->close();
--	}			
--	
--	// opus initialize
  	m_opus = NULL;
 +	m_aac = NULL;
  	if(!err) {
  		if (m_params.m_format == std::string("OPUS")) {
-+			// opus initialize
- 			m_bufferSize = 4096;
-+			m_periodSize = m_params.m_sampleRate * 20 / 1000;
- 			m_pcm_buffer = new char[m_periodSize * snd_pcm_format_physical_width(m_fmt) / 8];
--			int err = 0;
- 			m_opus = opus_encoder_create(m_params.m_sampleRate, m_params.m_channels, OPUS_APPLICATION_VOIP, &err);
- 			if((m_opus == NULL) || (err != 0)) {
--				LOG(ERROR) << "opus_encoder_create : " << snd_strerror (err);
-+				LOG(ERROR) << "opus_encoder_create : " << opus_strerror (err);
- 				this->close();
+ 			// opus initialize
+@@ -143,6 +145,24 @@ ALSACapture::ALSACapture(const ALSACaptureParameters & params) : m_pcm(NULL), m_
  			} else {
  				opus_encoder_ctl(m_opus, OPUS_SET_LSB_DEPTH(snd_pcm_format_physical_width(m_fmt)));
  			}
@@ -117,36 +74,9 @@ index fb67086..ee6136a 100644
 +				this->close();
 +			}
  		} else {
-+			// PCM initialize
-+			m_periodSize = m_params.m_sampleRate * 120 / 1000;
- 			m_bufferSize = m_periodSize * snd_pcm_format_physical_width(m_fmt) / 8 * m_params.m_channels;
- 		}
- 	}
- 
-+	if(!err) {
-+		if ((err = snd_pcm_hw_params_set_period_size(m_pcm, hw_params, m_periodSize, 0)) < 0) {
-+			LOG(ERROR) << "cannot set sample rate device: " << m_params.m_devName << " periodSize: " << m_periodSize << " error:" <<  snd_strerror (err);
-+			this->close();
-+		}
-+		else if ((err = snd_pcm_hw_params (m_pcm, hw_params)) < 0) {
-+			LOG(ERROR) << "cannot set parameters device: " << m_params.m_devName << " error:" <<  snd_strerror (err);
-+			this->close();
-+		}
-+		// start capture
-+		else if ((err = snd_pcm_prepare (m_pcm)) < 0) {
-+			LOG(ERROR) << "cannot prepare audio interface for use device: " << m_params.m_devName << " error:" <<  snd_strerror (err);
-+			this->close();
-+		}
-+		else if ((err = snd_pcm_start (m_pcm)) < 0) {
-+			LOG(ERROR) << "cannot start audio interface for use device: " << m_params.m_devName << " error:" <<  snd_strerror (err);
-+			this->close();
-+		}
-+	}
-+
- 	if (!err) {
- 		// get supported format
- 		for (int i = 0; i < (int)(sizeof(formats)/sizeof(formats[0])); ++i) {
-@@ -224,6 +241,43 @@ size_t ALSACapture::read(char* buffer, size_t bufferSize)
+ 			// PCM initialize
+ 			m_periodSize = m_params.m_sampleRate * 120 / 1000;
+@@ -221,6 +241,43 @@ size_t ALSACapture::read(char* buffer, size_t bufferSize)
  				size = opus_encode(m_opus, (opus_int16 *)m_pcm_buffer, frameSize, (unsigned char *)buffer, bufferSize);
  				LOG(DEBUG) << "opus_encode pcm frameSize: " << frameSize * fmt_phys_width_bytes << "bytes opus outSize: " << size << "bytes interval: " <<  (diff.tv_sec*1000+diff.tv_usec/1000) << "ms\n";
  			}
@@ -191,21 +121,13 @@ index fb67086..ee6136a 100644
  			snd_pcm_sframes_t frameSize = snd_pcm_readi(m_pcm, buffer, m_periodSize);
  			LOG(DEBUG) << "pcm_readi periodSize:" << m_periodSize * fmt_phys_width_bytes << " frameSize:" << frameSize * fmt_phys_width_bytes;
 diff --git a/src/ServerMediaSubsession.cpp b/src/ServerMediaSubsession.cpp
-index 4e204fd..7cfc89b 100755
+index 9a429a7..60b2168 100755
 --- a/src/ServerMediaSubsession.cpp
 +++ b/src/ServerMediaSubsession.cpp
-@@ -101,11 +101,36 @@ RTPSink*  BaseServerMediaSubsession::createSink(UsageEnvironment& env, Groupsock
- 		getline(is, sampleRate, '/');	
- 		std::string channels("2");
- 		getline(is, channels);	
--		videoSink = SimpleRTPSink::createNew(env, rtpGroupsock,rtpPayloadTypeIfDynamic, atoi(sampleRate.c_str()), "audio", "L16", atoi(channels.c_str()), True, False); 
-+		videoSink = SimpleRTPSink::createNew(env, rtpGroupsock, rtpPayloadTypeIfDynamic, atoi(sampleRate.c_str()), "audio", "L16", atoi(channels.c_str()), True, False);
- 	}
- 	else if (format.find("audio/OPUS") == 0)
+@@ -107,6 +107,31 @@ RTPSink*  BaseServerMediaSubsession::createSink(UsageEnvironment& env, Groupsock
  	{
--		videoSink = SimpleRTPSink::createNew(env, rtpGroupsock,rtpPayloadTypeIfDynamic, 48000, "audio", "OPUS", 2, False, False);
-+		videoSink = SimpleRTPSink::createNew(env, rtpGroupsock, rtpPayloadTypeIfDynamic, 48000, "audio", "OPUS", 2, False, False);
-+	}
+ 		videoSink = SimpleRTPSink::createNew(env, rtpGroupsock, rtpPayloadTypeIfDynamic, 48000, "audio", "OPUS", 2, False, False);
+ 	}
 +	else if (format.find("audio/AAC") == 0)
 +	{
 +		std::istringstream is(format);
@@ -225,35 +147,26 @@ index 4e204fd..7cfc89b 100755
 +		for(fs = 0; fs < sizeof(kSampleRates) / sizeof(int); fs++) {
 +			if(atoi(sampleRate.c_str()) == kSampleRates[fs]) {
 +				std::stringstream conf;
-+				conf << std::hex << std::uppercase << std::setfill('0') << std::setw(2) << ((aot << 3) | (fs >> 1)) << (((fs & 1) << 7) | (atoi(channels.c_str()) << 3));
++				conf << std::hex << std::uppercase << std::setfill('0') << std::setw(4) << ((aot << 11) | (fs << 7) | (atoi(channels.c_str()) << 3));
 +				videoSink = MPEG4GenericRTPSink::createNew(env, rtpGroupsock, rtpPayloadTypeIfDynamic, atoi(sampleRate.c_str()), "audio", "AAC-hbr", conf.str().c_str(), atoi(channels.c_str()));
 +				break;
 +			}
 +		}
- 	}
++	}
  	else if (format.find("audio/MPEG") == 0)
  	{
+ 		videoSink = MPEG1or2AudioRTPSink::createNew(env, rtpGroupsock);
 diff --git a/src/V4l2RTSPServer.cpp b/src/V4l2RTSPServer.cpp
-index 0509743..bae120e 100644
+index 4caa318..bae120e 100644
 --- a/src/V4l2RTSPServer.cpp
 +++ b/src/V4l2RTSPServer.cpp
-@@ -12,6 +12,7 @@
- #include <dirent.h>
- 
- #include <sstream>
-+#include <algorithm>
- 
- #include "logger.h"
- #include "V4l2Capture.h"
-@@ -208,7 +209,8 @@ StreamReplicator* V4l2RTSPServer::CreateAudioReplicator(
- 		getline(is, device, '@');
+@@ -210,7 +210,7 @@ StreamReplicator* V4l2RTSPServer::CreateAudioReplicator(
  		std::string format;
  		getline(is, format);
+ 		std::transform(format.begin(), format.end(), format.begin(), ::toupper);
 -		if(format != std::string("OPUS")) {
-+		std::transform(format.begin(), format.end(), format.begin(), ::toupper);
 +		if((format != std::string("OPUS")) && (format != std::string("AAC"))) {
  			format = "L16";
  		}
  
 -- 
-

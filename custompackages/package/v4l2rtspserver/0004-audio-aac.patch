@@ -103,7 +103,7 @@ index fb67086..ee6136a 100644
 +			err = aacEncOpen(&m_aac, 0, m_params.m_channels);
 +			if(!err) err = aacEncoder_SetParam(m_aac, AACENC_AOT, 2);
 +			if(!err) err = aacEncoder_SetParam(m_aac, AACENC_BITRATE, 128000);
-+			if(!err) err = aacEncoder_SetParam(m_aac, AACENC_BITRATEMODE, 0);
++			// if(!err) err = aacEncoder_SetParam(m_aac, AACENC_BITRATEMODE, 0);
 +			if(!err) err = aacEncoder_SetParam(m_aac, AACENC_SAMPLERATE, m_params.m_sampleRate);
 +			if(!err) err = aacEncoder_SetParam(m_aac, AACENC_CHANNELMODE, (m_params.m_channels == 1) ? MODE_1 : MODE_2);
 +			if(!err) err = aacEncEncode(m_aac, NULL, NULL, NULL, NULL);

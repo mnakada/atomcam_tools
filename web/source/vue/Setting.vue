@@ -148,6 +148,7 @@
           <h3 v-t="'RTSP.title'" />
           <SettingSwitch i18n="RTSP.main" v-model="config.RTSP_VIDEO0" />
           <SettingSelect v-if="config.RTSP_VIDEO0 === 'on'" i18n="RTSP.main.audio" :titleOffset="2" v-model="config.RTSP_AUDIO0" :label="['off', 'S16_BE', 'AAC', 'OPUS']" />
+          <SettingComment v-if="config.RTSP_VIDEO0 === 'on' && config.RTSP_AUDIO0 !== 'AAC' && config.RTMP_ENABLE === 'on'" i18n="RTSP.main.note" color="red" />
           <SettingInput v-if="config.RTSP_VIDEO0 === 'on'" i18n="RTSP.main.URL" :titleOffset="2" :span="10" type="readonly" v-model="RtspUrl0" />
           <div v-if="distributor === 'ATOM'">
             <SettingSwitch i18n="RTSP.mainHEVC" v-model="config.RTSP_VIDEO2" />
@@ -187,16 +188,21 @@
               </ElCol>
             </ElRow>
           </div>
-          <!--
+
+          <h3 v-t="'RTMP.title'" />
+          <SettingSwitch i18n="RTMP" v-model="config.RTMP_ENABLE" :disabled="config.RTSP_VIDEO0 !== 'on' || config.RTSP_AUDIO0 !== 'AAC'" />
+          <SettingInput v-if="config.RTMP_ENABLE === 'on'" i18n="RTMP.URL" :titleOffset="2" :span="8" v-model="config.RTMP_URL" placeholder="rtmp://<server addr>/<livekey>">
+            <ElButton @click="RTMPRestart" type="primary" v-t="'RTMP.Restart'" />
+          </SettingInput>
+
           <h3 v-t="'WebRTC.title'" />
           <SettingSwitch i18n="WebRTC" v-model="config.WEBRTC_ENABLE" :disabled="config.RTSP_VIDEO0 !== 'on'" />
           <SettingComment v-if="config.RTSP_VIDEO0 === 'on' && config.RTSP_AUDIO0 !== 'OPUS' && config.WEBRTC_ENABLE === 'on'" i18n="WebRTC.note" color="red" />
           <div v-if="config.WEBRTC_ENABLE === 'on'">
-            <SettingInput i18n="WebRTC.URL" :titleOffset="2" :span="6" type="readonly" v-model="WebRTCUrl">
+            <SettingInput i18n="WebRTC.URL" :titleOffset="2" :span="8" type="readonly" v-model="WebRTCUrl">
               <a :href="WebRTCUrl" target="_blank" class="el-button el-button--primary el-button--mini link-button">Link</a>
             </SettingInput>
           </div>
-          -->
         </ElTabPane>
 
         <!-- Event Webhook Tab -->
@@ -365,6 +371,8 @@
           HOMEKIT_DEVICE_ID: '',
           HOMEKIT_PIN: '',
           HOMEKIT_SOURCE: '',
+          RTMP_ENABLE: 'off',
+          RTMP_URL: '',
           WEBRTC_ENABLE: 'off',
           PERIODICREC_SDCARD: 'on',
           PERIODICREC_SDCARD_REMOVE: 'off',
@@ -451,6 +459,7 @@
         homeKitPairing: '',
         homeKitSetupURI: '',
         homeKitSetupCode: '',
+        rtspRestart: false,
         cruiseList: [],
         cruiseSelect: -1,
         reboot: {
@@ -608,7 +617,6 @@
             count: str[8],
           }];
         });
-        console.log(this.timelapseSchedule);
       }
 
       this.cruiseList = (this.config.CRUISE_LIST || '').split(';').reduce((array, cmd) => {
@@ -704,6 +712,10 @@
       this.CheckHomeKit();
     },
     methods: {
+      RTMPRestart() {
+        this.rtspRestart = true;
+        this.Submit();
+      },
       CenterMark() {
         this.centerMark = !this.centerMark;
         const mode = this.centerMark ? 'on' : 'off';
@@ -894,7 +906,6 @@
         if(this.config.PERIODICREC_SDCARD !== 'on' && this.config.ALARMREC_SDCARD !== 'on' && this.config.TIMELAPSE_SDCARD !== 'on') this.config.STORAGE_SDCARD_PUBLISH = 'off';
 
         this.config.LOCALE = this.$i18n.locale;
-        console.log(this.timelapseSchedule);
         this.config.TIMELAPSE_SCHEDULE = this.timelapseSchedule.reduce((str, schedule) => {
           str += parseInt(schedule.startTime.slice(-2)) + ' ' +
           parseInt(schedule.startTime.slice(0, 2)) + ' * * ' +
@@ -920,6 +931,7 @@
 
         if(this.config.RTSP_VIDEO0 === 'off') {
           this.config.HOMEKIT_ENABLE = 'off';
+          this.config.RTMP_ENABLE = 'off';
           this.config.WEBRTC_ENABLE = 'off';
         }
         if(this.distributor !== 'ATOM') {
@@ -990,16 +1002,20 @@
              (this.config.RTSP_USER !== this.oldConfig.RTSP_USER) ||
              (this.config.RTSP_PASSWD !== this.oldConfig.RTSP_PASSWD) ||
              (this.config.HOMEKIT_ENABLE !== this.oldConfig.HOMEKIT_ENABLE) ||
+             (this.config.RTMP_ENABLE !== this.oldConfig.RTMP_ENABLE) ||
+             (this.config.RTMP_URL !== this.oldConfig.RTMP_URL) ||
              (this.config.WEBRTC_ENABLE !== this.oldConfig.WEBRTC_ENABLE) ||
              (this.config.RTSP_VIDEO0 !== this.oldConfig.RTSP_VIDEO0) ||
              (this.config.RTSP_VIDEO1 !== this.oldConfig.RTSP_VIDEO1) ||
              (this.config.RTSP_VIDEO2 !== this.oldConfig.RTSP_VIDEO2) ||
              (this.config.RTSP_AUDIO0 !== this.oldConfig.RTSP_AUDIO0) ||
              (this.config.RTSP_AUDIO1 !== this.oldConfig.RTSP_AUDIO1) ||
-             (this.config.RTSP_AUDIO2 !== this.oldConfig.RTSP_AUDIO2)) {
+             (this.config.RTSP_AUDIO2 !== this.oldConfig.RTSP_AUDIO2) ||
+             this.rtspRestart) {
             execCmds.push('rtspserver restart');
           }
         }
+        this.RTSPRestart = false;
         if(Object.keys(this.config).some(prop => (prop.search(/WEBHOOK/) === 0) && (this.config[prop] !== this.oldConfig[prop]))) {
           execCmds.push('setwebhook');
         }

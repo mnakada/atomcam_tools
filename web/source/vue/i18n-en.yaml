@@ -102,6 +102,9 @@ RTSP:
         - PCM
         - AAC
         - OPUS
+    note:
+      comment: |
+        To use RTMP, you must choose AAC.
     URL:
       title: URL
       tooltip: Copy and paste this URL into VLC etc.
@@ -148,7 +151,7 @@ RTSP:
 
 HomeKit:
   title: HomeKit
-  tooltip: RTSP Main AVC must be on.
+  tooltip: RTSP Main must be on.
   unpair:
     title: Force Unpairing
     tooltip: Force HomeKit unpairing.
@@ -156,9 +159,17 @@ HomeKit:
     comment: |
       To output audio, the RTSP Main audio must be set to OPUS.
 
+RTMP:
+  title: RTMP
+  tooltip: RTSP Main must be on and audio must be set to AAC.
+  URL:
+    title: URL
+    tooltip: Set the destination URL.
+  Restart: restart
+
 WebRTC:
   title: WebRTC
-  tooltip: RTSP Main AVC must be on.
+  tooltip: RTSP Main must be on.
   URL:
     title: URL
     tooltip: Copy and paste this URL into browser.

@@ -104,6 +104,9 @@ RTSP:
         - PCM
         - AAC
         - OPUS
+    note:
+      comment: |
+        RTMPを使うにはAACを選択してください。
     URL:
       title: URL
       tooltip: VLC playerなどにURLをcopy&pasteしてください
@@ -150,7 +153,7 @@ RTSP:
 
 HomeKit:
   title: HomeKit
-  tooltip: RTSP Main AVCをonにする必要があります
+  tooltip: RTSP Mainをonにする必要があります
   unpair:
     title: 強制接続解除
     tooltip: HomeKitの接続を強制的に解除します
@@ -158,9 +161,17 @@ HomeKit:
     comment: |
       音声を出すにはRTSP Mainの音声をOPUSに設定してください。
 
+RTMP:
+  title: RTMP
+  tooltip: RTSP Mainをonにして音声をAACにする必要があります
+  URL:
+    title: URL
+    tooltip: 送信先のURLを設定してください
+  Restart: restart
+
 WebRTC:
   title: WebRTC
-  tooltip: RTSP Main AVCをonにする必要があります
+  tooltip: RTSP Mainをonにする必要があります
   URL:
     title: URL
     tooltip: ブラウザーにURLをcopy&pasteしてください

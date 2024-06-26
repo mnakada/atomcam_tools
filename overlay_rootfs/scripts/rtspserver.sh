@@ -79,11 +79,14 @@ export HOMEKIT_DEVICE_ID=$(awk -F "=" '/^HOMEKIT_DEVICE_ID *=/ {print $2}' $HACK
 export HOMEKIT_PIN=$(awk -F "=" '/^HOMEKIT_PIN *=/ {print $2}' $HACK_INI)
 export HOMEKIT_SOURCE=$(awk -F "=" '/^HOMEKIT_SOURCE *=/ {print $2}' $HACK_INI)
 export HOMEKIT_NAME=`hostname`
+RTMP_ENABLE=$(awk -F "=" '/^RTMP_ENABLE *=/ {print $2}' $HACK_INI)
+export RTMP_URL=$(awk -F "=" '/^RTMP_URL *=/ {print $2}' $HACK_INI)
+[ "$RTMP_ENABLE" = "on" -a "$RTMP_URL" != "" ] && export PUBLISH="publish"
 WEBRTC_ENABLE=$(awk -F "=" '/^WEBRTC_ENABLE *=/ {print $2}' $HACK_INI)
 [ "$WEBRTC_ENABLE" = "on" ] && export WEBRTC_LISTEN=":8555/tcp"
 
 [ "$HOMEKIT_SOURCE" = "" ] && exit 0
-[ "$HOMEKIT_ENABLE" = "on" -o "$WEBRTC_ENABLE" = "on" ] || exit 0
+[ "$HOMEKIT_ENABLE" = "on" -o "$RTMP_ENABLE" = "on" -o "$WEBRTC_ENABLE" = "on" ] || exit 0
 
 # go2rtc config
 cat > $GO2RTC_CONFIG << EOF
@@ -96,11 +99,14 @@ api:
 rtsp:
     listen: ''
 webrtc:
-    listen: \${WEBRTC_LISTEN:}
+    listen: \${WEBRTC_LISTEN:''}
+\${PUBLISH:'zzzz'}:
+    video0:
+        - \${RTMP_URL:}
 streams:
     video0:
         - http://localhost/cgi-bin/get_jpeg.cgi
-        - \${HOMEKIT_SOURCE:}
+        - \${HOMEKIT_SOURCE:}#video=copy#audio=copy
 EOF
 
 option="-config $GO2RTC_CONFIG "

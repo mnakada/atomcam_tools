@@ -391,7 +391,7 @@ NASにアクセスするためのパスワードを指定します。（この�
 
 **※ 負荷が重いためSD-Cardのネットワークアクセスと同時使用は推奨しません。**
 
-**画面は説明のために全てonにしていますが、使わないところはできるだけoffにしてください。**
+**画面は説明のために全てonにしていますが、配信自体も処理が重たい為使わないところはできるだけoffにしてください。**
 
 ####  Main
 
@@ -401,7 +401,9 @@ HD AVCの出力になります。
 
 ##### - 音声
 
-Main側の音声をon/offします。
+Main側の音声を切り替えます。
+
+音声を配信したくない場合はoffに、HomeKitとWebRTCはOPUS、RTMPはAACを選択します。RTSPだけを使う場合はどれでも構いません。
 
 ##### - URL
 
@@ -415,7 +417,9 @@ HD HEVCの出力になります。
 
 ##### - 音声
 
-Main側の音声をon/offします。
+Main HEVC側の音声を切り替えます。
+
+RTSPのみの対応なので音声はどれでも構いません。
 
 ##### - URL
 
@@ -429,7 +433,9 @@ Sub(video1)側のRTSPストリーミングを行います。
 
 ##### - 音声
 
-Sub側の音声をon/offします。
+Sub側の音声を切り替えます。
+
+RTSPのみの対応なので音声はどれでも構いません。
 
 ##### - URL
 
@@ -476,6 +482,26 @@ iOSで解除してもQR-Codeが表示されない場合は強制接続解除を�
 HomeKitのアクセサリーは同時に複数のiOS/HomeHUBには接続できません。
 
 （iOS/HomeHUBに複数のアクセサリーは登録できます）
+
+#### RTMP
+
+<kbd><img src="https://github.com/mnakada/atomcam_tools/blob/images/rtmp.jpg" /></kbd>
+
+RTMPのOn/Offを設定します。
+
+URLに配信先のURLを設定してください。
+
+YouTube liveへの配信の場合は`rtmp://a.rtmp.youtube.com/live2/<livekey>`の形式になります。
+
+配信するアカウントのYouTube Studioのライブ配信設定を確認してください。
+
+#### WebRTC
+
+<kbd><img src="https://github.com/mnakada/atomcam_tools/blob/images/webrtc.jpg" /></kbd>
+
+WebRTCのOn/Offを設定します。
+
+URLをコピーしてブラウザで開くか、Linkボタンで開くことができます。
 
 <br>
 

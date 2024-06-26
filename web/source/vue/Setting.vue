@@ -166,8 +166,8 @@
           </div>
 
           <h3 v-t="'HomeKit.title'" />
-          <SettingSwitch i18n="HomeKit" v-model="config.HOMEKIT_ENABLE" :disabled="config.RTSP_VIDEO0 !== 'on'" />
-          <SettingComment v-if="config.RTSP_VIDEO0 === 'on' && config.RTSP_AUDIO0 !== 'OPUS' && config.HOMEKIT_ENABLE === 'on'" i18n="HomeKit.note" color="red" />
+          <SettingSwitch i18n="HomeKit" :value="(config.RTSP_VIDEO0 == 'on') ? config.HOMEKIT_ENABLE : 'off'" @input="config.HOMEKIT_ENABLE=$event.target.value" :disabled="config.RTSP_VIDEO0 !== 'on'" />
+          <SettingComment v-if="config.RTSP_VIDEO0 === 'on' && config.RTSP_AUDIO0 !== 'OPUS' && config.RTSP_AUDIO0 !== 'off' && config.HOMEKIT_ENABLE === 'on'" i18n="HomeKit.note" color="red" />
           <div v-if="homeKitSetupURI !== '' && homekitPairing !== '' && config.RTSP_VIDEO0 === 'on' && config.HOMEKIT_ENABLE === 'on'">
             <SettingDangerButton v-if="homeKitPairing == 'paired'" i18n="HomeKit.unpair" button="Unpair" icon="el-icon-scissors" :titleOffset="2" @click="UnpairHomeKit" />
             <ElRow v-else>
@@ -190,14 +190,14 @@
           </div>
 
           <h3 v-t="'RTMP.title'" />
-          <SettingSwitch i18n="RTMP" v-model="config.RTMP_ENABLE" :disabled="config.RTSP_VIDEO0 !== 'on' || (config.RTSP_AUDIO0 !== 'AAC' && config.RTSP_AUDIO0 !== 'off')" />
+          <SettingSwitch i18n="RTMP" :value="(config.RTSP_VIDEO0 == 'on' && (config.RTSP_AUDIO0 == 'AAC' || config.RTSP_AUDIO0 == 'off')) ? config.RTMP_ENABLE : 'off'" @input="config.RTMP_ENABLE=$event.target.value" :disabled="config.RTSP_VIDEO0 !== 'on' || (config.RTSP_AUDIO0 !== 'AAC' && config.RTSP_AUDIO0 !== 'off')" />
           <SettingInput v-if="config.RTMP_ENABLE === 'on'" i18n="RTMP.URL" :titleOffset="2" :span="8" v-model="config.RTMP_URL" placeholder="rtmp://<server addr>/<livekey>">
             <ElButton @click="RTMPRestart" type="primary" v-t="'RTMP.Restart'" />
           </SettingInput>
 
           <h3 v-t="'WebRTC.title'" />
-          <SettingSwitch i18n="WebRTC" v-model="config.WEBRTC_ENABLE" :disabled="config.RTSP_VIDEO0 !== 'on'" />
-          <SettingComment v-if="config.RTSP_VIDEO0 === 'on' && config.RTSP_AUDIO0 !== 'OPUS' && config.WEBRTC_ENABLE === 'on'" i18n="WebRTC.note" color="red" />
+          <SettingSwitch i18n="WebRTC" :value="(config.RTSP_VIDEO0 == 'on') ? config.WEBRTC_ENABLE : 'off'" @input="config.WEBRTC_ENABLE=$event.target.value" :disabled="config.RTSP_VIDEO0 !== 'on'" />
+          <SettingComment v-if="config.RTSP_VIDEO0 === 'on' && config.RTSP_AUDIO0 !== 'OPUS' && config.RTSP_AUDIO0 !== 'off' && config.WEBRTC_ENABLE === 'on'" i18n="WebRTC.note" color="red" />
           <div v-if="config.WEBRTC_ENABLE === 'on'">
             <SettingInput i18n="WebRTC.URL" :titleOffset="2" :span="8" type="readonly" v-model="WebRTCUrl">
               <a :href="WebRTCUrl" target="_blank" class="el-button el-button--primary el-button--mini link-button">Link</a>

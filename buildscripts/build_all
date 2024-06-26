@@ -4,7 +4,7 @@
 cd /atomtools/build/buildroot-2016.02/output
 rm -rf target
 mkdir -p target/lib
-cp -dpf staging/lib/libgcc_s.so* target/lib/
+cp -dpf staging/lib/libgcc_s.so* staging/lib/libatomic.so* target/lib/
 mkdir -p target/usr/lib
 cp -dpf staging/usr/lib/libstdc++.so* target/usr/lib/
 find ./build -name ".stamp_target_installed*" -print | xargs rm -f

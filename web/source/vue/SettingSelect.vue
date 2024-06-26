@@ -9,7 +9,7 @@
       </ElCol>
       <ElCol :span="8">
         <ElRadioGroup :value="value" @input="$emit('input', $event)" @change="$emit('input', $event)" size="mini">
-          <ElRadioButton v-for="(val, idx) of label" :key="'select'+idx" :label="label[idx]" :name="idx">
+          <ElRadioButton v-for="(val, idx) of label" :key="`select-${_uid}-${idx}`" :label="label[idx]">
             {{ labelText[idx] }}
           </ElRadioButton>
         </ElRadioGroup>

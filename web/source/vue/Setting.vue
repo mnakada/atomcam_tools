@@ -148,7 +148,7 @@
           <h3 v-t="'RTSP.title'" />
           <SettingSwitch i18n="RTSP.main" v-model="config.RTSP_VIDEO0" />
           <SettingSelect v-if="config.RTSP_VIDEO0 === 'on'" i18n="RTSP.main.audio" :titleOffset="2" v-model="config.RTSP_AUDIO0" :label="['off', 'S16_BE', 'AAC', 'OPUS']" />
-          <SettingComment v-if="config.RTSP_VIDEO0 === 'on' && config.RTSP_AUDIO0 !== 'AAC' && config.RTMP_ENABLE === 'on'" i18n="RTSP.main.note" color="red" />
+          <SettingComment v-if="config.RTSP_VIDEO0 === 'on' && (config.RTSP_AUDIO0 !== 'AAC' && config.RTSP_AUDIO0 !=='off') && config.RTMP_ENABLE === 'on'" i18n="RTSP.main.note" color="red" />
           <SettingInput v-if="config.RTSP_VIDEO0 === 'on'" i18n="RTSP.main.URL" :titleOffset="2" :span="10" type="readonly" v-model="RtspUrl0" />
           <div v-if="distributor === 'ATOM'">
             <SettingSwitch i18n="RTSP.mainHEVC" v-model="config.RTSP_VIDEO2" />
@@ -190,7 +190,7 @@
           </div>
 
           <h3 v-t="'RTMP.title'" />
-          <SettingSwitch i18n="RTMP" v-model="config.RTMP_ENABLE" :disabled="config.RTSP_VIDEO0 !== 'on' || config.RTSP_AUDIO0 !== 'AAC'" />
+          <SettingSwitch i18n="RTMP" v-model="config.RTMP_ENABLE" :disabled="config.RTSP_VIDEO0 !== 'on' || (config.RTSP_AUDIO0 !== 'AAC' && config.RTSP_AUDIO0 !== 'off')" />
           <SettingInput v-if="config.RTMP_ENABLE === 'on'" i18n="RTMP.URL" :titleOffset="2" :span="8" v-model="config.RTMP_URL" placeholder="rtmp://<server addr>/<livekey>">
             <ElButton @click="RTMPRestart" type="primary" v-t="'RTMP.Restart'" />
           </SettingInput>

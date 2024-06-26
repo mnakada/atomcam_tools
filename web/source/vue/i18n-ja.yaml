@@ -106,7 +106,7 @@ RTSP:
         - OPUS
     note:
       comment: |
-        RTMPを使うにはAACを選択してください。
+        RTMPを使うにはAACかoffを選択してください。
     URL:
       title: URL
       tooltip: VLC playerなどにURLをcopy&pasteしてください
@@ -163,7 +163,7 @@ HomeKit:
 
 RTMP:
   title: RTMP
-  tooltip: RTSP Mainをonにして音声をAACにする必要があります
+  tooltip: RTSP Mainをonにして音声をAACかoffにする必要があります
   URL:
     title: URL
     tooltip: 送信先のURLを設定してください

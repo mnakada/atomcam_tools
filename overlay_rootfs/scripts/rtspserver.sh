@@ -16,11 +16,13 @@ if [ "$1" = "off" -o "$1" = "restart" ]; then
 fi
 
 HACK_INI=/tmp/hack.ini
+RTMP_ENABLE=$(awk -F "=" '/^RTMP_ENABLE *=/ {print $2}' $HACK_INI)
 RTSP_VIDEO0=$(awk -F "=" '/^RTSP_VIDEO0 *=/ {print $2}' $HACK_INI)
 RTSP_AUDIO0=$(awk -F "=" '/^RTSP_AUDIO0 *=/ {print $2}' $HACK_INI)
 [ "$RTSP_AUDIO0" = "on" ] && RTSP_AUDIO0="S16_BE"
 AUDIO0="on"
 [ "$RTSP_AUDIO0" = "off" -o "$RTSP_AUDIO0" = "" ] && AUDIO0="off"
+[ "$AUDIO0" = "off" -a "$RTMP_ENABLE" = "on" ] && RTSP_AUDIO0="AAC"
 RTSP_VIDEO1=$(awk -F "=" '/^RTSP_VIDEO1 *=/ {print $2}' $HACK_INI)
 RTSP_AUDIO1=$(awk -F "=" '/^RTSP_AUDIO1 *=/ {print $2}' $HACK_INI)
 [ "$RTSP_AUDIO1" = "on" ] && RTSP_AUDIO1="S16_BE"
@@ -79,7 +81,6 @@ export HOMEKIT_DEVICE_ID=$(awk -F "=" '/^HOMEKIT_DEVICE_ID *=/ {print $2}' $HACK
 export HOMEKIT_PIN=$(awk -F "=" '/^HOMEKIT_PIN *=/ {print $2}' $HACK_INI)
 export HOMEKIT_SOURCE=$(awk -F "=" '/^HOMEKIT_SOURCE *=/ {print $2}' $HACK_INI)
 export HOMEKIT_NAME=`hostname`
-RTMP_ENABLE=$(awk -F "=" '/^RTMP_ENABLE *=/ {print $2}' $HACK_INI)
 export RTMP_URL=$(awk -F "=" '/^RTMP_URL *=/ {print $2}' $HACK_INI)
 [ "$RTMP_ENABLE" = "on" -a "$RTMP_URL" != "" ] && export PUBLISH="publish"
 WEBRTC_ENABLE=$(awk -F "=" '/^WEBRTC_ENABLE *=/ {print $2}' $HACK_INI)

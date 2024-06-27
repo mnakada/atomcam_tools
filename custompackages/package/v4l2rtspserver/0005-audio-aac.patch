@@ -32,7 +32,7 @@ index 9647c4a..8154069 100755
  			}
  		}
 diff --git a/src/ALSACapture.cpp b/src/ALSACapture.cpp
-index 85a6a4f..ee6136a 100644
+index 85a6a4f..2a1acd6 100644
 --- a/src/ALSACapture.cpp
 +++ b/src/ALSACapture.cpp
 @@ -75,6 +75,7 @@ ALSACapture* ALSACapture::createNew(const ALSACaptureParameters & params)
@@ -51,7 +51,7 @@ index 85a6a4f..ee6136a 100644
  	if(!err) {
  		if (m_params.m_format == std::string("OPUS")) {
  			// opus initialize
-@@ -143,6 +145,24 @@ ALSACapture::ALSACapture(const ALSACaptureParameters & params) : m_pcm(NULL), m_
+@@ -143,6 +145,23 @@ ALSACapture::ALSACapture(const ALSACaptureParameters & params) : m_pcm(NULL), m_
  			} else {
  				opus_encoder_ctl(m_opus, OPUS_SET_LSB_DEPTH(snd_pcm_format_physical_width(m_fmt)));
  			}
@@ -60,7 +60,6 @@ index 85a6a4f..ee6136a 100644
 +			err = aacEncOpen(&m_aac, 0, m_params.m_channels);
 +			if(!err) err = aacEncoder_SetParam(m_aac, AACENC_AOT, 2);
 +			if(!err) err = aacEncoder_SetParam(m_aac, AACENC_BITRATE, 128000);
-+			// if(!err) err = aacEncoder_SetParam(m_aac, AACENC_BITRATEMODE, 0);
 +			if(!err) err = aacEncoder_SetParam(m_aac, AACENC_SAMPLERATE, m_params.m_sampleRate);
 +			if(!err) err = aacEncoder_SetParam(m_aac, AACENC_CHANNELMODE, (m_params.m_channels == 1) ? MODE_1 : MODE_2);
 +			if(!err) err = aacEncEncode(m_aac, NULL, NULL, NULL, NULL);
@@ -76,7 +75,7 @@ index 85a6a4f..ee6136a 100644
  		} else {
  			// PCM initialize
  			m_periodSize = m_params.m_sampleRate * 120 / 1000;
-@@ -221,6 +241,43 @@ size_t ALSACapture::read(char* buffer, size_t bufferSize)
+@@ -221,6 +240,43 @@ size_t ALSACapture::read(char* buffer, size_t bufferSize)
  				size = opus_encode(m_opus, (opus_int16 *)m_pcm_buffer, frameSize, (unsigned char *)buffer, bufferSize);
  				LOG(DEBUG) << "opus_encode pcm frameSize: " << frameSize * fmt_phys_width_bytes << "bytes opus outSize: " << size << "bytes interval: " <<  (diff.tv_sec*1000+diff.tv_usec/1000) << "ms\n";
  			}
@@ -156,17 +155,4 @@ index 9a429a7..60b2168 100755
  	else if (format.find("audio/MPEG") == 0)
  	{
  		videoSink = MPEG1or2AudioRTPSink::createNew(env, rtpGroupsock);
-diff --git a/src/V4l2RTSPServer.cpp b/src/V4l2RTSPServer.cpp
-index 4caa318..bae120e 100644
---- a/src/V4l2RTSPServer.cpp
-+++ b/src/V4l2RTSPServer.cpp
-@@ -210,7 +210,7 @@ StreamReplicator* V4l2RTSPServer::CreateAudioReplicator(
- 		std::string format;
- 		getline(is, format);
- 		std::transform(format.begin(), format.end(), format.begin(), ::toupper);
--		if(format != std::string("OPUS")) {
-+		if((format != std::string("OPUS")) && (format != std::string("AAC"))) {
- 			format = "L16";
- 		}
- 
 -- 

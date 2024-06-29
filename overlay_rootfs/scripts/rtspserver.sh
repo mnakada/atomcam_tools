@@ -6,13 +6,16 @@ if [ "$1" = "off" -o "$1" = "restart" ]; then
   /scripts/cmd video 0 off > /dev/null
   /scripts/cmd video 1 off > /dev/null
   /scripts/cmd video 2 off > /dev/null
-  killall v4l2rtspserver > /dev/null 2>&1
-  killall go2rtc > /dev/null 2>&1
-  [ "$1" = "off" ] && exit 0
+  while pidof go2rtc > /dev/null ; do
+    killall go2rtc > /dev/null 2>&1
+    sleep 0.5
+  done
   while pidof v4l2rtspserver > /dev/null ; do
+    killall v4l2rtspserver > /dev/null 2>&1
     sleep 0.5
   done
   echo `date +"%Y/%m/%d %H:%M:%S"` ": v4l2rtspserver stop"
+  [ "$1" = "off" ] && exit 0
 fi
 
 HACK_INI=/tmp/hack.ini

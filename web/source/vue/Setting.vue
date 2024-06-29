@@ -198,7 +198,7 @@
           <h3 v-t="'WebRTC.title'" />
           <SettingSwitch i18n="WebRTC" :value="(config.RTSP_VIDEO0 == 'on') ? config.WEBRTC_ENABLE : 'off'" @input="config.WEBRTC_ENABLE=$event" :disabled="config.RTSP_VIDEO0 !== 'on'" />
           <SettingComment v-if="config.RTSP_VIDEO0 === 'on' && config.RTSP_AUDIO0 !== 'OPUS' && config.RTSP_AUDIO0 !== 'off' && config.WEBRTC_ENABLE === 'on'" i18n="WebRTC.note" color="red" />
-          <div v-if="config.WEBRTC_ENABLE === 'on'">
+          <div v-if="(config.WEBRTC_ENABLE === 'on') && (oldConfig.WEBRTC_ENABLE === 'on')">
             <SettingInput i18n="WebRTC.URL" :titleOffset="2" :span="8" type="readonly" v-model="WebRTCUrl">
               <a :href="WebRTCUrl" target="_blank" class="el-button el-button--primary el-button--mini link-button">Link</a>
             </SettingInput>

@@ -1,0 +1,15 @@
+diff --git a/internal/webrtc/webrtc.go b/internal/webrtc/webrtc.go
+index cabd88b..8a7cdfd 100644
+--- a/internal/webrtc/webrtc.go
++++ b/internal/webrtc/webrtc.go
+@@ -31,6 +31,10 @@ func Init() {
+ 
+ 	app.LoadConfig(&cfg)
+ 
++  if cfg.Mod.Listen == "" {
++    return
++  }
++
+ 	log = app.GetLogger("webrtc")
+ 
+ 	filters = cfg.Mod.Filters

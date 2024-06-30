@@ -167,6 +167,8 @@ Qiitaに少し解説を書いています。
 
 [atomcam_toolsのtimelapseの負荷低減](https://qiita.com/mnakada/items/eddbf8b6f0095e279095)
 
+[atomcam_toolsのHomeKit, RTMP対応](https://qiita.com/mnakada/items/00747fdf048f18a787ff)
+
 <br>
 
 ## 使用法

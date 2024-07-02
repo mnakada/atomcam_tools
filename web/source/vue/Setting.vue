@@ -12,7 +12,7 @@
         Ver.{{ config.appver }}
       </span>
       <span class="timestamp">
-        {{ intervalValue.TIMESTAMP }}
+        {{ timestamp }}
       </span>
       <div class="title-right">
         <div class="locale-selector">
@@ -485,6 +485,10 @@
       distributor() {
         if(this.config.PRODUCT_MODEL === 'AC1') return 'ATOM';
         return this.config.PRODUCT_MODEL.replace(/_.*$/, '');
+      },
+      timestamp() {
+        if(this.$i18n.locale === 'ja') return this.intervalValue.TIMESTAMP;
+        return new Date(this.intervalValue.TIMESTAMP).toLocaleString('en-US', { year:'numeric', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit', second:'2-digit' });
       },
       storage_sdcard() {
         return this.storage_sdcard_record || this.storage_sdcard_alarm;
@@ -1085,7 +1089,7 @@
 
   .timestamp {
     font-size: 1.5rem;
-    flex-basis: 15rem;
+    flex-basis: 20rem;
   }
 
   .locale-selector {

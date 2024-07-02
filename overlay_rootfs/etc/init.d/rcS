@@ -19,6 +19,11 @@ for i in /etc/init.d/S??* ;do
 		. $i
 	    )
 	    ;;
+	*.env)
+      trap - INT QUIT TSTP
+      set start
+      . $i
+	    ;;
 	*)
 	    # No sh extension, so fork subprocess.
 	    $i start

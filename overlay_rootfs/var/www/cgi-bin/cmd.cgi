@@ -1,7 +1,5 @@
 #!/bin/sh
 
-[ -f /etc/environment ] && . /etc/environment
-
 echo "Cache-Control: no-cache"
 echo "Content-Type: text/plain"
 echo ""

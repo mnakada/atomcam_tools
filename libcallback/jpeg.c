@@ -40,9 +40,30 @@ static int FirstTask = 0;
 static int LastTask = 0;
 
 static int DebugSequence = -1;
+static int DebugCount = 0;
 
 char *JpegCapture(int fd, char *tokenPtr) {
 
+  char *p = strtok_r(NULL, " \t\r\n", &tokenPtr);
+  if(p && !strcmp(p, "clear")) {
+    FirstTask = LastTask = 0;
+    return "OK";
+  }
+  if(p && !strcmp(p, "status")) {
+    snprintf(CommandResBuf, 255, "FirstTask %d LastTask %d state %d,%d FT %d %d %d mutex %d", FirstTask, LastTask, DebugSequence, DebugCount, JpegTask[FirstTask].fd, JpegTask[FirstTask].ch, JpegTask[FirstTask].header, JpegDataMutex);
+    fprintf(stderr, "FirstTask %d LastTask %d state %d,%d FT %d %d %d mutex %d", FirstTask, LastTask, DebugSequence, DebugCount, JpegTask[FirstTask].fd, JpegTask[FirstTask].ch, JpegTask[FirstTask].header, JpegDataMutex);
+    for(int i = 0; i < JPEG_TASK_SIZE; i++) {
+      int s = strlen(CommandResBuf);
+      if(s <= 0) break;
+      snprintf(CommandResBuf + s, 255 - s, "\n%d: %d %d %d", i, JpegTask[i].fd, JpegTask[i].header, JpegTask[i].ch);
+      fprintf(stderr, "\n%d: %d %d %d", i, JpegTask[i].fd, JpegTask[i].header, JpegTask[i].ch);
+    }
+    return CommandResBuf;
+  }
+  if(p && !strcmp(p, "unlock")) {
+    pthread_mutex_unlock(&JpegDataMutex);
+    return "OK";
+  }
   if(FirstTask == (LastTask + 1) & JPEG_TASK_MASK) {
     fprintf(stderr, "[command] jpeg capture error %d\n", fd);
     write(fd, HttpErrorHeader, strlen(HttpErrorHeader));
@@ -53,25 +74,11 @@ char *JpegCapture(int fd, char *tokenPtr) {
   JpegTask[LastTask].fd = fd;
   JpegTask[LastTask].ch = 0;
   JpegTask[LastTask].header = 1;
-  char *p = strtok_r(NULL, " \t\r\n", &tokenPtr);
   if(p && (!strcmp(p, "0") || !strcmp(p, "1"))) {
     JpegTask[LastTask].ch = atoi(p);
     p = strtok_r(NULL, " \t\r\n", &tokenPtr);
   }
   if(p && !strcmp(p, "-n")) JpegTask[LastTask].header = 0;
-  if(p && !strcmp(p, "clear")) {
-    FirstTask = LastTask = 0;
-    return "OK";
-  }
-  if(p && !strcmp(p, "status")) {
-    snprintf(CommandResBuf, 255, "FirstTask %d LastTask %d state %d FT %d %d %d mutex %d", FirstTask, LastTask, DebugSequence, JpegTask[FirstTask].fd, JpegTask[FirstTask].ch, JpegTask[FirstTask].header, JpegDataMutex);
-    fprintf(stderr, "FirstTask %d LastTask %d state %d FT %d %d %d mutex %d", FirstTask, LastTask, DebugSequence, JpegTask[FirstTask].fd, JpegTask[FirstTask].ch, JpegTask[FirstTask].header, JpegDataMutex);
-    return CommandResBuf;
-  }
-  if(p && !strcmp(p, "unlock")) {
-    pthread_mutex_unlock(&JpegDataMutex);
-    return "OK";
-  }
   LastTask = (LastTask + 1) & JPEG_TASK_MASK;
   pthread_mutex_unlock(&JpegDataMutex);
   return NULL;
@@ -79,6 +86,7 @@ char *JpegCapture(int fd, char *tokenPtr) {
 
 static int GetJpegData(int fd, int ch, int header) {
 
+  DebugCount++;
   DebugSequence = 11;
   struct channelConfigSt *chConfig = get_enc_chn_config(ch);
   if (!chConfig->state) {
@@ -97,6 +105,8 @@ static int GetJpegData(int fd, int ch, int header) {
   video_param_set_mutex_lock(1);
   DebugSequence = 15;
   int encoder = chConfig->encoder;
+  if(encoder <= 0) fprintf(stderr, "================= encoder:%d =================\n", encoder);
+  if(encoder < 0) goto error1;
   int ret = 0;
 
   if(IMP_Encoder_StartRecvPic(encoder) < 0) {

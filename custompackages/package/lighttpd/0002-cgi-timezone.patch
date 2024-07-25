@@ -1,0 +1,12 @@
+--- lighttpd-org/src/mod_cgi.c	2024-07-02 15:03:46
++++ lighttpd-1.4.39/src/mod_cgi.c	2024-07-02 15:03:46
+@@ -1029,6 +1029,9 @@
+ 			cgi_env_add(&env, CONST_STR_LEN("SYSTEMROOT"), s, strlen(s));
+ 		}
+ #endif
++		if (NULL != (s = getenv("TZ"))) {
++			cgi_env_add(&env, CONST_STR_LEN("TZ"), s, strlen(s));
++		}
+ 
+ 		for (n = 0; n < con->request.headers->used; n++) {
+ 			data_string *ds;

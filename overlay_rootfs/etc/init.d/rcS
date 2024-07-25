@@ -7,22 +7,26 @@
 #
 for i in /etc/init.d/S??* ;do
 
-     # Ignore dangling symlinks (if any).
-     [ ! -f "$i" ] && continue
+  # Ignore dangling symlinks (if any).
+  [ ! -f "$i" ] && continue
 
-     case "$i" in
-	*.sh)
-	    # Source shell script for speed.
-	    (
-		trap - INT QUIT TSTP
-		set start
-		. $i
-	    )
-	    ;;
-	*)
-	    # No sh extension, so fork subprocess.
-	    $i start
-	    ;;
-    esac
+  case "$i" in
+  *.sh)
+    # Source shell script for speed.
+    (
+      trap - INT QUIT TSTP
+      set start
+      . $i
+    )
+    ;;
+  *.env)
+    trap - INT QUIT TSTP
+    set start
+    . $i
+    ;;
+  *)
+    # No sh extension, so fork subprocess.
+    $i start
+    ;;
+  esac
 done
-

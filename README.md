@@ -126,6 +126,15 @@ WyzeCamV3の画面
   - Apple HomeKitのアクセサリーとして機能します
   - 登録の途中で認証されていないデバイスとでますが、そのまま登録してください。
 
+- RTMP(YouTube live)対応
+
+  - YouTube Liveへの配信を直接できます。
+
+- WebRTC対応(port:8555)
+
+  - WebRTC配信に対応します。（LAN内のみ）
+
+
 
 <br>
 
@@ -144,11 +153,11 @@ sshは物理的にSD-Cardへアクセスして公開鍵を書かないとlogin�
 
  atomcam_toolsは以下のATOMCamのVersionで動作確認しています。更新した場合機能が使えなくなることもあるのでご注意ください。
 
-ATOMCam Ver. 4.33.3.68, 4.33.3.73
+ATOMCam Ver.4.33.3.68, 4.33.3.73
 
-ATOMCam2 Ver. 4.58.0.100, 4.58.0.104, 4.58.0.108, 4.58.0.115, 4.58.0.120
+ATOMCam2 Ver.4.58.0.115, 4.58.0.120, 4.58.0.135
 
-ATOMSwing Ver. 4.37.1.106, 4.37.1.108, 4.37.1.117, 4.37.1.122, 4.37.1.142
+ATOMSwing Ver.4.37.1.117, 4.37.1.122, 4.37.1.142
 
 WyzeCamV3 Ver.4.36.9.139 （Experimental release)  4.36.10.xx以降のVer.では動作しません。
 

@@ -68,6 +68,34 @@ do
     echo "$cmd $params $res" >> /var/run/webres
     cmd=""
   fi
+  if [ "$cmd" = "flip" ]; then
+    res=`/scripts/cmd video flip ${params}`
+    awk '
+    /verSwitch/ {
+      if(params == "normal") {
+        printf("verSwitch=2\n");
+      } else {
+        printf("verSwitch=1\n");
+      }
+      next;
+    }
+    /horSwitch/ {
+      if(params == "normal") {
+        printf("horSwitch=2\n");
+      } else {
+        printf("horSwitch=1\n");
+      }
+      next;
+    }
+    {
+      print;
+    }
+    ' params="$params" /atom/configs/.user_config > /atom/configs/.user_config_new
+    mv -f /atom/configs/.user_config_new /atom/configs/.user_config
+    echo 3 > /proc/sys/vm/drop_caches
+    echo "$cmd $params $res" >> /var/run/webres
+    cmd=""
+  fi
   if [ "$cmd" = "rtspserver" ] && [ "$params" != "" ]; then
     /scripts/rtspserver.sh $params
     echo "$cmd $params OK" >> /var/run/webres

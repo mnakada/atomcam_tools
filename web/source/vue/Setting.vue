@@ -53,6 +53,7 @@
                 </ElButton>
               </ElButtonGroup>
               <ElButton class="center-mark" size="mini" type="primary" icon="el-icon-aim" @click="CenterMark" />
+              <ElButton class="video-flip" size="mini" type="primary" icon="el-icon-refresh" @click="VideoFlip" />
             </div>
           </div>
         </ElTabPane>
@@ -479,6 +480,7 @@
         moveDone: false,
         selectedTab: 0,
         centerMark: false,
+        videoFlip: false,
       };
     },
     computed: {
@@ -711,6 +713,12 @@
             this.timelapseInfo.abort = false;
           }
         }
+        if(this.intervalValue.CENTER) {
+          this.centerMark = this.intervalValue.CENTER === 'on';
+        }
+        if(this.intervalValue.FLIP) {
+          this.videoFlip = this.intervalValue.FLIP !== 'normal';
+        }
       }, 1000);
       this.StillImageInterval();
       this.CheckHomeKit();
@@ -721,9 +729,12 @@
         this.Submit();
       },
       CenterMark() {
-        this.centerMark = !this.centerMark;
-        const mode = this.centerMark ? 'on' : 'off';
+        const mode = this.centerMark ? 'off' : 'on';
         this.Exec(`center ${mode}`, 'socket');
+      },
+      VideoFlip() {
+        const mode = this.videoFlip ? 'normal' : 'flip_mirror';
+        this.Exec(`flip ${mode}`);
       },
       async CheckHomeKit() {
         if((this.oldConfig.HOMEKIT_ENABLE !== 'on') || (this.config.HOMEKIT_ENABLE !== 'on')) return;
@@ -1175,6 +1186,12 @@
   }
 
   .center-mark {
+    margin-left: 10px;
+    padding: 1px 10px;
+    font-size: 20px;
+  }
+
+  .video-flip {
     margin-left: 10px;
     padding: 1px 10px;
     font-size: 20px;

@@ -17,6 +17,14 @@ if [ "$REQUEST_METHOD" = "GET" ]; then
     echo TIMESTAMP=`date +"%Y/%m/%d %X"`
   fi
   if [ "$NAME" = "" -o "$NAME" = "status" ] ; then
+    res=`echo center | nc localhost:4000`
+    echo CENTER=$res
+  fi
+  if [ "$NAME" = "" -o "$NAME" = "status" ] ; then
+    res=`echo video flip | nc localhost:4000`
+    echo FLIP=$res
+  fi
+  if [ "$NAME" = "" -o "$NAME" = "status" ] ; then
     if [ -f /tmp/motor_initialize_done ] ; then
       res=`echo move | nc localhost:4000`
       [ "$res" = "error" ] || echo MOTORPOS=$res

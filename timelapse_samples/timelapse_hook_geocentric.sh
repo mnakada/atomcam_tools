@@ -12,7 +12,7 @@
 BEGIN {
 
   # Angle from the Polaris
-  tiltAngle = 30;
+  tiltAngle = 15;
 
   # Angles at Midnight 00:00-JST.
   # ex. timellapse range 18:00 - 06:00 -> 180 dgree at 00:00-JST.
@@ -45,18 +45,9 @@ BEGIN {
     if(pan < 0) pan = 0;
     if(pan > 355) pan = 355;
 
-    # Move the motor 10 degrees first, as it may not move if the movement is too small.
-    pan0 = pan - 10;
-    if(pan0 < 0) pan0 += 20;
-    cmd = sprintf("/scripts/cmd move %3.3f %d 1 1", pan0, 180 - tiltAngle);
-    for(i = 0; i < 3; i++) {
-      cmd | getline res;
-      print cmd >> "/tmp/log/timelapse_hook.log";
-      print res >> "/tmp/log/timelapse_hook.log";
-      if(res != "" && index(res, "error") == 0) break;
-    }
-
-    cmd = sprintf("/scripts/cmd move %3.3f %d 1 0", pan, 180 - tiltAngle);
+    # "/scripts/cmd move 0 0 9 1" | getline res;
+    "/scripts/cmd move 355 180 9 1" | getline res;
+    cmd = sprintf("/scripts/cmd move %3.3f %d 3 0", pan, 180 - tiltAngle);
     for(i = 0; i < 3; i++) {
       cmd | getline res;
       print cmd >> "/tmp/log/timelapse_hook.log";

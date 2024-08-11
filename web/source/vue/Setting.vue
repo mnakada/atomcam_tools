@@ -538,7 +538,7 @@
       },
     },
     async mounted() {
-      const res = await axios.get('./cgi-bin/hack_ini.cgi').catch(err => {
+      const res = await axios.get(`./cgi-bin/hack_ini.cgi?timestamp=${new Date().valueOf()}`).catch(err => {
         // eslint-disable-next-line no-console
         console.log('axios.get ./cgi-bin/hack_ini.cgi', err);
         return '';

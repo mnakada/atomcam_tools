@@ -155,9 +155,9 @@ sshは物理的にSD-Cardへアクセスして公開鍵を書かないとlogin�
 
 ATOMCam Ver.4.33.3.68, 4.33.3.73
 
-ATOMCam2 Ver.4.58.0.115, 4.58.0.120, 4.58.0.135
+ATOMCam2 Ver.4.58.0.115, 4.58.0.120, 4.58.0.135, 4.58.0.139
 
-ATOMSwing Ver.4.37.1.117, 4.37.1.122, 4.37.1.142
+ATOMSwing Ver.4.37.1.117, 4.37.1.122, 4.37.1.142, 4.37.1.152
 
 WyzeCamV3 Ver.4.36.9.139 （Experimental release)  4.36.10.xx以降のVer.では動作しません。
 
@@ -177,6 +177,8 @@ Qiitaに少し解説を書いています。
 [atomcam_toolsのtimelapseの負荷低減](https://qiita.com/mnakada/items/eddbf8b6f0095e279095)
 
 [atomcam_toolsのHomeKit, RTMP対応](https://qiita.com/mnakada/items/00747fdf048f18a787ff)
+
+[ATOMSwingのtimelapseで星座追尾](https://qiita.com/mnakada/items/e2337f7b73e3a9e1539c)
 
 <br>
 

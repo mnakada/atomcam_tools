@@ -778,11 +778,11 @@
           return d;
         }, {});
         this.property.valid = true;
+        // eslint-disable-next-line no-console
         console.log('cameraProperty', this.property);
       },
       async CameraSet(item) {
         if(!this.property.valid) return;
-        console.log('CameraSet ', item, this.property[item]);
         await this.Exec(`property ${item} ${this.property[item]}`, 'socket');
       },
       async CheckHomeKit() {
@@ -794,10 +794,10 @@
           console.log(`${localhost}:1984/api/homekit/pairing: ${err.message}`);
           return null;
         }))?.data;
-        // eslint-disable-next-line no-console
         if((this.homeKitSetupURI !== pairingInfo?.video0?.SetupURI) ||
            (this.homeKitSetupCode !== pairingInfo?.video0?.Pin) ||
            (this.homeKitPairing !== pairingInfo?.video0?.Status)) {
+          // eslint-disable-next-line no-console
           console.log('pairingInfo : ', pairingInfo);
         }
         if(pairingInfo?.video0) {

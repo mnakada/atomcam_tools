@@ -509,3 +509,70 @@ timeoutを指定しないと待ち続ける。
 ```
 
 AtomCamSwingでiCamera_appの動体検知の枠描画から追尾目標を計算して返す処理。
+
+
+
+### property.c
+
+##### commandIF
+
+```
+property
+property raw <item> <val>
+property nightVision [on|off|auto] 
+property nightCutThr [dark|darkness] 
+property IrLED [on|off] 
+property motionDet [on|off] 
+property motionLevel [low|mid|high] 
+property soundDet [on|off] 
+property soundLevel [low|mid|high] 
+property cautionDet [on|off] 
+property drawBoxSwitch [on|off] 
+property recordType [cont|motion] 
+property indicator [on|off] 
+property horSwitch [on|off] 
+property verSwitch [on|off] 
+property rotate [on|off] 
+property audioRec [on|off] 
+property timestamp [on|off] 
+property watermark [on|off] 
+```
+
+MobileAppのUIからの操作に相当するコマンド群。
+
+propertyはlist形式で現在値を出力
+
+property rawはitemとvalを直接値で指定（主にdebug用）
+
+property nightVisionはナイトビジョンのオン／オフ／自動の切り替え
+property nightCutThrはナイトビジョン自動の時の切り替えタイミング。暗い／非常に暗い
+property IrLEDはナイトビジョン用赤外線ライトのオン／オフ
+property motionDetはモーション検知のオン／オフ
+property motionLevel はモーション検知の感度調整。高／中／低
+property soundDetはサウンド検出のオン／オフ
+property soundLevelはサウンド検出の感度調整。高／中／低
+property cautionDetは火災／CO警報機音検知のオン／オフ
+property drawBoxSwitchはモーションタグのオン／オフ
+property recordTypeは録画モードの切り替え。モーション検知時のみ／連続録画
+property indicatorはステータスランプのオン／オフ
+property horSwitchは画像水平反転のオン／オフ
+property verSwitchは画像垂直反転のオン／オフ
+property rotateは画像水平垂直反転のオン／オフ
+property audioRecは録音のオン／オフ
+property timestampはタイムスタンプのオン／オフ
+property watermarkはロゴのオン／オフ
+
+property raw以外は引数無しの場合は現在値を返す。
+
+##### hook point
+
+Constructor set_property_initでiCamera_appの.rodataからp2p recv protocolの文字列を検索、.text内でそこを参照している箇所を探し出し、その関数を呼び出している関数の先頭アドレスを求めている。
+
+これを
+
+```
+void ProtocolSetProperty(char * buf1, char *req, char *res);
+```
+
+と定義して、req, resのjson文字列でアクセスしてAPIを呼び出している。
+

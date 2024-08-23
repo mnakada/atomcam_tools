@@ -1,6 +1,56 @@
 camera:
   tab: Camera image
 
+CameraSettings:
+  tab: Camera settings
+FeatureSettings:
+  title: Feature settings
+  nightVision:
+    title: Nighght Vision
+    tooltip: Black and white image for night vision when on, color image when off
+  nightCutThr:
+    title: Conditions
+    text:
+      -  Duck
+      -  Dark
+    tooltip: Level of night vision switching
+  IrLED:
+    title: IR light
+AlarmSettings:
+  title: Alarm settings
+  motionDet:
+    title: Motion alarm
+  Level:
+    title: sensitivity
+    label:
+      - High
+      - Mid
+      - Low
+  soundDet:
+    title: Sound alarm
+  cautionDet:
+    title: Fire/CO alarm detection
+  drawBoxSwitch:
+    title: Motion Tagging
+    tooltip: When motion detected, a green frame will be marked on the detect objects.
+  recordType:
+    title: Record mode
+    text:
+      - Motion alarm only
+      - Continuous
+OtherSettings:
+  title: Other
+  indicator:
+    title: Camera light
+  rotate:
+    title: Rotate Image 180°
+  audioRec:
+    title: Record sound
+  timestamp:
+    title: show Timestamp
+  watermark:
+    title: Show Logo
+
 SDCard:
   title: SD Card
 

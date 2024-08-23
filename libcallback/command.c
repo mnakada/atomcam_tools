@@ -28,6 +28,7 @@ extern char *AlarmInterval(int fd, char *tokenPtr);
 extern char *UserConfig(int fd, char *tokenPtr);
 extern char *AlarmConfig(int fd, char *tokenPtr);
 extern char *CenterMark(int fd, char *tokenPtr);
+extern char *Property(int fd, char *tokenPtr);
 
 char *CommandResBuf[256];
 int wyze = 0;
@@ -53,6 +54,7 @@ struct CommandTableSt CommandTable[] = {
   { "config",     &UserConfig },
   { "alarmConfig",&AlarmConfig },
   { "center",     &CenterMark },
+  { "property",   &Property },
 };
 
 void CommandResponse(int fd, const char *res) {

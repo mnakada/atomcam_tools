@@ -1,5 +1,5 @@
 <template>
-  <ElTooltip :tabindex="-1" placement="top" :content="($te(i18n + '.tooltip') ? $t(i18n + '.tooltip') : '') + tooltip" effect="light" :open-delay="500">
+  <ElTooltip :tabindex="-1" placement="top" :disabled="$te(i18n + '.tooltip') ? false : true" :content="($te(i18n + '.tooltip') ? $t(i18n + '.tooltip') : '') + tooltip" effect="light" :open-delay="500">
     <ElRow>
       <ElCol :offset="titleOffset" :span="9 - titleOffset">
         <h4 v-if="$te(i18n + '.title')" v-t="i18n+'.title'" />

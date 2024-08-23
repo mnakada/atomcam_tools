@@ -28,10 +28,10 @@
     </div>
 
     <div>
-      <ElTabs tabPosition="left" @tab-click="HandleTabsClick">
+      <ElTabs v-model="selectedTab" tabPosition="left" @tab-click="HandleTabsClick">
         <!-- Camera Tab -->
-        <ElTabPane class="well-transparent container-no-submit" :label="$t('camera.tab')">
-          <div class="image-frame">
+        <ElTabPane name="camera" class="well-transparent container-flex-no-submit" :label="$t('camera.tab')">
+          <div v-if="selectedTab === 'camera'" class="image-frame">
             <div class="image-frame-inner1">
               <ElSlider v-if="isSwing && posValid" class="tilt-slider" v-model="tilt" :min="0" :max="180" vertical :show-input-controls="false" height="100%" @change="Move" @input="Move" />
               <img class="still-image" :src="stillImage">
@@ -42,29 +42,59 @@
             <div v-if="!rebooting" class="image-frame-inner3">
               <i class="el-icon-moon ir-led" />
               <ElButtonGroup>
-                <ElButton size="mini" type="primary" @click="NightLight('on')">
+                <ElButton size="mini" type="primary" @click="NightVision('on')">
                   on
                 </ElButton>
-                <ElButton size="mini" type="primary" @click="NightLight('auto')">
+                <ElButton size="mini" type="primary" @click="NightVision('auto')">
                   auto
                 </ElButton>
-                <ElButton size="mini" type="primary" @click="NightLight('off')">
+                <ElButton size="mini" type="primary" @click="NightVision('off')">
                   off
                 </ElButton>
               </ElButtonGroup>
               <ElButton class="center-mark" size="mini" type="primary" icon="el-icon-aim" @click="CenterMark" />
-              <ElButton class="video-flip" size="mini" type="primary" icon="el-icon-refresh" @click="VideoFlip" />
+              <ElButton v-if="distributor !== 'ATOM'" class="video-flip" size="mini" type="primary" icon="el-icon-refresh" @click="VideoFlip" />
+            </div>
+          </div>
+        </ElTabPane>
+
+        <!-- Camera Settings Tab -->
+
+        <ElTabPane name="CameraSettings" v-if="distributor === 'ATOM'" class="well-transparent container-no-submit" :label="$t('CameraSettings.tab')">
+          <h3 v-t="'FeatureSettings.title'" />
+          <SettingSelect i18n="FeatureSettings.nightVision" v-model="property.nightVision" :label="['on', 'auto', 'off']" @input="CameraSet('nightVision')" />
+          <SettingSwitch v-if="property.nightVision==='auto'" i18n="FeatureSettings.nightCutThr" :titleOffset="2" v-model="property.nightCutThr" :label="['dusk', 'dark']" @input="CameraSet('nightCutThr')" />
+          <SettingSwitch v-if="property.nightVision==='on' || property.nightVision==='auto'" i18n="FeatureSettings.IrLED" :titleOffset="2" v-model="property.IrLED" @input="CameraSet('IrLED')" />
+          <h3 v-t="'AlarmSettings.title'" />
+          <SettingSwitch i18n="AlarmSettings.motionDet" v-model="property.motionDet" @input="CameraSet('motionDet')" />
+          <SettingSelect v-if="property.motionDet=='on'" i18n="AlarmSettings.Level" :titleOffset="2" v-model="property.motionLevel" :label="['high', 'mid', 'low']" @input="CameraSet('motionLevel')" />
+          <SettingSwitch i18n="AlarmSettings.soundDet" v-model="property.soundDet" @input="CameraSet('soundDet')" />
+          <SettingSelect v-if="property.soundDet=='on'" i18n="AlarmSettings.Level" :titleOffset="2" v-model="property.soundLevel" :label="['high', 'mid', 'low']" @input="CameraSet('soundLevel')" />
+          <SettingSwitch i18n="AlarmSettings.cautionDet" v-model="property.cautionDet" @input="CameraSet('cautionDet')" />
+          <SettingSwitch i18n="AlarmSettings.drawBoxSwitch" v-model="property.drawBoxSwitch" @input="CameraSet('drawBoxSwitch')" />
+          <SettingSwitch i18n="AlarmSettings.recordType" v-model="property.recordType" :label="['motion', 'cont']" @input="CameraSet('recordType')" />
+          <h3 v-t="'OtherSettings.title'" />
+          <SettingSwitch i18n="OtherSettings.indicator" v-model="property.indicator" @input="CameraSet('indicator')" />
+          <SettingSwitch i18n="OtherSettings.rotate" v-model="property.rotate" @input="CameraSet('rotate')" />
+          <SettingSwitch i18n="OtherSettings.audioRec" v-model="property.audioRec" @input="CameraSet('audioRec')" />
+          <SettingSwitch i18n="OtherSettings.timestamp" v-model="property.timestamp" @input="CameraSet('timestamp')" />
+          <SettingSwitch i18n="OtherSettings.watermark" v-model="property.watermark" @input="CameraSet('watermark')" />
+          <div v-if="selectedTab === 'CameraSettings'">
+            <div class="image-frame image-frame-camera-settings">
+              <div class="image-frame-inner1">
+                <img class="still-image" :src="stillImage">
+              </div>
             </div>
           </div>
         </ElTabPane>
 
         <!-- SD-Card Tab -->
-        <ElTabPane class="well-transparent container-no-submit" :label="$t('SDCard.tab')">
+        <ElTabPane name="SDCard" class="well-transparent container-flex-no-submit" :label="$t('SDCard.tab')">
           <iframe ref="sdcardFrame" class="sdcard-frame" src="/sdcard" />
         </ElTabPane>
 
         <!-- Record Setting Tab -->
-        <ElTabPane class="well-transparent container" :label="$t('record.tab')">
+        <ElTabPane name="record" class="well-transparent container" :label="$t('record.tab')">
           <h3 v-t="'record.periodicRec.title'" />
           <SettingSwitch i18n="record.SDCard" v-model="config.PERIODICREC_SDCARD" />
           <div v-if="config.PERIODICREC_SDCARD === 'on'">
@@ -106,7 +136,7 @@
         </ElTabPane>
 
         <!-- Timelapse Tab -->
-        <ElTabPane class="well-transparent container" :label="$t('timelapse.tab')">
+        <ElTabPane name="timelapse" class="well-transparent container" :label="$t('timelapse.tab')">
           <h3 v-t="'timelapse.title'" />
           <SettingSwitch i18n="record.SDCard" v-model="config.TIMELAPSE_SDCARD" />
           <div v-if="config.TIMELAPSE_SDCARD === 'on'">
@@ -132,7 +162,7 @@
         </ElTabPane>
 
         <!-- Media Setting Tab -->
-        <ElTabPane class="well-transparent container" :label="$t('media.tab')">
+        <ElTabPane name="media" class="well-transparent container" :label="$t('media.tab')">
           <h3 v-t="'SDCardSettings.title'" />
           <SettingSwitch i18n="SDCardSettings.smbAccess" v-model="config.STORAGE_SDCARD_PUBLISH" />
           <SettingSwitch i18n="SDCardSettings.directWrite" v-model="config.STORAGE_SDCARD_DIRECT_WRITE" />
@@ -145,7 +175,7 @@
         </ElTabPane>
 
         <!-- Streaming Setting Tab -->
-        <ElTabPane class="well-transparent container" :label="$t('RTSP.tab')">
+        <ElTabPane name="streaming" class="well-transparent container" :label="$t('RTSP.tab')">
           <h3 v-t="'RTSP.title'" />
           <SettingSwitch i18n="RTSP.main" v-model="config.RTSP_VIDEO0" />
           <SettingSelect v-if="config.RTSP_VIDEO0 === 'on'" i18n="RTSP.main.audio" :titleOffset="2" v-model="config.RTSP_AUDIO0" :label="['off', 'S16_BE', 'AAC', 'OPUS']" />
@@ -207,7 +237,7 @@
         </ElTabPane>
 
         <!-- Event Webhook Tab -->
-        <ElTabPane class="well-transparent container" :label="$t('event.tab')">
+        <ElTabPane name="event" class="well-transparent container" :label="$t('event.tab')">
           <h3 v-t="'event.webhook.title'" />
           <SettingInput i18n="event.webhook.URL" :span="10" type="text" v-model="config.WEBHOOK_URL" />
           <SettingSwitch i18n="event.webhook.insecure" :titleOffset="2" v-model="config.WEBHOOK_INSECURE" />
@@ -224,12 +254,12 @@
         </ElTabPane>
 
         <!-- Cruise Setting Tab -->
-        <ElTabPane v-if="isSwing && posValid" class="well-transparent container" :label="$t('cruise.tab')">
+        <ElTabPane v-if="isSwing && posValid" name="cruise" class="well-transparent container" :label="$t('cruise.tab')">
           <h3 v-t="'cruise.title'" />
           <SettingButton i18n="cruise.initialPosition" :span="4" @click="MoveInit" />
           <div @click="ClearCruiseSelect">
             <SettingSwitch i18n="cruise.cameraMotion" v-model="config.CRUISE" @change="(config.CRUISE === 'on') && !cruiseList.length && AddCruise()" @click.native.stop />
-            <div v-if="config.CRUISE === 'on'">
+            <div v-if="(selectedTab === 'cruise') && (config.CRUISE === 'on')">
               <div class="image-frame image-frame-cruise">
                 <div class="image-frame-inner1">
                   <ElSlider class="tilt-slider" v-model="tilt" :min="0" :max="180" vertical :show-input-controls="false" height="100%" @change="Move" @input="Move" />
@@ -246,7 +276,7 @@
         </ElTabPane>
 
         <!-- System Setting Tab -->
-        <ElTabPane class="well-transparent container" :label="$t('systemSettings.tab')">
+        <ElTabPane name="systemSettings" class="well-transparent container" :label="$t('systemSettings.tab')">
           <h3 v-t="'deviceSettings.title'" />
           <SettingInput i18n="deviceSettings.deviceName" type="text" v-model="config.HOSTNAME" />
           <SettingSwitch i18n="deviceSettings.loginAuthentication" v-model="loginAuth" />
@@ -265,7 +295,7 @@
         </ElTabPane>
 
         <!-- Maintenance Tab -->
-        <ElTabPane class="well-transparent container" :label="$t('maintenance.tab')">
+        <ElTabPane name="maintenance" class="well-transparent container" :label="$t('maintenance.tab')">
           <h3 v-t="'monitoring.title'" />
           <SettingSwitch i18n="monitoring.network" v-model="config.MONITORING_NETWORK" />
           <SettingSwitch v-if="config.MONITORING_NETWORK === 'on'" i18n="monitoring.reboot" v-model="config.MONITORING_REBOOT" :titleOffset="2" />
@@ -289,7 +319,7 @@
       </ElTabs>
     </div>
 
-    <div v-if="selectedTab >= 2" class="submit">
+    <div v-if="selectedTabIndex >= 3" class="submit">
       <ElButton @click="Submit" type="primary" v-t="'submit'" />
     </div>
     <ElDrawer :title="$t('updating.title')" :visible.sync="executing" direction="btt" :show-close="false" :wrapperClosable="false">
@@ -437,6 +467,7 @@
           BITRATE_SUB_HEVC: -180,  // ch1 H265 360p MobileApp,    RTSP HEVC Sub
           BITRATE_MAIN_HEVC: -800, // ch3 H265 HD   MobileApp,    RTSP HEVC Main
         },
+        property: {},
         loginAuth: 'off',
         loginAuth2: 'off',
         relm: 'atomcam',
@@ -478,7 +509,8 @@
         tilt: 0,
         posValid: false,
         moveDone: false,
-        selectedTab: 0,
+        selectedTab: 'camera',
+        selectedTabIndex: 0,
         centerMark: false,
         videoFlip: false,
       };
@@ -650,6 +682,8 @@
         return array;
       }, []);
 
+      this.GetCameraProperty();
+
       const status = (await axios.get('./cgi-bin/cmd.cgi').catch(err => {
         // eslint-disable-next-line no-console
         console.log('axios.get ./cgi-bin/cmd.cgi', err);
@@ -736,6 +770,21 @@
         const mode = this.videoFlip ? 'normal' : 'flip_mirror';
         this.Exec(`flip ${mode}`);
       },
+      async GetCameraProperty() {
+        const property = ((await this.Exec('property', 'socket')).data ?? '').split(/[\n\x00]/);
+        if(!property.length) return;
+        this.property = property.reduce((d, s) => {
+          if(s.length && (s !== 'ok')) d[s.replace(/ *=.*$/, '')] = s.replace(/^.*= */, '');
+          return d;
+        }, {});
+        this.property.valid = true;
+        console.log('cameraProperty', this.property);
+      },
+      async CameraSet(item) {
+        if(!this.property.valid) return;
+        console.log('CameraSet ', item, this.property[item]);
+        await this.Exec(`property ${item} ${this.property[item]}`, 'socket');
+      },
       async CheckHomeKit() {
         if((this.oldConfig.HOMEKIT_ENABLE !== 'on') || (this.config.HOMEKIT_ENABLE !== 'on')) return;
 
@@ -746,14 +795,17 @@
           return null;
         }))?.data;
         // eslint-disable-next-line no-console
-        console.log('pairingInfo : ', pairingInfo);
-
+        if((this.homeKitSetupURI !== pairingInfo?.video0?.SetupURI) ||
+           (this.homeKitSetupCode !== pairingInfo?.video0?.Pin) ||
+           (this.homeKitPairing !== pairingInfo?.video0?.Status)) {
+          console.log('pairingInfo : ', pairingInfo);
+        }
         if(pairingInfo?.video0) {
-          this.homeKitPairing = pairingInfo.video0.Status ?? '';
-          if((pairingInfo.video0.SetupURI ?? '').indexOf('X-HM://') === 0) {
+          this.homeKitPairing = pairingInfo?.video0?.Status ?? '';
+          if((pairingInfo?.video0?.SetupURI ?? '').indexOf('X-HM://') === 0) {
             if(this.homeKitSetupURI === '') this.KickHomeKit();
-            this.homeKitSetupURI =  pairingInfo.video0.SetupURI;
-            this.homeKitSetupCode = pairingInfo.video0.Pin;
+            this.homeKitSetupURI = pairingInfo?.video0?.SetupURI;
+            this.homeKitSetupCode = pairingInfo?.video0?.Pin;
           }
         }
         if(this.homeKitPairing === '' || this.homeKitSetupURI === '') {
@@ -784,7 +836,8 @@
         });
       },
       HandleTabsClick(tab) {
-        this.selectedTab = parseInt(tab.index);
+        this.selectedTabIndex = parseInt(tab.index);
+        if(this.selectedTab === "CameraSettings") this.GetCameraProperty();
       },
       async Move() {
         if(!this.posValid || !this.moveDone) return;
@@ -796,8 +849,12 @@
           this.Exec('posrec');
         }, 3000);
       },
-      NightLight(mode) {
-        this.Exec(`night ${mode}`, 'socket');
+      NightVision(mode) {
+        if(this.distributor !== 'ATOM') {
+          this.Exec(`property nightVision ${mode}`, 'socket');
+        } else {
+          this.Exec(`night ${mode}`, 'socket');
+        }
       },
       async TimelapseAbort() {
         this.timelapseInfo.abort = true;
@@ -1140,6 +1197,14 @@
   .container-no-submit {
     height: calc(100vh - 85px);
     height: calc(100dvh - 85px);
+    margin: 10px 20px 5px 20px;
+    overflow-x: hidden;
+    overflow-y: scroll;
+  }
+
+  .container-flex-no-submit {
+    height: calc(100vh - 85px);
+    height: calc(100dvh - 85px);
     margin: 5px;
     padding: 5px;
     display: flex;
@@ -1153,6 +1218,15 @@
     width: calc(min(100%, (100vh - 140px) * 1920 / 1080));
     width: calc(min(100%, (100dvh - 140px) * 1920 / 1080));
     padding-bottom: 100%;
+  }
+
+  .image-frame-camera-settings {
+    width: calc((100vw - 400px) * 0.55 );
+    width: calc((100dvw - 400px) * 0.55 );
+    position:fixed;
+    right: 30px;
+    top: 100px;
+    padding: 0;
   }
 
   .image-frame-cruise {
@@ -1195,6 +1269,12 @@
     margin-left: 10px;
     padding: 1px 10px;
     font-size: 20px;
+  }
+
+  .camera-gear {
+    margin-left: 10px;
+    padding: 1px 9px;
+    font-size: 22px;
   }
 
   .still-image {

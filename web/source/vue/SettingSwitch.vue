@@ -1,5 +1,5 @@
 <template>
-  <ElTooltip :tabindex="-1" placement="top" :content="($te(i18n + '.tooltip') ? $t(i18n + '.tooltip') : '') + tooltip" effect="light" :open-delay="500">
+  <ElTooltip :tabindex="-1" placement="top" :disabled="$te(i18n + '.tooltip') ? false : true" :content="($te(i18n + '.tooltip') ? $t(i18n + '.tooltip') : '') + tooltip" effect="light" :open-delay="500">
     <ElRow>
       <ElCol :offset="titleOffset" :span="9 - titleOffset">
         <h4 v-if="$te(i18n + '.title')" v-t="i18n+'.title'" />
@@ -8,7 +8,7 @@
         </h4>
       </ElCol>
       <ElCol :span="textLabel?8:4">
-        <ElSwitch :value="value" @input="$emit('input', $event)" @change="$emit('change', $event)" :active-value="onOff ? 'on' : true" :inactive-value="onOff ? 'off' : false" :active-color="textLabel?'#13ce66':'#409eff'" :active-text="textLabel && textLabel[0]" :inactive-color="textLabel?'#409eff':'#c0ccda'" :inactive-text="textLabel && textLabel[1]" :disabled="disabled" :key="i18n + title" />
+        <ElSwitch :value="value" @input="$emit('input', $event)" @change="$emit('change', $event)" :active-value="onOff ? label[1] : true" :inactive-value="onOff ? label[0] : false" :active-color="textLabel?'#13ce66':'#409eff'" :active-text="textLabel && textLabel[1]" :inactive-color="textLabel?'#409eff':'#c0ccda'" :inactive-text="textLabel && textLabel[0]" :disabled="disabled" :key="i18n + title" />
       </ElCol>
       <ElCol v-if="commentValid" :span="textLabel?7:11">
         <span v-t="i18n + '.comment'">
@@ -53,6 +53,12 @@
       onOff: {
         type: Boolean,
         default: true,
+      },
+      label: {
+        type: Array,
+        default() {
+          return ['off', 'on'];
+        },
       },
       text: {
         type: Array,

@@ -1,6 +1,56 @@
 camera:
   tab: カメラ画像
 
+CameraSettings:
+  tab: カメラ設定
+FeatureSettings:
+  title: 機能設定
+  nightVision:
+    title: ナイトビジョン
+    tooltip: onにすると暗視の白黒画像、offにするとカラー画像、autoは自動切り替え
+  nightCutThr:
+    title: 切り替えタイミング
+    text:
+      -  暗い
+      -  非常に暗い
+    tooltip: ナイトビジョンの切り替えのレベル
+  IrLED:
+    title: 赤外線ライト
+AlarmSettings:
+  title: 検出設定
+  motionDet:
+    title: モーション検知
+  Level:
+    title: 感度調整
+    label:
+      - 高
+      - 中
+      - 低
+  soundDet:
+    title: サウンド検出
+  cautionDet:
+    title: 火災／CO警報機音検知
+  drawBoxSwitch:
+    title: モーションタグ
+    tooltip: モーション検知時に緑色の枠を表示します
+  recordType:
+    title: 録画モード
+    text:
+      - モーション検知時のみ
+      - 連続録画
+OtherSettings:
+  title: その他
+  indicator:
+    title: ステータスランプ
+  rotate:
+    title: 画像180度反転
+  audioRec:
+    title: 録音
+  timestamp:
+    title: タイムスタンプ
+  watermark:
+    title: ロゴ
+
 SDCard:
   tab: SD Card
 
@@ -39,8 +89,8 @@ record:
     title: 録画スケジュール
     tooltip: SD-Card/NASに録画される時間帯を設定します
     text:
-      - スケジュール
       - 常時録画
+      - スケジュール
 
 timelapse:
   tab: タイムラプス設定

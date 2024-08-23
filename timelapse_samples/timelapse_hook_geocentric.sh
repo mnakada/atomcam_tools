@@ -25,7 +25,7 @@ BEGIN {
 
   # Allows time-lapse videos of cloud movement to be taken during the day.
   daytimePanAngle = 0;
-  daytimeTiltAngle = 0;
+  daytimeTiltAngle = 10;
 
   # The following remain unchanged.
   secondsOfsiderealDay = 365.2422 / 366.2422 * 24 * 60 * 60;
@@ -35,6 +35,13 @@ BEGIN {
 
   if(((JST % 86400) >= 8 * 60 * 60) && ((JST % 86400) < 18 * 60 * 60)) {
     cmd = sprintf("/scripts/cmd move %3.3f %d 1 0", daytimePanAngle, 180 - daytimeTiltAngle);
+    if((ARGC >=2) && (ARGV[2] == "start")) {
+      cmd | getline res;
+      sleep 3;
+      print "start: " >> "/tmp/log/timelapse_hook.log";
+      print cmd >> "/tmp/log/timelapse_hook.log";
+      print res >> "/tmp/log/timelapse_hook.log";
+    }
     cmd | getline res;
     print cmd >> "/tmp/log/timelapse_hook.log";
     print res >> "/tmp/log/timelapse_hook.log";
@@ -48,6 +55,13 @@ BEGIN {
     # "/scripts/cmd move 0 0 9 1" | getline res;
     "/scripts/cmd move 355 180 9 1" | getline res;
     cmd = sprintf("/scripts/cmd move %3.3f %d 3 0", pan, 180 - tiltAngle);
+    if((ARGC >=2) && (ARGV[2] == "start")) {
+      cmd | getline res;
+      sleep 3;
+      print "start: " >> "/tmp/log/timelapse_hook.log";
+      print cmd >> "/tmp/log/timelapse_hook.log";
+      print res >> "/tmp/log/timelapse_hook.log";
+    }
     for(i = 0; i < 3; i++) {
       cmd | getline res;
       print cmd >> "/tmp/log/timelapse_hook.log";

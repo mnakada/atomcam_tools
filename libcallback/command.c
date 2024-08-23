@@ -29,6 +29,7 @@ extern char *UserConfig(int fd, char *tokenPtr);
 extern char *AlarmConfig(int fd, char *tokenPtr);
 extern char *CenterMark(int fd, char *tokenPtr);
 extern char *Property(int fd, char *tokenPtr);
+//extern char *MemoryAccess(int fd, char *tokenPtr);
 
 char *CommandResBuf[256];
 int wyze = 0;
@@ -55,6 +56,7 @@ struct CommandTableSt CommandTable[] = {
   { "alarmConfig",&AlarmConfig },
   { "center",     &CenterMark },
   { "property",   &Property },
+//  { "mem",        &MemoryAccess },
 };
 
 void CommandResponse(int fd, const char *res) {
@@ -202,7 +204,7 @@ void Dump(const char *str, void *start, int size) {
   for(int i = 0; i < size; i+= 16) {
     char buf1[256];
     char buf2[256];
-    sprintf(buf1, "%08x : ", (unsigned int)i);
+    sprintf(buf1, "%08x : ", (unsigned int)(start + i));
     for(int j = 0; j < 16; j++) {
       if(i + j >= size) break;
       unsigned char d = ((unsigned char *)start)[i + j];

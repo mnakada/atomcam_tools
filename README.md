@@ -138,6 +138,12 @@ WyzeCamV3の画面
 
   - GUIが複雑になるものは対応していません。
 
+- watermarkの置き換え対応
+
+  - 左下のwatermark(ロゴ)の置き換えに対応しました。
+  - フォーマットは後述
+
+
 
 
 <br>
@@ -309,6 +315,20 @@ onにすると暗視の白黒画像、offにするとカラー画像、autoに�
 ##### - ロゴ
 
 画面左側のwatermark(ロゴ)の表示を設定します。
+
+このロゴはSD-Cardに下記のファイルを置くことで置き換えることができます。
+
+```
+filename: watermark.bgra
+先頭8byteにLittleEndian 32bit intでロゴのY size, X size
+それ以降はBGRA32bit/pixelのフォーマットでbitmapを配置
+最大 width:500px, height: 80px（wyzecamの場合は60px)
+```
+
+defaultは　atomcam_tools　の文字がロゴの代わりに表示されます。
+
+元々のATOMのロゴに戻すにはSD-Cardに空のwatermark.brga ファイルを置いてください。
+
 <br>
 
 ### SD Card

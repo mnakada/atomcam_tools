@@ -244,6 +244,8 @@ AtomCam / WyzeCamV3の場合はスライダーは表示されません。
 
 ### カメラ設定（ATOMCam/ATOMSwingのみ）
 
+<kbd><img src="https://github.com/mnakada/atomcam_tools/blob/images/CameraSettings.jpg" /></kbd>
+
 ATOMアプリのカメラの設定項目の機能をWebからも設定できるようにしました。
 
 このページの設定はATOMアプリ同様に切り替えたタイミングでカメラに反映されるため、右下の設定ボタンはありません。

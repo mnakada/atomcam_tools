@@ -354,6 +354,11 @@ videoSpec:
   bitrateSub:
     title: Sub bitrate
     tooltip: Set the bitrate of Sub 360p/320p. (100-500bps)
+watermark:
+    title: Logo
+    image:
+      title: PNG image
+      comment: Create within 500px x 80px. After Submit, it will be activated after reboot.
 
 maintenance:
   tab: Maintenance

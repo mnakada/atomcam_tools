@@ -354,6 +354,11 @@ videoSpec:
   bitrateSub:
     title: Subの帯域
     tooltip: Sub360p/320pのビットレート(100-500bps)を設定します
+watermark:
+    title: ロゴ
+    image:
+      title: PNGイメージ
+      comment: 500px x 80px以内で作成してdropしてください。設定後再起動で有効になります。
 
 maintenance:
   tab: メンテナンス

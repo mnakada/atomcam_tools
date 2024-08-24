@@ -292,6 +292,12 @@
           <SettingInputNumber i18n="videoSpec.bitrateMain" :withSwitch="true" :span="3" v-model="config.BITRATE_MAIN_AVC" :min="300" :max="2000" />
           <SettingInputNumber v-if="distributor === 'ATOM'" i18n="videoSpec.bitrateMainHEVC" :withSwitch="true" :span="3" v-model="config.BITRATE_MAIN_HEVC" :min="300" :max="2000" />
           <SettingInputNumber i18n="videoSpec.bitrateSub" :withSwitch="true" :span="3" v-model="config.BITRATE_SUB_HEVC" :min="100" :max="500" />
+          <h3 v-t="'watermark.title'" />
+          <SettingComment i18n="watermark.image">
+            <div class="drop-area" :class="[{'is-drag': isDrag }]" @dragover.prevent="isDrag=true" @dragleave.prevent="isDrag=false" @drop.prevent="UploadPNG">
+              <canvas id="canvas" />
+            </div>
+          </SettingComment>
         </ElTabPane>
 
         <!-- Maintenance Tab -->
@@ -513,6 +519,8 @@
         selectedTabIndex: 0,
         centerMark: false,
         videoFlip: false,
+        isDrag: false,
+        watermarkUploaded: false,
       };
     },
     computed: {
@@ -683,6 +691,33 @@
       }, []);
 
       this.GetCameraProperty();
+
+      const data = (await axios.get('./cgi-bin/watermark.cgi', { responseType: 'arraybuffer' }).catch(err => {
+        // eslint-disable-next-line no-console
+        console.log('axios.get ./cgi-bin/watermark.cgi', err);
+        return null;
+      }))?.data;
+      if(data && data.byteLength > 8) {
+        const bgra = new Uint8Array(data);
+        const height = bgra[0] | (bgra[1] << 8);
+        const width = bgra[4] | (bgra[5] << 8);
+        if(bgra.byteLength === 8 + width * height * 4) {
+          const canvas = document.getElementById("canvas");
+          canvas.width = width;
+          canvas.height = height;
+          canvas.style.width = `${width}px`;
+          canvas.style.height = `${height}px`;
+          const ctx = canvas.getContext('2d');
+          const img = ctx.createImageData(width, height);
+          for(let i = 0; i < width * height; i++) {
+            img.data[i * 4 + 0] = bgra[8 + i * 4 + 2];
+            img.data[i * 4 + 1] = bgra[8 + i * 4 + 1];
+            img.data[i * 4 + 2] = bgra[8 + i * 4 + 0];
+            img.data[i * 4 + 3] = bgra[8 + i * 4 + 3];
+          }
+          ctx.putImageData(img, 0, 0);
+        }
+      }
 
       const status = (await axios.get('./cgi-bin/cmd.cgi').catch(err => {
         // eslint-disable-next-line no-console
@@ -947,6 +982,28 @@
         this.rebootStart = new Date();
         this.rebootStart.setSeconds(this.rebootStart.getSeconds() + 30);
       },
+      UploadPNG(ev) {
+        this.isDrag = false;
+        const file = ev?.dataTransfer?.files?.[0];
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onloadend = async () => {
+          if(file.name.slice(-4) !== '.png') return;
+          const img = new Image();
+          img.src = reader.result;
+          await img.decode();
+          const width = img.naturalWidth;
+          const height = img.naturalHeight;
+          const canvas = document.getElementById("canvas");
+          canvas.width = width;
+          canvas.height = height;
+          canvas.style.width = `${width}px`;
+          canvas.style.height = `${height}px`;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          this.watermarkUploaded = true;
+        };
+      },
       async Submit() {
         if((this.loginAuth === 'on') && this.account.length) {
           if(this.password.length) {
@@ -1018,6 +1075,34 @@
         });
         // eslint-disable-next-line no-console
         console.log('config', this.config);
+
+        if(this.watermarkUploaded) {
+          const canvas = document.getElementById("canvas");
+          const width = canvas.width;
+          const height = canvas.height;
+          const ctx = canvas.getContext('2d');
+          const imageData = ctx.getImageData(0, 0, width, height).data;
+          const bgra = new Uint8Array(8 + width * height * 4);
+          bgra[0] = height & 0xff;
+          bgra[1] = (height >> 8) & 0xff;
+          bgra[2] = 0;
+          bgra[3] = 0;
+          bgra[4] = width & 0xff;
+          bgra[5] = (width >> 8) & 0xff;
+          bgra[6] = 0;
+          bgra[7] = 0;
+          for(let i = 0; i < width * height; i++) {
+            bgra[8 + i * 4 + 0] = imageData[i * 4 + 2];
+            bgra[8 + i * 4 + 1] = imageData[i * 4 + 1];
+            bgra[8 + i * 4 + 2] = imageData[i * 4 + 0];
+            bgra[8 + i * 4 + 3] = imageData[i * 4 + 3];
+          }
+          await axios.post('./cgi-bin/watermark.cgi', bgra).catch(err => {
+            // eslint-disable-next-line no-console
+            console.log('axios.post ./cgi-bin/watermark.cgi', err);
+          });
+          this.watermarkUploaded = false;
+        }
 
         const execCmds = [];
         let href = null;
@@ -1271,12 +1356,6 @@
     font-size: 20px;
   }
 
-  .camera-gear {
-    margin-left: 10px;
-    padding: 1px 9px;
-    font-size: 22px;
-  }
-
   .still-image {
     width: calc(100% - 38px);
     object-fit: contain;
@@ -1355,4 +1434,31 @@
   .cruise-padding {
     padding-bottom: 150px;
   }
+
+  .drop-area {
+    background-color: #ffffff;
+    padding: 5px;
+    margin: 10px 0px;
+    border: 1px solid #e3e3e3;
+    border-radius: 5px;
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.05);
+    width: 500px;
+    height: 80px;
+  }
+
+  canvas {
+    width: 500px;
+    height: 80px;
+    border: solid 1px #999;
+     background-image: linear-gradient(45deg, #ccc 25%, transparent 25%, transparent 75%, #ccc 75%),
+        linear-gradient(45deg, #ccc 25%, transparent 25%, transparent 75%, #ccc 75%);
+    background-position: 0 0, 3px 3px;
+    background-size: 6px 6px;
+    background-color: #999;
+ }
+
+  .is-drag {
+    background-color: #f0f0f0;
+  }
+
 </style>

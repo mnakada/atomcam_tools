@@ -18,7 +18,7 @@ static void __attribute ((constructor)) watermark_init(void) {
 
   real_local_sdk_video_osd_set_logo_bitmap = dlsym(dlopen("/system/lib/liblocalsdk.so", RTLD_LAZY), "local_sdk_video_osd_set_logo_bitmap");
 
-  FILE *fp = fopen("/tmp/watermark.bgra", "r");
+  FILE *fp = fopen("/media/mmc/watermark.bgra", "r");
   if(!fp) return;
 
   int err = 0;

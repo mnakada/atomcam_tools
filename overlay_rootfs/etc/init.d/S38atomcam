@@ -45,12 +45,10 @@ case "$1" in
     PRODUCT_CONFIG=/atom/configs/.product_config
     export PRODUCT_MODEL=$(awk -F "=" '/^PRODUCT_MODEL *=/ {print $2}' $PRODUCT_CONFIG)
     if [ "WYZE_CAKP2JFUS" = "$PRODUCT_MODEL" ] ; then
-      cp /etc/watermark_wyze.bgra /tmp/watermark.bgra
-      [ -f /media/mmc/watermark.bgra ] && cp /media/mmc/watermark.bgra /tmp
+      [ -f /media/mmc/watermark.bgra ] || cp /etc/watermark_wyze.bgra /media/mmc/watermark.bgra
       chroot /atom /tmp/system/bin/wyze_init.sh
     else
-      cp /etc/watermark_atom.bgra /tmp/watermark.bgra
-      [ -f /media/mmc/watermark.bgra ] && cp /media/mmc/watermark.bgra /tmp
+      [ -f /media/mmc/watermark.bgra ] || cp /etc/watermark_atom.bgra /media/mmc/watermark.bgra
       chroot /atom /tmp/system/bin/atom_init.sh
     fi
     [ -f /media/mmc/atom-debug ] && exit 0

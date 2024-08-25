@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 46;
+	objectVersion = 70;
 	objects = {
 
 /* Begin PBXFileReference section */
@@ -27,6 +27,10 @@
 		15F0A889282B79A400E95C1D /* custompackages */ = {isa = PBXFileReference; lastKnownFileType = folder; path = custompackages; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		1518F6222C7B20100011497D /* images */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = images; sourceTree = "<group>"; };
+/* End PBXFileSystemSynchronizedRootGroup section */
+
 /* Begin PBXGroup section */
 		158D68711B79C58E002B30E3 = {
 			isa = PBXGroup;
@@ -43,6 +47,7 @@
 				15B1B2D62765CEB60034BDCF /* libcallback */,
 				15E64E40282CFBFA0030FCCD /* initramfs_skeleton */,
 				15E64E3F282CFBE90030FCCD /* overlay_rootfs */,
+				1518F6222C7B20100011497D /* images */,
 				15B1B2D22765CEB60034BDCF /* patches */,
 				15F0A889282B79A400E95C1D /* custompackages */,
 				15B1B2D52765CEB60034BDCF /* web */,

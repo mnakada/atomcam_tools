@@ -994,6 +994,7 @@
           await img.decode();
           const width = img.naturalWidth;
           const height = img.naturalHeight;
+          if((width > 500) || (height > 80)) return;
           const canvas = document.getElementById("canvas");
           canvas.width = width;
           canvas.height = height;

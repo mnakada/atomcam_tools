@@ -36,8 +36,9 @@ AlarmSettings:
   recordType:
     title: Record mode
     text:
-      - Motion alarm only
       - Continuous
+      - Motion
+      - Off
 OtherSettings:
   title: Other
   indicator:

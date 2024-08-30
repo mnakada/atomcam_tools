@@ -36,8 +36,9 @@ AlarmSettings:
   recordType:
     title: 録画モード
     text:
-      - モーション検知時のみ
-      - 連続録画
+      - 連続
+      - 検知時
+      - オフ
 OtherSettings:
   title: その他
   indicator:

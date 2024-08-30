@@ -72,7 +72,7 @@
           <SettingSelect v-if="property.soundDet=='on'" i18n="AlarmSettings.Level" :titleOffset="2" v-model="property.soundLevel" :label="['high', 'mid', 'low']" @input="CameraSet('soundLevel')" />
           <SettingSwitch i18n="AlarmSettings.cautionDet" v-model="property.cautionDet" @input="CameraSet('cautionDet')" />
           <SettingSwitch i18n="AlarmSettings.drawBoxSwitch" v-model="property.drawBoxSwitch" @input="CameraSet('drawBoxSwitch')" />
-          <SettingSwitch i18n="AlarmSettings.recordType" v-model="property.recordType" :label="['motion', 'cont']" @input="CameraSet('recordType')" />
+          <SettingSelect i18n="AlarmSettings.recordType" v-model="property.recordType" :label="['cont', 'motion', 'off']" @input="CameraSet('recordType')" />
           <h3 v-t="'OtherSettings.title'" />
           <SettingSwitch i18n="OtherSettings.indicator" v-model="property.indicator" @input="CameraSet('indicator')" />
           <SettingSwitch i18n="OtherSettings.rotate" v-model="property.rotate" @input="CameraSet('rotate')" />

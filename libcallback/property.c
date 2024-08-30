@@ -216,14 +216,17 @@ static char *RecordType(char *tokenPtr, const char *config, int item) {
   if(!p) {
     int ret = GetUserConfig(config);
     if(ret == 1) return "cont";
-    if(ret == 2) return "motion";
+    if(ret == 2) return "off";
+    if(ret == 3) return "motion";
     return "error";
   }
 
   if(!strcmp(p, "cont")) {
     val = 1;
-  } else if(!strcmp(p, "motion")) {
+  } else if(!strcmp(p, "off")) {
     val = 2;
+  } else if(!strcmp(p, "motion")) {
+    val = 3;
   }
   if(val < 0) return "error";
 

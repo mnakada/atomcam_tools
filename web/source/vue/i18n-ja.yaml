@@ -22,7 +22,7 @@ AlarmSettings:
     title: モーション検知
   Level:
     title: 感度調整
-    label:
+    text:
       - 高
       - 中
       - 低
@@ -150,7 +150,7 @@ RTSP:
     audio:
       title: 音声
       tooltip: RTSP Main AVCの音声を設定します
-      label:
+      text:
         - off
         - PCM
         - AAC
@@ -167,7 +167,7 @@ RTSP:
     audio:
       title: 音声
       tooltip: RTSP Main HEVCの音声を設定します
-      label:
+      text:
         - off
         - PCM
         - AAC
@@ -181,7 +181,7 @@ RTSP:
     audio:
       title: 音声
       tooltip: RTSP Subの音声を設定します
-      label:
+      text:
         - off
         - PCM
         - AAC

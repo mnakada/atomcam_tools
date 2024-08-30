@@ -57,7 +57,7 @@
     },
     computed: {
       labelText() {
-        return this.label.map((l, idx) => this.$te(this.i18n + `.label[${idx}]`) ? this.$t(this.i18n + `.label[${idx}]`) : l);
+        return this.label.map((l, idx) => this.$te(this.i18n + `.text[${idx}]`) ? this.$t(this.i18n + `.text[${idx}]`) : l);
       },
     },
   };

@@ -294,8 +294,8 @@
           <SettingInputNumber i18n="videoSpec.bitrateSub" :withSwitch="true" :span="3" v-model="config.BITRATE_SUB_HEVC" :min="100" :max="500" />
           <h3 v-t="'watermark.title'" />
           <SettingComment i18n="watermark.image">
-            <div class="drop-area" :class="[{'is-drag': isDrag }]" @dragover.prevent="isDrag=true" @dragleave.prevent="isDrag=false" @drop.prevent="UploadPNG">
-              <canvas id="canvas" />
+            <div class="watermark-drop-area" :class="[{'is-drag': isDrag }]" @dragover.prevent="isDrag=true" @dragleave.prevent="isDrag=false" @drop.prevent="UploadPNG">
+              <canvas id="watermark" />
             </div>
           </SettingComment>
         </ElTabPane>
@@ -702,7 +702,7 @@
         const height = bgra[0] | (bgra[1] << 8);
         const width = bgra[4] | (bgra[5] << 8);
         if(bgra.byteLength === 8 + width * height * 4) {
-          const canvas = document.getElementById("canvas");
+          const canvas = document.getElementById("watermark");
           canvas.width = width;
           canvas.height = height;
           canvas.style.width = `${width}px`;
@@ -995,7 +995,7 @@
           const width = img.naturalWidth;
           const height = img.naturalHeight;
           if((width > 500) || (height > 80)) return;
-          const canvas = document.getElementById("canvas");
+          const canvas = document.getElementById("watermark");
           canvas.width = width;
           canvas.height = height;
           canvas.style.width = `${width}px`;
@@ -1078,7 +1078,7 @@
         console.log('config', this.config);
 
         if(this.watermarkUploaded) {
-          const canvas = document.getElementById("canvas");
+          const canvas = document.getElementById("watermark");
           const width = canvas.width;
           const height = canvas.height;
           const ctx = canvas.getContext('2d');
@@ -1436,7 +1436,7 @@
     padding-bottom: 150px;
   }
 
-  .drop-area {
+  .watermark-drop-area {
     background-color: #ffffff;
     padding: 5px;
     margin: 10px 0px;
@@ -1447,7 +1447,7 @@
     height: 80px;
   }
 
-  canvas {
+  watermark {
     width: 500px;
     height: 80px;
     border: solid 1px #999;

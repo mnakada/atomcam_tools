@@ -22,7 +22,7 @@ AlarmSettings:
     title: Motion alarm
   Level:
     title: sensitivity
-    label:
+    text:
       - High
       - Mid
       - Low
@@ -148,7 +148,7 @@ RTSP:
     audio:
       title: Audio
       tooltip: Activaet Audio on Main RTSP
-      label:
+      text:
         - off
         - PCM
         - AAC
@@ -165,7 +165,7 @@ RTSP:
     audio:
       title: Audio
       tooltip: Activaet Audio on Main HEVC RTSP
-      label:
+      text:
         - off
         - PCM
         - AAC
@@ -179,7 +179,7 @@ RTSP:
     audio:
       title: Audio
       tooltip: Activate audio on Sub RTSP Sub
-      label:
+      text:
         - off
         - PCM
         - AAC

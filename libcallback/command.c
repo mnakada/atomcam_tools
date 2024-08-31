@@ -29,6 +29,7 @@ extern char *UserConfig(int fd, char *tokenPtr);
 extern char *AlarmConfig(int fd, char *tokenPtr);
 extern char *CenterMark(int fd, char *tokenPtr);
 extern char *Property(int fd, char *tokenPtr);
+extern char *Watermark(int fd, char *tokenPtr);
 //extern char *MemoryAccess(int fd, char *tokenPtr);
 
 char *CommandResBuf[256];
@@ -56,6 +57,7 @@ struct CommandTableSt CommandTable[] = {
   { "alarmConfig",&AlarmConfig },
   { "center",     &CenterMark },
   { "property",   &Property },
+  { "watermark",  &Watermark },
 //  { "mem",        &MemoryAccess },
 };
 

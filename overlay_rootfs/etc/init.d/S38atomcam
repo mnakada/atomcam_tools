@@ -42,13 +42,13 @@ case "$1" in
 
     insmod /lib/modules/v4l2loopback.ko video_nr=0,1,2
 
+    [ -f /media/mmc/watermark.bgra ] || cp /etc/watermark.bgra /media/mmc/watermark.bgra
+
     PRODUCT_CONFIG=/atom/configs/.product_config
     export PRODUCT_MODEL=$(awk -F "=" '/^PRODUCT_MODEL *=/ {print $2}' $PRODUCT_CONFIG)
     if [ "WYZE_CAKP2JFUS" = "$PRODUCT_MODEL" ] ; then
-      [ -f /media/mmc/watermark.bgra ] || cp /etc/watermark_wyze.bgra /media/mmc/watermark.bgra
       chroot /atom /tmp/system/bin/wyze_init.sh
     else
-      [ -f /media/mmc/watermark.bgra ] || cp /etc/watermark_atom.bgra /media/mmc/watermark.bgra
       chroot /atom /tmp/system/bin/atom_init.sh
     fi
     [ -f /media/mmc/atom-debug ] && exit 0

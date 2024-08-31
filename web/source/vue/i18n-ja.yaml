@@ -359,7 +359,7 @@ watermark:
     title: ロゴ
     image:
       title: PNGイメージ
-      comment: 500px x 80px以内で作成してdropしてください。設定後再起動で有効になります。
+      comment: PNGファイルを500px x 100px以内で作成してdropしてください。
 
 maintenance:
   tab: メンテナンス

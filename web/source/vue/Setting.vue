@@ -1444,12 +1444,12 @@
     border-radius: 5px;
     box-shadow: inset 0 1px 1px rgba(0,0,0,.05);
     width: 500px;
-    height: 80px;
+    height: 100px;
   }
 
-  watermark {
+  #watermark {
     width: 500px;
-    height: 80px;
+    height: 100px;
     border: solid 1px #999;
      background-image: linear-gradient(45deg, #ccc 25%, transparent 25%, transparent 75%, #ccc 75%),
         linear-gradient(45deg, #ccc 25%, transparent 25%, transparent 75%, #ccc 75%);

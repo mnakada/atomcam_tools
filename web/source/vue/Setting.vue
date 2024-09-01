@@ -996,7 +996,7 @@
           await img.decode();
           const width = img.naturalWidth;
           const height = img.naturalHeight;
-          if((width > 500) || (height > 80)) return;
+          if((width > 500) || (height > 100)) return;
           const canvas = document.getElementById("watermark");
           canvas.width = width;
           canvas.height = height;

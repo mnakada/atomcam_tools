@@ -872,9 +872,21 @@
           return '';
         });
       },
+      async GetLatestVer() {
+        const status = (await axios.get('./cgi-bin/cmd.cgi?name=latest-ver').catch(err => {
+          // eslint-disable-next-line no-console
+          console.log('axios.get ./cgi-bin/cmd.cgi', err);
+          return { data: '' };
+        })).data.split('\n').reduce((s, d) => {
+          s[d.replace(/=.*$/, '').trim()] = d.replace(/^.*=/, '').trim();
+          return s;
+        }, {});
+        this.latestVer = status.LATESTVER;
+      },
       HandleTabsClick(tab) {
         this.selectedTabIndex = parseInt(tab.index);
-        if(this.selectedTab === "CameraSettings") this.GetCameraProperty();
+        if(this.selectedTab === 'CameraSettings') this.GetCameraProperty();
+        if(this.selectedTab === 'maintenance') this.GetLatestVer();
       },
       async Move() {
         if(!this.posValid || !this.moveDone) return;

@@ -64,9 +64,9 @@ if [ "$REQUEST_METHOD" = "POST" ]; then
       RS="[{},]";
     }
     /^$/ { next; }
-    /\"exec\":\"/ {
-      gsub(/^[ \t]*\"exec\":\"/, "");
-      gsub(/\"[ \t]*$/, "");
+    /\"exec\"\s*:\s*\"/ {
+      gsub(/^\s*\"exec\"\s*:\s*\"/, "");
+      gsub(/\"\s*$/, "");
       print $0;
       fflush();
     }

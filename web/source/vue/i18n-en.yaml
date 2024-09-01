@@ -85,6 +85,12 @@ record:
     daysToKeep:
       title: Number of Days to Keep
       tooltip: Indicate the number of days to keep
+  recordType:
+    comment: |
+      Set the Record mode in the Camera settings to Continuous or Motion. If it is Off, no video will be recorded.
+  alarmRecWarn:
+    comment: |
+      Turn on Motion alarm, Sound alarm, or Fire/CO alarm detection in the Camera settings. If all are turned off, no video will be recorded.
   recordingSchedule:
     title: Recording Schedule
     tooltip: SD-Card/NAS Recording Time Window

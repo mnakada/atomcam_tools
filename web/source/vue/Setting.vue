@@ -108,6 +108,7 @@
             <SettingInputNumber v-if="config.PERIODICREC_CIFS_REMOVE === 'on'" i18n="record.NAS.daysToKeep" :titleOffset="2" :span="3" v-model="config.PERIODICREC_CIFS_REMOVE_DAYS" :min="1" />
           </div>
           <div v-if="config.PERIODICREC_SDCARD === 'on' || config.PERIODICREC_CIFS === 'on'">
+            <SettingComment v-if="property.recordType === 'off'" i18n="record.recordTypeWarn" color="red" weight="bold" />
             <SettingSwitch i18n="record.recordingSchedule" v-model="config.PERIODICREC_SCHEDULE" @change="(config.PERIODICREC_SCHEDULE === 'on') && !periodicRecSchedule.length && AddSchedule('periodicRecSchedule')" />
             <div v-if="config.PERIODICREC_SCHEDULE === 'on'">
               <SettingSchedule v-for="(timeTable, idx) of periodicRecSchedule" :key="'timetable'+idx" :timeRange="true" :removeSchedule="true" v-model="periodicRecSchedule[idx]" @add="AddSchedule('periodicRecSchedule')" @remove="DeleteSchedule('periodicRecSchedule', idx, 'PERIODICREC_SCHEDULE')" />
@@ -128,6 +129,7 @@
             <SettingInputNumber v-if="config.ALARMREC_CIFS_REMOVE === 'on'" i18n="record.NAS.daysToKeep" :titleOffset="2" :span="3" v-model="config.ALARMREC_CIFS_REMOVE_DAYS" :min="1" />
           </div>
           <div v-if="config.ALARMREC_SDCARD === 'on' || config.ALARMREC_CIFS === 'on'">
+            <SettingComment v-if="(property.motionDet === 'off') && (property.soundDet === 'off') && (property.cautionDet === 'off')" i18n="record.alarmRecWarn" color="red" weight="bold" />
             <SettingSwitch i18n="record.recordingSchedule" v-model="config.ALARMREC_SCHEDULE" @change="(config.ALARMREC_SCHEDULE === 'on') && !alarmRecSchedule.length && AddSchedule('alarmRecSchedule')" />
             <div v-if="config.ALARMREC_SCHEDULE === 'on'">
               <SettingSchedule v-for="(timeTable, idx) of alarmRecSchedule" :key="'timetable'+idx" :timeRange="true" :removeSchedule="true" v-model="alarmRecSchedule[idx]" @add="AddSchedule('alarmRecSchedule')" @remove="DeleteSchedule('alarmRecSchedule', idx, 'ALARMREC_SCHEDULE')" />

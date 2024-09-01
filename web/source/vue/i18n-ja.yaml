@@ -85,7 +85,12 @@ record:
     daysToKeep:
       title: 保存日数
       tooltip: 指定日数後に削除します
-
+  recordTypeWarn:
+    comment: |
+      カメラ設定の録画モードを連続もしくは検知時に設定してください。オフになっていると録画されません。
+  alarmRecWarn:
+    comment: |
+      カメラ設定のモーション検知、サウンド検知、火災／ＣＯ警報機音検知のいずれかをオンにしてください。全てオフになっていると録画されません。
   recordingSchedule:
     title: 録画スケジュール
     tooltip: SD-Card/NASに録画される時間帯を設定します

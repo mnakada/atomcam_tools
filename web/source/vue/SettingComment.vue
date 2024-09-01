@@ -7,8 +7,8 @@
       </h4>
     </ElCol>
     <ElCol :span="span">
-      <span class="comment" v-t="i18n + '.comment'" :style="{ color: color }" />
-      <span class="comment" :style="{ color: color }">
+      <span class="comment" v-t="i18n + '.comment'" :style="{ color: color, 'font-weight': weight }" />
+      <span class="comment" :style="{ color: color, 'font-weight': weight }">
         <slot />
       </span>
     </ElCol>
@@ -37,6 +37,10 @@
       color: {
         type: String,
         default: 'black',
+      },
+      weight: {
+        type: String,
+        default: 'normal',
       },
     },
   };

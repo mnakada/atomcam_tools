@@ -888,7 +888,8 @@
       },
       NightVision(mode) {
         if(this.distributor !== 'ATOM') {
-          this.Exec(`property nightVision ${mode}`, 'socket');
+          this.property.nightVision = mode;
+          this.CameraSet('nightVision');
         } else {
           this.Exec(`night ${mode}`, 'socket');
         }

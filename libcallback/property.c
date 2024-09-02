@@ -193,7 +193,7 @@ static char *Level3(char *tokenPtr, const char *config, int item) {
     int ret = GetUserConfig(config);
     if(ret == 1) return "low";
     if(ret == 128) return "mid";
-    if(ret == 255) return "low";
+    if(ret == 255) return "high";
     return "error";
   }
 

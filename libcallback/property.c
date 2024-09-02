@@ -281,15 +281,15 @@ static void __attribute ((constructor)) set_property_init(void) {
   unsigned int addiuspspMask = 0xffff0000;
   unsigned int *pc = 0;
   int ureg = -1;
-  unsigned int setSingle = 0;
+  unsigned int P2P_ReceiveProtocol_Parse = 0;
   for(pc = &_init; pc < &_fini; pc++) {
     if((pc[0] & luiMask) == lui) {
       int ureg = (pc[0] >> 16) & 31;
-      for(int i = 1; i < 16; i++) {
+      for(int i = 1; i < 17; i++) {
         if(pc[i] == (addiu | (ureg << 21))) {
           ureg = -1;
         }
-        if((ureg < 0) && ((pc[i] & jalMask) == jal)) {
+        if((ureg < 0) && ((pc[i - 1] & jalMask) == jal)) {
           ureg--;
           break;
         }
@@ -298,8 +298,8 @@ static void __attribute ((constructor)) set_property_init(void) {
         for(int i = 0; i < 256; i++) {
           pc--;
           if((pc[0] & addiuspspMask) == addiusp) {
-            setSingle = (unsigned int)pc;
-            fprintf(stderr, "set_property_init: P2P_ReceiveProtocol_SetPropertySingle: %08x\n", (unsigned int)pc);
+            P2P_ReceiveProtocol_Parse = (unsigned int)pc;
+            fprintf(stderr, "set_property_init: P2P_ReceiveProtocol_Parse: %08x\n", (unsigned int)pc);
             break;
           }
         }
@@ -307,12 +307,12 @@ static void __attribute ((constructor)) set_property_init(void) {
       }
     }
   }
-  if(!setSingle) {
-    fprintf(stderr, "set_property_init: not found P2P_ReceiveProtocol_SetPropertySingle function\n");
+  if(!P2P_ReceiveProtocol_Parse) {
+    fprintf(stderr, "set_property_init: not found P2P_ReceiveProtocol_Parse function\n");
     return;
   }
 
-  unsigned int jalSetProperty = jal | (setSingle >> 2);
+  unsigned int jalSetProperty = jal | (P2P_ReceiveProtocol_Parse >> 2);
   for(pc = &_init; pc < &_fini; pc++) {
     if(pc[0] == jalSetProperty) {
       for(int i = 0; i < 256; i++) {

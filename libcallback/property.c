@@ -17,6 +17,7 @@ static char *Rotate(char *tokenPtr, const char *config, int item);
 static char *OnOff(char *tokenPtr, const char *config, int item);
 static char *Level3(char *tokenPtr, const char *config, int item);
 static char *RecordType(char *tokenPtr, const char *config, int item);
+static char *MotionArea(char *tokenPtr, const char *config, int item);
 
 struct CommandTableSt {
   const char *cmd;
@@ -44,6 +45,7 @@ static struct CommandTableSt PropertyCommandTable[] = {
   { "audioRec",       "AST",            23,  &OnOff },         // audioRec on:1/off:2
   { "timestamp",      "osdSwitch",      37,  &OnOff },         // timestamp on:1/off:2
   { "watermark",      "watermark_flag", 7,   &OnOff },         // watermark on:1/off:2
+  { "motionArea",     "MAT",            15,  &MotionArea },    // motionArea all:3(MAT:0)/rect:1 <sx:0-99> <sy:0-99> <width:0-99> <height:0-99>
 };
 
 static int setItemProp(int item, int val) {
@@ -160,8 +162,9 @@ static char *Rotate(char *tokenPtr, const char *config, int item) {
   }
   if(val < 0) return "error";
 
-  setItemProp(item, val);
-  return setItemProp(item + 1, val) ? "error" : "ok";
+  int ret = setItemProp(item, val);
+  ret |= setItemProp(item + 1, val);
+  return ret ? "error" : "ok";
 }
 
 static char *OnOff(char *tokenPtr, const char *config, int item) {
@@ -231,6 +234,49 @@ static char *RecordType(char *tokenPtr, const char *config, int item) {
   if(val < 0) return "error";
 
   return setItemProp(item, val) ? "error" : "ok";
+}
+
+static char *MotionArea(char *tokenPtr, const char *config, int item) {
+
+  int val = -1;
+  char *p = strtok_r(NULL, " \t\r\n", &tokenPtr);
+  if(!p) {
+    int mode = GetUserConfig(config);
+    int sx = GetUserConfig("AASX");
+    int sy = GetUserConfig("AASY");
+    int lx = GetUserConfig("AALX");
+    int ly = GetUserConfig("AALY");
+    sprintf(CommandResBuf + 64, "%s %d %d %d %d\n", mode==1?"rect":"all", sx, sy, lx, ly);
+    return CommandResBuf + 64;
+  }
+
+  if(!strcmp(p, "all")) {
+    return setItemProp(item, 3) ? "error" : "ok";
+  } else if(strcmp(p, "rect")) {
+    return "error";
+  }
+  p = strtok_r(NULL, " \t\r\n", &tokenPtr);
+  if(!p) return "error";
+  int sx = atoi(p);
+  if((sx < 0) || (sx > 99)) return "error";
+  p = strtok_r(NULL, " \t\r\n", &tokenPtr);
+  if(!p) return "error";
+  int sy = atoi(p);
+  if((sy < 0) || (sy > 99)) return "error";
+  p = strtok_r(NULL, " \t\r\n", &tokenPtr);
+  if(!p) return "error";
+  int width = atoi(p);
+  if((width < 1) || (sx + width > 99)) return "error";
+  p = strtok_r(NULL, " \t\r\n", &tokenPtr);
+  if(!p) return "error";
+  int height = atoi(p);
+  if((height < 1) || (sy + height > 99)) return "error";
+  int err = setItemProp(16, sx);
+  err |= setItemProp(17, sy);
+  err |= setItemProp(18, width);
+  err |= setItemProp(19, height);
+  setItemProp(item, 1);
+  return err ? "error" : "ok";
 }
 
 extern unsigned int _init;

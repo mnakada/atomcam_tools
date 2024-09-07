@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div @mousemove="MouseMove" @mouseleave="MouseLeave" @mouseup="MouseLeave">
     <div v-if="distributer !== ''" class="title" :class="'title_' + distributor">
       <div>
         {{ distributor }}Cam Hack
@@ -68,6 +68,7 @@
           <h3 v-t="'AlarmSettings.title'" />
           <SettingSwitch i18n="AlarmSettings.motionDet" v-model="property.motionDet" @input="CameraSet('motionDet')" />
           <SettingSelect v-if="property.motionDet=='on'" i18n="AlarmSettings.Level" :titleOffset="2" v-model="property.motionLevel" :label="['high', 'mid', 'low']" @input="CameraSet('motionLevel')" />
+          <SettingSwitch v-if="property.motionDet==='on'" i18n="AlarmSettings.motionArea" :titleOffset="2" v-model="property.motionArea" :label="['all', 'rect']" @input="MotionArea" />
           <SettingSwitch i18n="AlarmSettings.soundDet" v-model="property.soundDet" @input="CameraSet('soundDet')" />
           <SettingSelect v-if="property.soundDet=='on'" i18n="AlarmSettings.Level" :titleOffset="2" v-model="property.soundLevel" :label="['high', 'mid', 'low']" @input="CameraSet('soundLevel')" />
           <SettingSwitch i18n="AlarmSettings.cautionDet" v-model="property.cautionDet" @input="CameraSet('cautionDet')" />
@@ -83,6 +84,23 @@
             <div class="image-frame image-frame-camera-settings">
               <div class="image-frame-inner1">
                 <img class="still-image" :src="stillImage">
+              </div>
+            </div>
+            <div class="image-overlay image-frame-camera-settings">
+              <div class="image-frame-inner4">
+                <svg class="image-svg">
+                  <g v-if="(property.motionArea==='rect') && (motionArea.valid===3)">
+                    <rect class="motionAreaRect" :x="motionAreaSVG.sx" :y="motionAreaSVG.sy" :width="motionAreaSVG.dx - motionAreaSVG.sx" :height="motionAreaSVG.dy - motionAreaSVG.sy" />
+                    <line class="motionAreaHandle" :x1="motionAreaSVG.sx" :y1="motionAreaSVG.sy" :x2="motionAreaSVG.dx" :y2="motionAreaSVG.sy" @mousedown.prevent.stop="MouseDown(0, 1, $event)" />
+                    <line class="motionAreaHandle" :x1="motionAreaSVG.dx" :y1="motionAreaSVG.sy" :x2="motionAreaSVG.dx" :y2="motionAreaSVG.dy" @mousedown.prevent.stop="MouseDown(2, 0, $event)" />
+                    <line class="motionAreaHandle" :x1="motionAreaSVG.sx" :y1="motionAreaSVG.dy" :x2="motionAreaSVG.dx" :y2="motionAreaSVG.dy" @mousedown.prevent.stop="MouseDown(0,2, $event)" />
+                    <line class="motionAreaHandle" :x1="motionAreaSVG.sx" :y1="motionAreaSVG.sy" :x2="motionAreaSVG.sx" :y2="motionAreaSVG.dy" @mousedown.prevent.stop="MouseDown(1,0, $event)" />
+                    <rect class="motionAreaHandle" :x="motionAreaSVG.sx - motionAreaSVG.hx" :y="motionAreaSVG.sy - motionAreaSVG.hy" :width="motionAreaSVG.hx * 2" :height="motionAreaSVG.hy * 2" @mousedown.prevent.stop="MouseDown(1, 1, $event)" />
+                    <rect class="motionAreaHandle" :x="motionAreaSVG.dx - motionAreaSVG.hx" :y="motionAreaSVG.sy - motionAreaSVG.hy" :width="motionAreaSVG.hx * 2" :height="motionAreaSVG.hy * 2" @mousedown.prevent.stop="MouseDown(2, 1, $event)" />
+                    <rect class="motionAreaHandle" :x="motionAreaSVG.dx - motionAreaSVG.hx" :y="motionAreaSVG.dy - motionAreaSVG.hy" :width="motionAreaSVG.hx * 2" :height="motionAreaSVG.hy * 2" @mousedown.prevent.stop="MouseDown(2, 2, $event)" />
+                    <rect class="motionAreaHandle" :x="motionAreaSVG.sx - motionAreaSVG.hx" :y="motionAreaSVG.dy - motionAreaSVG.hy" :width="motionAreaSVG.hx * 2" :height="motionAreaSVG.hy * 2" @mousedown.prevent.stop="MouseDown(1, 2, $event)" />
+                  </g>
+                </svg>
               </div>
             </div>
           </div>
@@ -484,6 +502,19 @@
         intervalValue: {
           TIMESTAMP: '',
         },
+        motionArea: {
+          sx: 0,
+          sy: 0,
+          dx: 99,
+          dy: 99,
+          scaleX: 0,
+          scaleY: 0,
+          svgX: 0,
+          svgY: 0,
+          modeX: 0,
+          modeY: 0,
+          valid: 0,
+        },
         alarmRecSchedule: [],
         periodicRecSchedule: [],
         timelapseSchedule: [{
@@ -577,6 +608,16 @@
       WebRTCUrl() {
         const opt = this.config.RTSP_AUDIO0 === 'OPUS' ? '?media=video+audio' : '';
         return `http://${window.location.host}/webrtc.html${opt}`;
+      },
+      motionAreaSVG() {
+        return {
+          sx: this.motionArea.sx * this.motionArea.scaleX + 5,
+          sy: this.motionArea.sy * this.motionArea.scaleY + 5,
+          dx: this.motionArea.dx * this.motionArea.scaleX + 5,
+          dy: this.motionArea.dy * this.motionArea.scaleY + 5,
+          hx: (this.motionArea.dx - this.motionArea.sx) * this.motionArea.scaleX / 12,
+          hy: (this.motionArea.dy - this.motionArea.sy) * this.motionArea.scaleY / 12,
+        };
       },
     },
     async mounted() {
@@ -793,8 +834,61 @@
       }, 1000);
       this.StillImageInterval();
       this.CheckHomeKit();
+      window.addEventListener('resize', this.ResizeEvent.bind(this));
     },
     methods: {
+      ResizeEvent() {
+        const svg = document.querySelector('.image-svg');
+        this.$set(this.motionArea, 'scaleX', ((svg?.clientWidth ?? 99) - 10) / 99);
+        this.$set(this.motionArea, 'scaleY', ((svg?.clientHeight ?? 99) - 10) / 99);
+        if(svg) {
+          const rect = svg.getBoundingClientRect();
+          this.motionArea.svgX = rect.left;
+          this.motionArea.svgY = rect.top;
+          this.$set(this.motionArea, 'svgX', rect.left);
+          this.$set(this.motionArea, 'svgY', rect.top);
+          this.$set(this.motionArea, 'valid', this.motionArea.valid | 2);
+        }
+      },
+      MouseDown(modeX, modeY) {
+        this.$set(this.motionArea, 'modeX', modeX);
+        this.$set(this.motionArea, 'modeY', modeY);
+      },
+      MouseLeave() {
+        this.$set(this.motionArea, 'modeX', 0);
+        this.$set(this.motionArea, 'modeY', 0);
+      },
+      MouseMove(ev) {
+        if(!this.motionArea.modeX && !this.motionArea.modeY) return;
+        if(!this.motionArea.scaleX || !this.motionArea.scaleY) return;
+        const offsetX = ev.pageX - this.motionArea.svgX - 5;
+        const offsetY = ev.pageY - this.motionArea.svgY - 5;
+        if(this.motionArea.modeX === 1) {
+          let sx = offsetX / this.motionArea.scaleX;
+          if(sx < 0) sx = 0;
+          if(sx > 98) sx = 98;
+          this.$set(this.motionArea, 'sx', sx);
+        }
+        if(this.motionArea.modeY === 1) {
+          let sy = offsetY / this.motionArea.scaleY;
+          if(sy < 0) sy = 0;
+          if(sy > 98) sy = 98;
+          this.$set(this.motionArea, 'sy', sy);
+        }
+        if(this.motionArea.modeX === 2) {
+          let dx = offsetX / this.motionArea.scaleX;
+          if(dx < 1) dx = 1;
+          if(dx > 99) dx = 99;
+          this.$set(this.motionArea, 'dx', dx);
+        }
+        if(this.motionArea.modeY === 2) {
+          let dy = offsetY / this.motionArea.scaleY;
+          if(dy < 1) dy = 1;
+          if(dy > 99) dy = 99;
+          this.$set(this.motionArea, 'dy', dy);
+        }
+        this.MotionArea();
+      },
       RTMPRestart() {
         this.rtspRestart = true;
         this.Submit();
@@ -814,13 +908,34 @@
           if(s.length && (s !== 'ok')) d[s.replace(/ *=.*$/, '')] = s.replace(/^.*= */, '');
           return d;
         }, {});
+        if(this.property.motionArea.length) {
+          const s = this.property.motionArea.split(/[ \t]/);
+          if(s.length === 5) {
+            this.$set(this.property, 'motionArea', s[0]);
+            this.$set(this.motionArea, 'sx', parseInt(s[1]));
+            this.$set(this.motionArea, 'sy', parseInt(s[2]));
+            this.$set(this.motionArea, 'dx', parseInt(s[1]) + parseInt(s[3]));
+            this.$set(this.motionArea, 'dy', parseInt(s[2]) + parseInt(s[4]));
+            this.$set(this.motionArea, 'valid', this.motionArea.valid | 1);
+          }
+        }
         this.property.valid = true;
         // eslint-disable-next-line no-console
         console.log('cameraProperty', this.property);
+        this.ResizeEvent();
       },
       async CameraSet(item) {
         if(!this.property.valid) return;
         await this.Exec(`property ${item} ${this.property[item]}`, 'socket');
+      },
+      async MotionArea(val) {
+        if(!this.property.valid) return;
+        if(val != null) this.property.motionArea = val;
+        if(this.motionTimeoutID) clearTimeout(this.motionTimeoutID);
+        this.motionTimeoutID = setTimeout(async () => {
+          this.motionTimeoutID = null;
+          await this.Exec(`property motionArea ${this.property.motionArea} ${this.motionArea.sx} ${this.motionArea.sy} ${this.motionArea.dx - this.motionArea.sx} ${this.motionArea.dy - this.motionArea.sy}`, 'socket');
+        }, 1000);
       },
       async CheckHomeKit() {
         if((this.oldConfig.HOMEKIT_ENABLE !== 'on') || (this.config.HOMEKIT_ENABLE !== 'on')) return;
@@ -1321,6 +1436,31 @@
     padding-bottom: 100%;
   }
 
+  .image-overlay {
+    z-index: 101;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: calc(((100dvw - 400px)* 0.55 - 38px)* 1080 / 1920);
+  }
+
+  .image-svg {
+    width: calc(100% - 38px);
+    height: calc(100% + 10px);
+  }
+
+  .motionAreaRect {
+    fill: #0000;
+    stroke: orange;
+    stroke-width: 0.3vw;
+  }
+
+  .motionAreaHandle {
+    opacity: 0;
+    stroke-width: 2vw;
+    stroke: white;
+  }
+
   .image-frame-camera-settings {
     width: calc((100vw - 400px) * 0.55 );
     width: calc((100dvw - 400px) * 0.55 );
@@ -1353,6 +1493,13 @@
     justify-content: flex-end;
     display: flex;
     margin: 5px 0 5px 0;
+  }
+
+  .image-frame-inner4 {
+    justify-content: flex-end;
+    display: flex;
+    height: 100%;
+    margin: -5px;
   }
 
   .ir-led {

@@ -26,6 +26,11 @@ AlarmSettings:
       - High
       - Mid
       - Low
+  motionArea:
+    title: Alarm zone
+    text:
+      - All zone
+      - Selected zone
   soundDet:
     title: Sound alarm
   cautionDet:

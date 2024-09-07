@@ -26,6 +26,11 @@ AlarmSettings:
       - 高
       - 中
       - 低
+  motionArea:
+    title: 検知エリア
+    text:
+      - 全領域
+      - 選択領域
   soundDet:
     title: サウンド検出
   cautionDet:

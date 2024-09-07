@@ -536,6 +536,7 @@ property rotate [on|off]
 property audioRec [on|off] 
 property timestamp [on|off] 
 property watermark [on|off] 
+property motionArea [all|rect] [<sx> <sy> <width> <height>]
 ```
 
 MobileAppのUIからの操作に相当するコマンド群。
@@ -561,7 +562,7 @@ property rotateは画像水平垂直反転のオン／オフ
 property audioRecは録音のオン／オフ
 property timestampはタイムスタンプのオン／オフ
 property watermarkはロゴのオン／オフ
-
+property motionAreaは検知領域の切り替え
 property raw以外は引数無しの場合は現在値を返す。
 
 ##### hook point

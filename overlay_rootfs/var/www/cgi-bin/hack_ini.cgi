@@ -26,7 +26,7 @@ if [ "$REQUEST_METHOD" = "POST" ]; then
   exit 0
 fi
 
-awk '/^appver/ { print }' /atom/configs/app.ver
+awk '/^appver/ { print }' /atom/system/bin/app.ver
 awk '/^PRODUCT_MODEL/ { print }' /atom/configs/.product_config
 echo "HOSTNAME=`hostname`"
 echo "KERNELVER=`uname -a`"

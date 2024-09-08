@@ -31,7 +31,9 @@ sync
 
 [ -f /media/mmc/atom-debug ] && exit 0
 
-/system/bin/ver-comp
+[ ! -f /media/mmc/app.ver ] && /system/bin/ver-comp
+[ -f /media/mmc/app.ver ] && cp /media/mmc/app.ver /configs/app.ver
+
 /sbin/syslogd -C2048 -n -S &
 count=0
 while :

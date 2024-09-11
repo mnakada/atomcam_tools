@@ -1,8 +1,10 @@
 #!/bin/sh
 
 #remove init.d files
+rm -f $TARGET_DIR/etc/init.d/S20urandom
 rm -f $TARGET_DIR/etc/init.d/S40network
 rm -f $TARGET_DIR/etc/init.d/S50sshd
+rm -f $TARGET_DIR/etc/init.d/S50lighttpd
 
 #add mount-point
 mkdir -p $TARGET_DIR/media/mmc

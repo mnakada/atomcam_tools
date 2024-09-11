@@ -295,7 +295,6 @@ static void __attribute ((constructor)) set_property_init(void) {
   unsigned int start, end;
   int ret = fscanf(fp, "%08x-%08x ", &start, &end);
   fclose(fp);
-  fprintf(stderr, "scanf %d\n", ret);
   if(ret != 2) {
     fprintf(stderr, "set_property_init: /proc/pid/maps format error\n");
     return;

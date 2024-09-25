@@ -13,7 +13,7 @@ static void (*ProtocolSetProperty)(char * buf1, char *req, char *res);
 static char *Raw(char *tokenPtr, const char *config, int item);
 static char *NightVision(char *tokenPtr, const char *config, int item);
 static char *NightCutThr(char *tokenPtr, const char *config, int item);
-static char *Rotate(char *tokenPtr, const char *config, int item);
+static char *PairOnOff(char *tokenPtr, const char *config, int item);
 static char *OnOff(char *tokenPtr, const char *config, int item);
 static char *Level3(char *tokenPtr, const char *config, int item);
 static char *RecordType(char *tokenPtr, const char *config, int item);
@@ -144,7 +144,7 @@ static char *NightCutThr(char *tokenPtr, const char *config, int item) {
   return setItemProp(item, val) ? "error" : "ok";
 }
 
-static char *Rotate(char *tokenPtr, const char *config, int item) {
+static char *PairOnOff(char *tokenPtr, const char *config, int item) {
 
   int val = -1;
   char *p = strtok_r(NULL, " \t\r\n", &tokenPtr);

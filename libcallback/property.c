@@ -35,13 +35,13 @@ static struct CommandTableSt PropertyCommandTable[] = {
   { "motionLevel",    "MMALevel",       10,  &Level3 },        // motionLevel low:1/mid:128/high:255
   { "soundDet",       "AASwitch",       11,  &OnOff },         // soundDet on:1/off:2
   { "soundLevel",     "AMALevel",       12,  &Level3 },        // soundLevel low:1/mid:128/high:255
-  { "cautionDet",     "CASwitch",       14,  &OnOff },         // cautionDet on:1/off:2
+  { "cautionDet",     "SASwitch",       13,  &PairOnOff },     // cautionDet on:1/off:2
   { "drawBoxSwitch",  "drawBoxSwitch",  8,   &OnOff },         // drawBoxSwitch on:1/off:2
   { "recordType",     "recordType",     29,  &RecordType },    // recordType cont:1/motion:2
   { "indicator",      "indicator",      22,  &OnOff },         // indicator on:1/off:2
   { "horSwitch",      "horSwitch",      24,  &OnOff },         // horSwitch on:1/off:2
   { "verSwitch",      "verSwitch",      25,  &OnOff },         // verSwitch on:1/off:2
-  { "rotate",         "horSwitch",      24,  &Rotate },        // rotate on:1/off:2
+  { "rotate",         "horSwitch",      24,  &PairOnOff },     // rotate on:1/off:2
   { "audioRec",       "AST",            23,  &OnOff },         // audioRec on:1/off:2
   { "timestamp",      "osdSwitch",      37,  &OnOff },         // timestamp on:1/off:2
   { "watermark",      "watermark_flag", 7,   &OnOff },         // watermark on:1/off:2

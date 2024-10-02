@@ -1,5 +1,13 @@
 #!/bin/sh
 
+ISP_CONF=/media/mmc/video_isp.conf
+if [ -f $ISP_CONF ] ; then
+  while read l
+  do
+    echo "video ${l//=/ }" | /usr/bin/nc localhost:4000
+  done < $ISP_CONF
+fi
+
 HACK_INI=/tmp/hack.ini
 ALARMREC_SDCARD=$(awk -F "=" '/^ALARMREC_SDCARD *=/ {print $2}' $HACK_INI)
 PERIODICREC_SDCARD=$(awk -F "=" '/^PERIODICREC_SDCARD *=/ {print $2}' $HACK_INI)
@@ -25,3 +33,4 @@ fi
 [ "$BITRATE_MAIN_AVC" = "" ] || [ "$BITRATE_MAIN_AVC" -le 0 ] || /scripts/cmd video bitrate 0 $BITRATE_MAIN_AVC > /dev/null
 [ "$BITRATE_SUB_HEVC" = "" ] || [ "$BITRATE_SUB_HEVC" -le 0 ] || /scripts/cmd video bitrate 1 $BITRATE_SUB_HEVC > /dev/null
 [ "$BITRATE_MAIN_HEVC" = "" ] || [ "$BITRATE_MAIN_HEVC" -le 0 ] || /scripts/cmd video bitrate 3 $BITRATE_MAIN_HEVC > /dev/null
+

@@ -80,6 +80,20 @@
           <SettingSwitch i18n="OtherSettings.audioRec" v-model="property.audioRec" @input="CameraSet('audioRec')" />
           <SettingSwitch i18n="OtherSettings.timestamp" v-model="property.timestamp" @input="CameraSet('timestamp')" />
           <SettingSwitch i18n="OtherSettings.watermark" v-model="property.watermark" @input="CameraSet('watermark')" />
+          <h3 v-t="'AdvancedSettings.title'" />
+          <SettingSlider i18n="AdvancedSettings.contrast" v-model="ISPSettings.cont" :min="0" :max="255" :defaultValue="128" :stemp="1" @input="ISPSet('cont')" />
+          <SettingSlider i18n="AdvancedSettings.brightness" v-model="ISPSettings.bri" :min="0" :max="255" :defaultValue="128" :stemp="1" @input="ISPSet('bri')" />
+          <SettingSlider i18n="AdvancedSettings.saturation" v-model="ISPSettings.sat" :min="0" :max="255" :defaultValue="128" :stemp="1" @input="ISPSet('sat')" />
+          <SettingSlider i18n="AdvancedSettings.sharpness" v-model="ISPSettings.sharp" :min="0" :max="255" :defaultValue="128" :stemp="1" @input="ISPSet('sharp')" />
+          <SettingSlider i18n="AdvancedSettings.sinter" v-model="ISPSettings.sinter" :min="0" :max="255" :defaultValue="128" :stemp="1" @input="ISPSet('sinter')" />
+          <SettingSlider i18n="AdvancedSettings.temper" v-model="ISPSettings.temper" :min="0" :max="255" :defaultValue="128" :stemp="1" @input="ISPSet('temper')" />
+          <SettingSlider i18n="AdvancedSettings.aecomp" v-model="ISPSettings.aecomp" :min="0" :max="255" :defaultValue="128" :stemp="1" @input="ISPSet('aecomp')" />
+          <SettingSlider i18n="AdvancedSettings.dpc" v-model="ISPSettings.dpc" :min="0" :max="255" :defaultValue="128" :stemp="1" @input="ISPSet('dpc')" />
+          <SettingSlider i18n="AdvancedSettings.drc" v-model="ISPSettings.drc" :min="0" :max="255" :defaultValue="128" :stemp="1" @input="ISPSet('drc')" />
+          <SettingSlider i18n="AdvancedSettings.hilight" v-model="ISPSettings.hilight" :min="0" :max="10" :defaultValue="2" :stemp="1" @input="ISPSet('hilight')" />
+          <SettingSlider i18n="AdvancedSettings.again" v-model="ISPSettings.again" :min="0" :max="255" :defaultValue="205" :stemp="1" @input="ISPSet('again')" />
+          <SettingSlider i18n="AdvancedSettings.dgain" v-model="ISPSettings.dgain" :min="0" :max="255" :defaultValue="64" :stemp="1" @input="ISPSet('dgain')" />
+
           <div v-if="selectedTab === 'CameraSettings'">
             <div class="image-frame image-frame-camera-settings">
               <div class="image-frame-inner1">
@@ -373,6 +387,7 @@
   import SettingSchedule from './SettingSchedule.vue';
   import SettingProgress from './SettingProgress.vue';
   import SettingCruise from './SettingCruise.vue';
+  import SettingSlider from './SettingSlider.vue';
   import QrcodeVue from 'qrcode.vue';
 
   import 'element-ui/lib/theme-chalk/drawer.css';
@@ -399,6 +414,7 @@
       SettingSchedule,
       SettingProgress,
       SettingCruise,
+      SettingSlider,
       QrcodeVue,
     },
     data() {
@@ -494,6 +510,20 @@
           BITRATE_MAIN_HEVC: -800, // ch3 H265 HD   MobileApp,    RTSP HEVC Main
         },
         property: {},
+        ISPSettings: {
+          cont: 128,
+          bri: 128,
+          sat: 128,
+          sharp: 128,
+          sinter: 128,
+          temper: 128,
+          aecomp: 128,
+          dpc: 128,
+          drc: 128,
+          hilight: 2,
+          again: 205,
+          dgain: 64,
+        },
         loginAuth: 'off',
         loginAuth2: 'off',
         relm: 'atomcam',
@@ -627,7 +657,7 @@
         return '';
       });
 
-      this.oldConfig = (res.data || '').split('\n').reduce((d, l) => {
+      this.oldConfig = (res?.data ?? '').split('\n').reduce((d, l) => {
         const name = l.split(/[ \t=]/)[0].trim();
         if(d[name] != null) d[name] = l.replace(new RegExp(name + '[ \t=]*'), '').trim();
         return d;
@@ -635,6 +665,18 @@
       this.config = Object.assign({}, this.oldConfig);
       // eslint-disable-next-line no-console
       console.log('config', this.config);
+
+      const res2 = await axios.get(`./cgi-bin/video_isp.cgi?timestamp=$(new Date().valueOf()}`).catch(err => {
+        // eslint-disable-next-line no-console
+        console.log('axios.get ./cgi-bin/video_isp.cgi', err);
+        return '';
+      });
+      (res2?.data ?? '').split('\n').forEach(l => {
+        const name = l.split(/[ \t=]/)[0].trim();
+        if(this.ISPSettings[name] != null) this.$set(this.ISPSettings, name, l.replace(new RegExp(name + '[ \t=]*'), '').trim());
+      });
+      // eslint-disable-next-line no-console
+      console.log('video isp', this.ISPSettings);
 
       if(this.config.LOCALE && (this.$i18n.availableLocales.indexOf(this.config.LOCALE) >= 0)) {
         this.$i18n.locale = this.config.LOCALE;
@@ -935,6 +977,17 @@
         this.motionTimeoutID = setTimeout(async () => {
           this.motionTimeoutID = null;
           await this.Exec(`property motionArea ${this.property.motionArea} ${this.motionArea.sx} ${this.motionArea.sy} ${this.motionArea.dx - this.motionArea.sx} ${this.motionArea.dy - this.motionArea.sy}`, 'socket');
+        }, 1000);
+      },
+      async ISPSet(item) {
+        await this.Exec(`video ${item} ${this.ISPSettings[item]}`, 'socket');
+        if(this.ispSettingsTimeoutID) clearTimeout(this.ispSettingsTimeoutID);
+        this.ispSettingsTimeoutID = setTimeout(async () => {
+          this.ispSettingsTimeoutID = null;
+          await axios.post('./cgi-bin/video_isp.cgi', this.ISPSettings).catch(err => {
+            // eslint-disable-next-line no-console
+            console.log('axios.post ./cgi-bin/video_isp.cgi', err);
+          });
         }, 1000);
       },
       async CheckHomeKit() {
@@ -1411,8 +1464,8 @@
   }
 
   .container-no-submit {
-    height: calc(100vh - 85px);
-    height: calc(100dvh - 85px);
+    height: calc(100vh - 150px);
+    height: calc(100dvh - 150px);
     margin: 10px 20px 5px 20px;
     overflow-x: hidden;
     overflow-y: scroll;

@@ -56,6 +56,32 @@ OtherSettings:
     title: タイムスタンプ
   watermark:
     title: ロゴ
+AdvancedSettings:
+  title: 詳細設定
+  contrast:
+    title: contrast
+  brightness:
+    title: brightness
+  saturation:
+    title: saturation
+  sharpness:
+    title: sharpness
+  sinter:
+    title: 2D-NR intensity
+  temper:
+    title: 3D-NR intensity
+  aecomp:
+    title: AE compensation
+  dpc:
+    title: DPC Strength
+  drc:
+    title: DRC Strength
+  hilight:
+    title: highlight intensity
+  again:
+    title: Max Analog Gain
+  dgain:
+    title: Max Digital Gain
 
 SDCard:
   tab: SD Card

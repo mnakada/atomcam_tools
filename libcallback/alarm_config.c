@@ -105,7 +105,7 @@ char *AlarmConfig(int fd, char *tokenPtr) {
   p = strtok_r(NULL, " \t\r\n", &tokenPtr);
   if(!p) return "error";
 
-  if(!strcmp(p, "alarmInterval")) {
+  if(!strcasecmp(p, "alarmInterval")) {
     p = strtok_r(NULL, " \t\r\n", &tokenPtr);
     if(!p) {
       int interval = wyze ? alarmConfigWyze[alarmType].alarmInterval : alarmConfigAtom[alarmType].alarmInterval;
@@ -128,7 +128,7 @@ char *AlarmConfig(int fd, char *tokenPtr) {
     return "ok";
   }
 
-  if(!strcmp(p, "dump")) {
+  if(!strcasecmp(p, "dump")) {
     void *addr = wyze ? (void *)(alarmConfigWyze + alarmType) : (void *)(alarmConfigAtom + alarmType);
     int size = wyze ? sizeof(struct AlarmConfigWyzeSt) : sizeof(struct AlarmConfigAtomSt);
     fprintf(stderr, "AlarmConfig %d : %08x\n",alarmType, addr);

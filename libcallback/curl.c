@@ -80,7 +80,7 @@ char *CurlConfig(int fd, char *tokenPtr) {
 
   char *p = strtok_r(NULL, " \t\r\n", &tokenPtr);
   if(!p) return "error";
-  if(!strcmp(p, "debug")) {
+  if(!strcasecmp(p, "debug")) {
     p = strtok_r(NULL, " \t\r\n", &tokenPtr);
     if(!p) {
       snprintf(CommandResBuf, 255, "%d", debug);
@@ -90,16 +90,16 @@ char *CurlConfig(int fd, char *tokenPtr) {
     return "ok";
   }
 
-  if(!strcmp(p, "upload")) {
+  if(!strcasecmp(p, "upload")) {
     p = strtok_r(NULL, " \t\r\n", &tokenPtr);
     if(!p) return disable ? "disable" : "enable";
 
-    if(!strcmp(p, "disable")) {
+    if(!strcasecmp(p, "disable")) {
       disable = 1;
       printf("[curl] curl upload disable\n");
       return "ok";
     }
-    if(!strcmp(p, "enable")) {
+    if(!strcasecmp(p, "enable")) {
       disable = 0;
       printf("[curl] curl upload enable\n");
       return "ok";

@@ -41,7 +41,7 @@ char *UserConfig(int fd, char *tokenPtr) {
   char *p = strtok_r(NULL, " \t\r\n", &tokenPtr);
   if(!p) return "error";
 
-  if(!strcmp(p, "list")) {
+  if(!strcasecmp(p, "list")) {
     if(configData) {
       for(int i = 1; i < ConfigMax; i++) {
         if(configData[i * configSize + 0] != i) break;

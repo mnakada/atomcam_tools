@@ -178,7 +178,7 @@ char *VideoCommand(int fd, char *tokenPtr) {
   char *p = strtok_r(NULL, " \t\r\n", &tokenPtr);
   if(p) {
     for(int i = 0; i < sizeof(VideoCommandTable) / sizeof(struct CommandTableSt); i++) {
-      if(!strcmp(p, VideoCommandTable[i].cmd)) return (*VideoCommandTable[i].func)(tokenPtr);
+      if(!strcasecmp(p, VideoCommandTable[i].cmd)) return (*VideoCommandTable[i].func)(tokenPtr);
     }
   }
   return VideoCapture(fd, p, tokenPtr);
@@ -240,16 +240,16 @@ static char *Flip(char *tokenPtr) {
     return "flip_mirror";
   }
 
-  if(!strcmp(p, "normal")) {
+  if(!strcasecmp(p, "normal")) {
     IMP_ISP_Tuning_SetISPVflip(0);
     IMP_ISP_Tuning_SetISPHflip(0);
-  } else if(!strcmp(p, "flip")) {
+  } else if(!strcasecmp(p, "flip")) {
     IMP_ISP_Tuning_SetISPVflip(1);
     IMP_ISP_Tuning_SetISPHflip(0);
-  } else if(!strcmp(p, "mirror")) {
+  } else if(!strcasecmp(p, "mirror")) {
     IMP_ISP_Tuning_SetISPVflip(0);
     IMP_ISP_Tuning_SetISPHflip(1);
-  } else if(!strcmp(p, "flip_mirror")) {
+  } else if(!strcasecmp(p, "flip_mirror")) {
     IMP_ISP_Tuning_SetISPVflip(1);
     IMP_ISP_Tuning_SetISPHflip(1);
   } else {
@@ -427,10 +427,10 @@ static char *Expr(char *tokenPtr) {
     return CommandResBuf;
   }
 
-  if(!strcmp(p, "auto")) {
+  if(!strcasecmp(p, "auto")) {
     attr.s_attr.mode = 0;
     attr.s_attr.time = 0;
-  } else if(!strcmp(p, "manual")) {
+  } else if(!strcasecmp(p, "manual")) {
     attr.s_attr.mode = 1;
     p = strtok_r(NULL, " \t\r\n", &tokenPtr);
     if(!p) return "error";
@@ -458,7 +458,7 @@ static char *Bitrate(char *tokenPtr) {
     }
     return CommandResBuf;
   }
-  if(!strcmp(p, "auto")) {
+  if(!strcasecmp(p, "auto")) {
     userBitrate[ch] = 0;
     fprintf(stderr, "video_set_kbps ch%d: %d\n", ch, appBitrate[ch]);
     real_local_sdk_video_set_kbps(ch, appBitrate[ch]);
@@ -489,7 +489,7 @@ static char *Framerate(char *tokenPtr) {
   }
 
   int fps = VideoControl_AppFps;
-  if(!strcmp(p, "auto")) {
+  if(!strcasecmp(p, "auto")) {
     VideoControl_UserFps = 0;
     fprintf(stderr, "video framerate : auto %d\n", VideoControl_AppFps);
   } else {

@@ -113,7 +113,7 @@ error:
 char *Watermark(int fd, char *tokenPtr) {
 
   char *p = strtok_r(NULL, " \t\r\n", &tokenPtr);
-  if(!p || strcmp(p, "update")) return "error";
+  if(!p || strcasecmp(p, "update")) return "error";
 
   UpdateWatermark();
   if(!BitmapInfo.valid) return "error";

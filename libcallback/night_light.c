@@ -11,11 +11,11 @@ char *NightLight(int fd, char *tokenPtr) {
 
   char *p = strtok_r(NULL, " \t\r\n", &tokenPtr);
   if(!p) return "error";
-  if(!strcmp(p, "on")) {
+  if(!strcasecmp(p, "on")) {
     local_sdk_open_night_light();
-  } else if(!strcmp(p, "off")) {
+  } else if(!strcasecmp(p, "off")) {
     local_sdk_close_night_light();
-  } else if(!strcmp(p, "auto")) {
+  } else if(!strcasecmp(p, "auto")) {
     local_sdk_auto_night_light();
   } else {
     return "error";

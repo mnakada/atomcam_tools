@@ -131,12 +131,12 @@ char *VideoCapture(int fd, char *p, char *tokenPtr) {
     p = strtok_r(NULL, " \t\r\n", &tokenPtr);
   }
   if(!p) return video_capture[ch].enable ? "on" : "off";
-  if(!strcmp(p, "on")) {
+  if(!strcasecmp(p, "on")) {
     video_capture[ch].enable = 1;
     printf("[command] video %d capute on\n", ch);
     return "ok";
   }
-  if(!strcmp(p, "off")) {
+  if(!strcasecmp(p, "off")) {
     video_capture[ch].enable = 0;
     printf("[command] video %d capute off\n", ch);
     return "ok";

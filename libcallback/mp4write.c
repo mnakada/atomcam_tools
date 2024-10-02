@@ -36,17 +36,17 @@ char *MP4Write(int fd, char *tokenPtr) {
 
   char *q = strtok_r(NULL, " \t\r\n", &tokenPtr);
   if(!q) return "error";
-  if(!strcmp(p, "sd")) {
+  if(!strcasecmp(p, "sd")) {
     mp4write_periodicSD = 1;
-  } else if(!strcmp(p, "ram")) {
+  } else if(!strcasecmp(p, "ram")) {
     mp4write_periodicSD = 0;
   } else {
     return "error";
   }
 
-  if(!strcmp(q, "sd")) {
+  if(!strcasecmp(q, "sd")) {
     mp4write_AlarmSD = 1;
-  } else if(!strcmp(q, "ram")) {
+  } else if(!strcasecmp(q, "ram")) {
     mp4write_AlarmSD = 0;
   } else {
     return "error";

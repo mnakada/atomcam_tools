@@ -45,11 +45,11 @@ static int DebugCount = 0;
 char *JpegCapture(int fd, char *tokenPtr) {
 
   char *p = strtok_r(NULL, " \t\r\n", &tokenPtr);
-  if(p && !strcmp(p, "clear")) {
+  if(p && !strcasecmp(p, "clear")) {
     FirstTask = LastTask = 0;
     return "OK";
   }
-  if(p && !strcmp(p, "status")) {
+  if(p && !strcasecmp(p, "status")) {
     snprintf(CommandResBuf, 255, "FirstTask %d LastTask %d state %d,%d FT %d %d %d mutex %d", FirstTask, LastTask, DebugSequence, DebugCount, JpegTask[FirstTask].fd, JpegTask[FirstTask].ch, JpegTask[FirstTask].header, JpegDataMutex);
     fprintf(stderr, "FirstTask %d LastTask %d state %d,%d FT %d %d %d mutex %d", FirstTask, LastTask, DebugSequence, DebugCount, JpegTask[FirstTask].fd, JpegTask[FirstTask].ch, JpegTask[FirstTask].header, JpegDataMutex);
     for(int i = 0; i < JPEG_TASK_SIZE; i++) {
@@ -60,7 +60,7 @@ char *JpegCapture(int fd, char *tokenPtr) {
     }
     return CommandResBuf;
   }
-  if(p && !strcmp(p, "unlock")) {
+  if(p && !strcasecmp(p, "unlock")) {
     pthread_mutex_unlock(&JpegDataMutex);
     return "OK";
   }

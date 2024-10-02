@@ -111,11 +111,11 @@ static char *NightVision(char *tokenPtr, const char *config, int item) {
     return "error";
   }
 
-  if(!strcmp(p, "on")) {
+  if(!strcasecmp(p, "on")) {
     val = 1;
-  } else if(!strcmp(p, "off")) {
+  } else if(!strcasecmp(p, "off")) {
     val = 2;
-  } else if(!strcmp(p, "auto")) {
+  } else if(!strcasecmp(p, "auto")) {
     val  = 3;
   }
   if(val < 0) return "error";
@@ -134,9 +134,9 @@ static char *NightCutThr(char *tokenPtr, const char *config, int item) {
     return "error";
   }
 
-  if(!strcmp(p, "dusk")) {
+  if(!strcasecmp(p, "dusk")) {
     val = 1;
-  } else if(!strcmp(p, "dark")) {
+  } else if(!strcasecmp(p, "dark")) {
     val = 2;
   }
   if(val < 0) return "error";
@@ -155,9 +155,9 @@ static char *PairOnOff(char *tokenPtr, const char *config, int item) {
     return "error";
   }
 
-  if(!strcmp(p, "on")) {
+  if(!strcasecmp(p, "on")) {
     val = 1;
-  } else if(!strcmp(p, "off")) {
+  } else if(!strcasecmp(p, "off")) {
     val = 2;
   }
   if(val < 0) return "error";
@@ -178,9 +178,9 @@ static char *OnOff(char *tokenPtr, const char *config, int item) {
     return "error";
   }
 
-  if(!strcmp(p, "on")) {
+  if(!strcasecmp(p, "on")) {
     val = 1;
-  } else if(!strcmp(p, "off")) {
+  } else if(!strcasecmp(p, "off")) {
     val = 2;
   }
   if(val < 0) return "error";
@@ -200,11 +200,11 @@ static char *Level3(char *tokenPtr, const char *config, int item) {
     return "error";
   }
 
-  if(!strcmp(p, "low")) {
+  if(!strcasecmp(p, "low")) {
     val = 1;
-  } else if(!strcmp(p, "mid")) {
+  } else if(!strcasecmp(p, "mid")) {
     val = 128;
-  } else if(!strcmp(p, "high")) {
+  } else if(!strcasecmp(p, "high")) {
     val = 255;
   }
   if(val < 0) return "error";
@@ -224,11 +224,11 @@ static char *RecordType(char *tokenPtr, const char *config, int item) {
     return "error";
   }
 
-  if(!strcmp(p, "cont")) {
+  if(!strcasecmp(p, "cont")) {
     val = 1;
-  } else if(!strcmp(p, "off")) {
+  } else if(!strcasecmp(p, "off")) {
     val = 2;
-  } else if(!strcmp(p, "motion")) {
+  } else if(!strcasecmp(p, "motion")) {
     val = 3;
   }
   if(val < 0) return "error";
@@ -250,9 +250,9 @@ static char *MotionArea(char *tokenPtr, const char *config, int item) {
     return CommandResBuf + 64;
   }
 
-  if(!strcmp(p, "all")) {
+  if(!strcasecmp(p, "all")) {
     return setItemProp(item, 3) ? "error" : "ok";
-  } else if(strcmp(p, "rect")) {
+  } else if(strcasecmp(p, "rect")) {
     return "error";
   }
   p = strtok_r(NULL, " \t\r\n", &tokenPtr);

@@ -78,7 +78,7 @@ char *AudioCommand(int fd, char *tokenPtr) {
   char *p = strtok_r(NULL, " \t\r\n", &tokenPtr);
   if(p) {
     for(int i = 0; i < sizeof(AudioCommandTable) / sizeof(struct CommandTableSt); i++) {
-      if(!strcmp(p, AudioCommandTable[i].cmd)) return (*AudioCommandTable[i].func)(tokenPtr);
+      if(!strcasecmp(p, AudioCommandTable[i].cmd)) return (*AudioCommandTable[i].func)(tokenPtr);
     }
   }
   return AudioCapture(fd, p, tokenPtr);
@@ -88,10 +88,10 @@ static char *HighPassFilter(char *tokenPtr) {
 
   char *p = strtok_r(NULL, " \t\r\n", &tokenPtr);
   int ret = -1;
-  if(p && !strcmp(p, "off")) {
+  if(p && !strcasecmp(p, "off")) {
     ret = IMP_AI_DisableHpf();
   }
-  if(p && !strcmp(p, "on")) {
+  if(p && !strcasecmp(p, "on")) {
     IMPAudioIOAttr attr;
     ret = IMP_AI_GetPubAttr(AudioDecviceID, &attr);
     if(!ret) ret = IMP_AI_EnableHpf(&attr);
@@ -105,7 +105,7 @@ static char *AutoGainControl(char *tokenPtr) {
   if(!p) return "error";
 
   int ret = -1;
-  if(!strcmp(p, "off")) {
+  if(!strcasecmp(p, "off")) {
     // ret = IMP_AI_DisableAgc(); // Exception
   } else {
     int targetLevelDbfs = atoi(p);
@@ -126,7 +126,7 @@ static char *NoiseSuppression(char *tokenPtr) {
   if(!p) return "error";
 
   int ret = -1;
-  if(!strcmp(p, "off")) {
+  if(!strcasecmp(p, "off")) {
     ret = IMP_AI_DisableNs();
   } else {
     int level = atoi(p);
@@ -141,10 +141,10 @@ static char *EchoCancellation(char *tokenPtr) {
 
   char *p = strtok_r(NULL, " \t\r\n", &tokenPtr);
   int ret = -1;
-  if(p && !strcmp(p, "off")) {
+  if(p && !strcasecmp(p, "off")) {
     ret = IMP_AI_DisableAec(AudioDecviceID, AudioChID);
   }
-  if(p && !strcmp(p, "on")) {
+  if(p && !strcasecmp(p, "on")) {
     ret = IMP_AI_EnableAec(AudioDecviceID, AudioChID, AudioDecviceID, AudioChID);
   }
   return ret ? "error" : "ok";

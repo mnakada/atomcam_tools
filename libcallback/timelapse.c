@@ -192,14 +192,14 @@ char *Timelapse(int fd, char *tokenPtr) {
     return CommandResBuf;
   }
 
-  if(!strcmp(p, "stop")) {
+  if(!strcasecmp(p, "stop")) {
     if(State != State_Recording) return "error";
     Directive = Directive_Stop;
     TimelapseFd = fd;
     return NULL;
   }
 
-  if(!strcmp(p, "close")) {
+  if(!strcasecmp(p, "close")) {
     if(State != State_Recording) return "error";
     Directive = Directive_Close;
     TimelapseFd = fd;
@@ -208,7 +208,7 @@ char *Timelapse(int fd, char *tokenPtr) {
 
   if(State != State_Ready) return "error :　Already in operation.";
 
-  if(!strcmp(p, "restart")) {
+  if(!strcasecmp(p, "restart")) {
     Directive = Directive_Restart;
     TimelapseFd = fd;
     pthread_mutex_unlock(&TimelapseMutex);
@@ -216,7 +216,7 @@ char *Timelapse(int fd, char *tokenPtr) {
   }
 
   Filename[0] = 0;
-  if(p && !strcmp(p, "mp4")) {
+  if(p && !strcasecmp(p, "mp4")) {
     p = strtok_r(NULL, " \t\r\n", &tokenPtr);
     if(!p) return "error : filename error.";
     strncpy(Filename, p, 250);
@@ -471,7 +471,7 @@ static void *TimelapseThread() {
     ProcessingInfo.numOfTimes = ProcessingInfo.count;
 
     char *res = AppendMoov();
-    if(!strcmp(res, "ok")) {
+    if(!strcasecmp(res, "ok")) {
       printf("[webhook] time_lapse_finish %s %d/%d\n", ProcessingInfo.mp4File, ProcessingInfo.count, ProcessingInfo.numOfTimes);
       fprintf(stderr, "[timelapse] finish %s %d/%d\n", ProcessingInfo.mp4File, ProcessingInfo.count, ProcessingInfo.numOfTimes);
     }

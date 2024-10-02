@@ -46,9 +46,9 @@ char *CenterMark(int fd, char *tokenPtr) {
   if(!p) {
     return display ? "on" : "off";
   }
-  if(!strcmp(p, "on")) {
+  if(!strcasecmp(p, "on")) {
     display = 1;
-  } else if(!strcmp(p, "off")) {
+  } else if(!strcasecmp(p, "off")) {
     display = 0;
   }
 

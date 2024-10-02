@@ -60,28 +60,40 @@ AdvancedSettings:
   title: 詳細設定
   contrast:
     title: contrast
+    tooltip: Set the contrast of image effect.
   brightness:
     title: brightness
+    tooltip: Set the brightness of image effect.
   saturation:
     title: saturation
+    tooltip: Set the saturation of image effect.
   sharpness:
     title: sharpness
+    tooltip: Set the sharpness of image effect.
   sinter:
     title: 2D-NR intensity
+    tooltip: Set 2D noise reduction intensity.
   temper:
     title: 3D-NR intensity
+    tooltip: Set 3D noise reduction intensity.
   aecomp:
     title: AE compensation
+    tooltip: Setting AE compensation.
   dpc:
     title: DPC Strength
+    tooltip: Set DPC Strength.
   drc:
     title: DRC Strength
+    tooltip: Set DRC Strength.
   hilight:
     title: highlight intensity
+    tooltip: Set highlight intensity controls.
   again:
     title: Max Analog Gain
+    tooltip: Sets the Max value of sensor analog gain.
   dgain:
     title: Max Digital Gain
+    tooltip: Set the Max value of sensor Digital gain.
 
 SDCard:
   tab: SD Card

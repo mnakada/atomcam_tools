@@ -187,6 +187,8 @@ Qiitaに少し解説を書いています。
 
 [ATOMSwingのtimelapseで星座追尾](https://qiita.com/mnakada/items/e2337f7b73e3a9e1539c)
 
+[atomcam_toolsのMobileApp代替機能の実装](https://qiita.com/mnakada/items/310954397db6f16fe0b5)
+
 <br>
 
 ## 使用法
@@ -326,6 +328,22 @@ defaultは　atomcam_tools　の文字がロゴの代わりに表示されます
 ロゴの変更はシステム設定からできます。
 
 元々のATOMのロゴに戻すにはSD-Cardのwatermark.bgraを削除して空のwatermark.brga ファイルを置いてください。
+
+#### 詳細設定
+
+<kbd><img src="https://github.com/mnakada/atomcam_tools/blob/images/AdvancedSettings.jpg" /></kbd>
+
+##### - 諸々設定
+
+カメラのISPの設定値を変更します。変更は即時反映されて再起動後も引き継がれます。
+
+defaultの設定に戻す場合は右側のrefreshボタンを押してください。
+
+色々画質変更できるのですが、contrast~sharpness以外は詳細わからないので説明は割愛します。
+
+それぞれのタイトルはSDKのAPIのコメントからとっています。
+
+（カメラの設定に詳しい方いたらIssuesにでもコメント上げてもらえれば追記します）
 
 <br>
 

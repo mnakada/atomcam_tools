@@ -550,6 +550,14 @@ BR2_PACKAGE_EXFATPROGS_INIT=y
 # BR2_PACKAGE_UNIONFS is not set
 # BR2_PACKAGE_XFSPROGS is not set
 
+
+#
+# ONVIF
+#
+
+BR2_PACKAGE_WSDD=y
+BR2_PACKAGE_ONVIF_SRVD=y
+
 #
 # Fonts, cursors, icons, sounds and themes
 #

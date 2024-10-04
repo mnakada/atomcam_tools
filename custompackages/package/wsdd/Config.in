@@ -1,0 +1,4 @@
+config BR2_PACKAGE_WSDD
+    bool "wsdd"
+    help
+      wsdd is Linux daemon for ONVIF WS-Discovery service (server side).

@@ -1,0 +1,5 @@
+config BR2_PACKAGE_ONVIF_SRVD
+    bool "onvif_srvd"
+    help
+      ONVIF Device(IP camera) Service server (Linux daemon)
+      This server (Service) has a minimal implementation. Use this server as a template for writing your ONVIF service for an IP camera.

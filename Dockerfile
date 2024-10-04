@@ -32,7 +32,14 @@ RUN \
   libtool-bin \
   sudo \
   upx \
-  bison
+  bison \
+  byacc \
+  make \
+  m4 \
+  openssl \
+  libssl-dev \
+  zlib1g-dev \
+  libcrypto
 
 ENV PATH="$PATH:/usr/local/node/bin"
 

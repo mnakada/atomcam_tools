@@ -1,4 +1,4 @@
-FROM ubuntu:16.04
+FROM ubuntu:22.04
 
 ENV DEBIAN_FRONTEND noninteractive
 
@@ -9,8 +9,7 @@ RUN \
   qemu-user-static \
   git \
   autoconf \
-  cmake \
-  python \
+# cmake \
   zip \
   unzip \
   cpio \
@@ -24,7 +23,7 @@ RUN \
   nfs-kernel-server \
   curl \
   python3 \
-  python-lzma \
+  # python-lzma \
   flex \
   texinfo \
   help2man \
@@ -39,7 +38,24 @@ RUN \
   openssl \
   libssl-dev \
   zlib1g-dev \
-  libcrypto
+  liblzma-dev \
+  rsync \
+  python2 \
+  python2-dev
+
+RUN \
+  apt install -y libcrypto++8
+
+RUN cd $HOME && \
+  wget https://github.com/Kitware/CMake/releases/download/v3.30.4/cmake-3.30.4.tar.gz && \
+  tar zxvf cmake-3.30.4.tar.gz && \
+  cd cmake-3.30.4/ && \
+  ./bootstrap && \
+  make -j12 && sudo make install -j8
+RUN echo 'export PATH=$HOME/cmake-3.30.4/bin/:$PATH' >> ~/.bashrc && \
+  . ~/.bashrc
+
+RUN ln -s /usr/bin/python2 /usr/bin/python
 
 ENV PATH="$PATH:/usr/local/node/bin"
 

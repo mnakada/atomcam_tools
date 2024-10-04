@@ -4,7 +4,7 @@ ISP_CONF=/media/mmc/video_isp.conf
 if [ -f $ISP_CONF ] ; then
   while read l
   do
-    echo "video ${l//=/ }" | /usr/bin/nc localhost:4000
+    echo "video ${l//=/ }" | /usr/bin/nc localhost:4000 > /dev/null
   done < $ISP_CONF
 fi
 

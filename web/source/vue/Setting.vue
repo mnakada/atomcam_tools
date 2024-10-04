@@ -365,6 +365,10 @@
     <ElDrawer :title="$t('updating.title')" :visible.sync="executing" direction="btt" :show-close="false" :wrapperClosable="false">
       <h4 class="comment" v-t="'updating.comment'" />
     </ElDrawer>
+    <ElDrawer :title="$t('downloading.title')" :visible.sync="downloading" direction="btt" :show-close="false" :wrapperClosable="false">
+      <h4 class="comment" v-t="'downloading.comment'" />
+      <ElProgress :show-text="false" :stroke-width="18" :percentage="progress" class="progress progress-striped" />
+    </ElDrawer>
     <ElDrawer :title="$t('rebooting.title')" :visible.sync="rebooting" direction="btt" :show-close="false" :wrapperClosable="false">
       <h4 class="comment" v-t="{ path: 'rebooting.comment', args: { rebootTime: rebootTime } }" />
     </ElDrawer>
@@ -376,7 +380,7 @@
   axios.defaults.headers.post['Content-Type'] = 'application/json;charset=utf-8';
   axios.defaults.headers.post['Access-Control-Allow-Origin'] = '*';
   import md5 from 'js-md5';
-  import { Drawer, Slider, ButtonGroup, Tabs, TabPane } from 'element-ui';
+  import { Drawer, Slider, ButtonGroup, Tabs, TabPane, Progress } from 'element-ui';
   import SettingSwitch from './SettingSwitch.vue';
   import SettingSelect from './SettingSelect.vue';
   import SettingInput from './SettingInput.vue';
@@ -395,6 +399,7 @@
   import 'element-ui/lib/theme-chalk/button-group.css';
   import 'element-ui/lib/theme-chalk/tabs.css';
   import 'element-ui/lib/theme-chalk/tab-pane.css';
+  import 'element-ui/lib/theme-chalk/progress.css';
 
   export default {
     name: 'ATOMCamSetting',
@@ -404,6 +409,7 @@
       ElButtonGroup: ButtonGroup,
       ElTabs: Tabs,
       ElTabPane: TabPane,
+      ElProgress: Progress,
       SettingSwitch,
       SettingSelect,
       SettingInput,
@@ -573,6 +579,8 @@
         latestVer: '',
         executing: false,
         rebooting: false,
+        downloading: false,
+        progress: 0,
         stillImage: null,
         pan: 0,
         tilt: 0,
@@ -1157,13 +1165,19 @@
       },
       async DoUpdate() {
         await this.Submit();
-        this.rebootTime = 180;
-        this.rebooting = true;
-        this.rebootStart = new Date();
-        this.rebootStart.setSeconds(this.rebootStart.getSeconds() + 180);
+        this.downloading = true;
         await this.Exec('update');
-        this.rebootStart = new Date();
-        this.rebootStart.setSeconds(this.rebootStart.getSeconds() + 30);
+        const updateIntervalID = setInterval(async () => {
+          this.progress = parseInt(((await this.Exec('update_status'))?.data ?? '').replace(/^.* (\d+) .*\n*$/, '$1')) ?? 0;
+          if(this.progress === 100) {
+            clearInterval(updateIntervalID);
+            this.downloading = false;
+            this.rebooting = true;
+            this.rebootTime = 80;
+            this.rebootStart = new Date();
+            this.rebootStart.setSeconds(this.rebootStart.getSeconds() + 30);
+          }
+        }, 1000);
       },
       UploadPNG(ev) {
         this.isDrag = false;
@@ -1677,4 +1691,7 @@
     background-color: #f0f0f0;
   }
 
+  .progress {
+    padding: 0px 10vw;
+  }
 </style>

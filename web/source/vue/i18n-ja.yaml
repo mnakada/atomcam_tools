@@ -473,12 +473,8 @@ schedule:
     - 日
 
 submit: 設定
-updating:
-  title: 設定中
-  comment: 設定変更中。暫くお待ち下さい。
-downloading:
-  title: ダウンロード中
-  comment: ダウンロード中。暫くお待ちください。
-rebooting:
-  title: 再起動中
-  comment: 起動するまで暫くお待ち下さい。(約{rebootTime}秒)
+executing: 設定変更中。暫くお待ち下さい。
+erasing: SD-Card消去中。暫くお待ちください。
+downloading: ダウンロード中。暫くお待ちください。
+downloadError: ダウンロードに失敗しました。少し時間をおいて再度実行してください。
+rebooting: 再起動中。起動するまで暫くお待ち下さい。(約80秒)

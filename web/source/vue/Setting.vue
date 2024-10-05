@@ -39,7 +39,7 @@
             <div v-if="isSwing && posValid" class="image-frame-inner2">
               <ElSlider class="pan-slider" v-model="pan" :min="0" :max="355" :show-input-controls="false" @change="Move" @input="Move" />
             </div>
-            <div v-if="!rebooting" class="image-frame-inner3">
+            <div v-if="!drawerVisible" class="image-frame-inner3">
               <i class="el-icon-moon ir-led" />
               <ElButtonGroup>
                 <ElButton size="mini" type="primary" @click="NightVision('on')">
@@ -362,15 +362,9 @@
     <div v-if="selectedTabIndex >= 3" class="submit">
       <ElButton @click="Submit" type="primary" v-t="'submit'" />
     </div>
-    <ElDrawer :title="$t('updating.title')" :visible.sync="executing" direction="btt" :show-close="false" :wrapperClosable="false">
-      <h4 class="comment" v-t="'updating.comment'" />
-    </ElDrawer>
-    <ElDrawer :title="$t('downloading.title')" :visible.sync="downloading" direction="btt" :show-close="false" :wrapperClosable="false">
-      <h4 class="comment" v-t="'downloading.comment'" />
-      <ElProgress :show-text="false" :stroke-width="18" :percentage="progress" class="progress progress-striped" />
-    </ElDrawer>
-    <ElDrawer :title="$t('rebooting.title')" :visible.sync="rebooting" direction="btt" :show-close="false" :wrapperClosable="false">
-      <h4 class="comment" v-t="{ path: 'rebooting.comment', args: { rebootTime: rebootTime } }" />
+    <ElDrawer :visible.sync="drawerVisible" direction="btt" :show-close="drawerClosable" :wrapperClosable="drawerClosable" :close-on-press-escape="drawerClosable" @closed="drawerClosable=false">
+      <h4 class="comment" v-t="drawerComment" />
+      <ElProgress v-if="progress > 0" :show-text="false" :stroke-width="18" :percentage="progress" class="progress progress-striped" />
     </ElDrawer>
   </div>
 </template>
@@ -574,12 +568,11 @@
           endTime: '02:00',
           dayOfWeekSelect: [6],
         },
-        rebootTime: 80,
         stillInterval: 500,
         latestVer: '',
-        executing: false,
-        rebooting: false,
-        downloading: false,
+        drawerVisible: false,
+        drawerClosable: false,
+        drawerComment: '',
         progress: 0,
         stillImage: null,
         pan: 0,
@@ -626,7 +619,7 @@
         return false;
       },
       isSwing() {
-        return !this.rebooting && (this.config.PRODUCT_MODEL === 'ATOM_CAKP1JZJP');
+        return !this.drawerVisible && (this.config.PRODUCT_MODEL === 'ATOM_CAKP1JZJP');
       },
       RtspUrl0() {
         const port = (this.config.RTSP_OVER_HTTP  === 'on') ? 8080 : 8554;
@@ -846,7 +839,7 @@
         });
         if(res === '') return;
         if(this.rebootStart && (new Date() > this.rebootStart)) {
-          this.rebooting = false;
+          this.drawerVisible = false;
           this.rebootStart = null;
           location.reload();
         }
@@ -1152,28 +1145,38 @@
         this.Exec('moveinit');
       },
       DoReboot() {
-        this.rebootTime = 80;
-        this.rebooting = true;
+        this.drawerComment = 'rebooting';
+        this.progress = 0;
+        this.drawerVisible = true;
         this.rebootStart = new Date();
         this.rebootStart.setSeconds(this.rebootStart.getSeconds() + 30);
         this.Exec('reboot');
       },
-      DoErase() {
-        this.executing = true;
-        this.Exec('sderase');
-        this.executing = false;
+      async DoErase() {
+        this.drawerComment = 'erasing';
+        this.progress = 0;
+        this.drawerVisible = true;
+        await this.Exec('sderase');
+        this.drawerVisible = false;
       },
       async DoUpdate() {
         await this.Submit();
-        this.downloading = true;
+        this.drawerComment = 'downloading';
+        this.progress = 0;
+        this.drawerVisible = true;
         await this.Exec('update');
         const updateIntervalID = setInterval(async () => {
-          this.progress = parseInt(((await this.Exec('update_status'))?.data ?? '').replace(/^.* (\d+) .*\n*$/, '$1')) ?? 0;
+          this.progress = parseInt(((await this.Exec('update_status'))?.data ?? '').replace(/^.* ([+-]*\d+) .*\n*$/, '$1')) ?? -1;
+          if(this.progress < 0) {
+            clearInterval(updateIntervalID);
+            this.drawerComment = 'downloadError';
+            this.progress = 0;
+            this.drawerClosable = true;
+          }
           if(this.progress === 100) {
             clearInterval(updateIntervalID);
-            this.downloading = false;
-            this.rebooting = true;
-            this.rebootTime = 80;
+            this.drawerComment = 'rebooting';
+            this.progress = 0;
             this.rebootStart = new Date();
             this.rebootStart.setSeconds(this.rebootStart.getSeconds() + 30);
           }
@@ -1382,15 +1385,17 @@
 
         this.oldConfig = Object.assign({}, this.config);
         if(execCmds.length) {
-          this.executing = true;
+          this.drawerComment = 'executing';
+          this.progress = 0;
+          this.drawerVisible = true;
           this.$nextTick(async () => {
             for(const cmd of execCmds) {
               await this.Exec(cmd);
             }
             if(execCmds.indexOf('lighttpd') >= 0) {
-              setTimeout(() => this.executing = false, 3000);
+              setTimeout(() => this.drawerVisible = false, 3000);
             } else {
-              this.executing = false;
+              this.drawerVisible = false;
             }
             if(href) window.location.href = href;
           });

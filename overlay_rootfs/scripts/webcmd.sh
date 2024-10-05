@@ -126,7 +126,7 @@ do
     cmd=""
   fi
   if [ "$cmd" = "update_status" ]; then
-    stat=""
+    stat="-1"
     [ -f /tmp/update_status ] && stat=`cat /tmp/update_status`
     echo "$cmd $stat OK" >> /var/run/webres
     cmd=""
@@ -141,6 +141,7 @@ do
     fi
     mkdir -p /media/mmc/update
     UPDATE_SEQ=1
+    echo "0" > /tmp/update_status
     (
       cd /media/mmc/update;
       curl -H 'Cache-Control: no-cache, no-store' -H 'Pragma: no-cache' -L -o atomcam_tools.zip $ZIP_URL 2>&1 | awk 'BEGIN { RS="\r"; } /Total/ { next; } { printf("%d\n", $3) > "/tmp/update_status"; close("/tmp/update_status"); }'

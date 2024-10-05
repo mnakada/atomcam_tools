@@ -125,23 +125,35 @@ do
     echo "$cmd $params OK" >> /var/run/webres
     cmd=""
   fi
-  if [ "$cmd" = "update" ]; then
+  if [ "$cmd" = "update_status" ]; then
+    stat="-1"
+    [ -f /tmp/update_status ] && stat=`cat /tmp/update_status`
+    echo "$cmd $stat OK" >> /var/run/webres
+    cmd=""
+  fi
+  if [ "$cmd" = "update" -a "$UPDATE_SEQ" = "" ]; then
     HACK_INI=/tmp/hack.ini
     CUSTOM_ZIP=$(awk -F "=" '/^CUSTOM_ZIP *=/ {print $2}' $HACK_INI)
     ZIP_URL=$(awk -F "=" '/^CUSTOM_ZIP_URL *=/ {print $2}' $HACK_INI)
     if [ "$CUSTOM_ZIP" = "off" ] || [ "$ZIP_URL" = "" ]; then
-      ZIP_URL="https://github.com/mnakada/atomcam_tools/releases/latest/download/atomcam_tools.zip"
+      latest=`curl -w "%{redirect_url}" -s -o /dev/null https://github.com/mnakada/atomcam_tools/releases/latest`
+      ZIP_URL="https://github.com/mnakada/atomcam_tools/releases/download/${latest##*tag/}/atomcam_tools.zip"
     fi
     mkdir -p /media/mmc/update
-    (cd /media/mmc/update; curl -H 'Cache-Control: no-cache, no-store' -H 'Pragma: no-cache' -sL -o atomcam_tools.zip $ZIP_URL)
+    UPDATE_SEQ=1
+    echo "0" > /tmp/update_status
+    (
+      cd /media/mmc/update;
+      curl -H 'Cache-Control: no-cache, no-store' -H 'Pragma: no-cache' -L -o atomcam_tools.zip $ZIP_URL 2>&1 | awk 'BEGIN { RS="\r"; } /Total/ { next; } { printf("%d\n", $3) > "/tmp/update_status"; close("/tmp/update_status"); }'
+      /scripts/cmd timelapse stop > /dev/null
+      sleep 3
+      killall -SIGUSR2 iCamera_app
+      sync
+      sync
+      sync
+      reboot
+    ) &
     echo "$cmd $params OK" >> /var/run/webres
-    /scripts/cmd timelapse stop
-    sleep 3
-    killall -SIGUSR2 iCamera_app
-    sync
-    sync
-    sync
-    reboot
     cmd=""
   fi
   if [ "$cmd" = "posrec" ]; then

@@ -90,6 +90,15 @@ typedef union isp_core_expr_attr{
 extern int IMP_ISP_Tuning_SetExpr(IMPISPExpr *expr);
 extern int IMP_ISP_Tuning_GetExpr(IMPISPExpr *expr);
 
+typedef struct {
+  unsigned int min_it;
+  unsigned int min_again;
+  unsigned int min_it_short;
+  unsigned int min_again_short;
+} IMPISPAEMin;
+int IMP_ISP_Tuning_SetAeMin(IMPISPAEMin *ae_min);
+int IMP_ISP_Tuning_GetAeMin(IMPISPAEMin *ae_min);
+
 // ISP sensor fps
 extern int IMP_ISP_Tuning_GetSensorFPS(unsigned int *num, unsigned int *den);
 struct IMPEncoderFrmRate {
@@ -123,6 +132,7 @@ static char *Sinter(char *tokenPtr);
 static char *Temper(char *tokenPtr);
 static char *AEComp(char *tokenPtr);
 static char *AEItMax(char *tokenPtr);
+static char *AEMin(char *tokenPtr);
 static char *DPC(char *tokenPtr);
 static char *DRC(char *tokenPtr);
 static char *HiLight(char *tokenPtr);
@@ -146,6 +156,7 @@ static struct CommandTableSt VideoCommandTable[] = {
   { "temper",    &Temper }, // temper 0 - 255(center:128)
   { "aecomp",    &AEComp }, // aecomp 0 - 255
   { "aeitmax",   &AEItMax }, // aeitmax 0-
+  { "aemin",     &AEMin }, // it again itshort againshort
   { "dpc",       &DPC }, // dpc 0 - 255
   { "drc",       &DRC }, // drc 0 - 255
   { "hilight",   &HiLight }, // hilight 0 - 10
@@ -336,6 +347,33 @@ static char *AEItMax(char *tokenPtr) {
   return res ? "error": "ok";
 }
 
+static char *AEMin(char *tokenPtr) {
+
+  IMPISPAEMin aemin;
+  char *p = strtok_r(NULL, " \t\r\n", &tokenPtr);
+  if(!p) {
+    IMP_ISP_Tuning_GetAeMin(&aemin);
+    sprintf(CommandResBuf, "%d %d %d %d\n", aemin.min_it, aemin.min_again, aemin.min_it_short, aemin.min_again_short);
+    return CommandResBuf;
+  }
+  aemin.min_it = atoi(p);
+
+  p = strtok_r(NULL, " \t\r\n", &tokenPtr);
+  if(!p) return "error";
+  aemin.min_again = atoi(p);
+
+  p = strtok_r(NULL, " \t\r\n", &tokenPtr);
+  if(!p) return "error";
+  aemin.min_it_short = atoi(p);
+
+  p = strtok_r(NULL, " \t\r\n", &tokenPtr);
+  if(!p) return "error";
+  aemin.min_again_short = atoi(p);
+
+  int res = IMP_ISP_Tuning_SetAeMin(&aemin);
+  return res ? "error": "ok";
+}
+
 static char *Sinter(char *tokenPtr) {
 
   char *p = strtok_r(NULL, " \t\r\n", &tokenPtr);
@@ -423,23 +461,43 @@ static char *Expr(char *tokenPtr) {
   IMPISPExpr attr;
   if(!p) {
     IMP_ISP_Tuning_GetExpr(&attr);
-    sprintf(CommandResBuf, "%s %d %d %d %d\n", attr.g_attr.mode ? "manual" : "auto", attr.g_attr.time_min, attr.g_attr.time, attr.g_attr.time_max, attr.g_attr.one_line_expr_in_us);
+    sprintf(CommandResBuf, "%s %d %d %d %d\n", attr.g_attr.mode ? "manual" : "auto", attr.g_attr.time, attr.g_attr.time_min, attr.g_attr.time_max, attr.g_attr.one_line_expr_in_us);
     return CommandResBuf;
   }
 
+  int res = 0;
   if(!strcasecmp(p, "auto")) {
     attr.s_attr.mode = 0;
+    attr.s_attr.unit = 0;
     attr.s_attr.time = 0;
+    IMPISPAEMin aemin;
+    IMP_ISP_Tuning_GetAeMin(&aemin);
+    p = strtok_r(NULL, " \t\r\n", &tokenPtr);
+    if(!p) return "error";
+    p = strtok_r(NULL, " \t\r\n", &tokenPtr);
+    if(!p) return "error";
+    aemin.min_it = atoi(p);
+    p = strtok_r(NULL, " \t\r\n", &tokenPtr);
+    if(!p) return "error";
+    int itmax = atoi(p);
+    res |= IMP_ISP_Tuning_SetAeMin(&aemin);
+    res |= IMP_ISP_Tuning_SetAe_IT_MAX(itmax);
+    res |= IMP_ISP_Tuning_SetExpr(&attr);
   } else if(!strcasecmp(p, "manual")) {
     attr.s_attr.mode = 1;
+    attr.s_attr.unit = 0;
     p = strtok_r(NULL, " \t\r\n", &tokenPtr);
     if(!p) return "error";
     attr.s_attr.time = atoi(p);
+    IMPISPAEMin aemin;
+    IMP_ISP_Tuning_GetAeMin(&aemin);
+    aemin.min_it = 1;
+    res |= IMP_ISP_Tuning_SetAeMin(&aemin);
+    res |= IMP_ISP_Tuning_SetAe_IT_MAX(1683);
+    res |= IMP_ISP_Tuning_SetExpr(&attr);
   } else {
-    return "error";
+    res = -1;
   }
-  attr.s_attr.unit = 1;
-  int res = IMP_ISP_Tuning_SetExpr(&attr);
   return res ? "error": "ok";
 }
 

@@ -87,12 +87,20 @@
           <SettingSlider i18n="AdvancedSettings.sharpness" v-model="ISPSettings.sharp" :min="0" :max="255" :defaultValue="128" :stemp="1" @input="ISPSet('sharp')" />
           <SettingSlider i18n="AdvancedSettings.sinter" v-model="ISPSettings.sinter" :min="0" :max="255" :defaultValue="128" :stemp="1" @input="ISPSet('sinter')" />
           <SettingSlider i18n="AdvancedSettings.temper" v-model="ISPSettings.temper" :min="0" :max="255" :defaultValue="128" :stemp="1" @input="ISPSet('temper')" />
-          <SettingSlider i18n="AdvancedSettings.aecomp" v-model="ISPSettings.aecomp" :min="0" :max="255" :defaultValue="128" :stemp="1" @input="ISPSet('aecomp')" />
           <SettingSlider i18n="AdvancedSettings.dpc" v-model="ISPSettings.dpc" :min="0" :max="255" :defaultValue="128" :stemp="1" @input="ISPSet('dpc')" />
           <SettingSlider i18n="AdvancedSettings.drc" v-model="ISPSettings.drc" :min="0" :max="255" :defaultValue="128" :stemp="1" @input="ISPSet('drc')" />
           <SettingSlider i18n="AdvancedSettings.hilight" v-model="ISPSettings.hilight" :min="0" :max="10" :defaultValue="2" :stemp="1" @input="ISPSet('hilight')" />
           <SettingSlider i18n="AdvancedSettings.again" v-model="ISPSettings.again" :min="0" :max="255" :defaultValue="205" :stemp="1" @input="ISPSet('again')" />
           <SettingSlider i18n="AdvancedSettings.dgain" v-model="ISPSettings.dgain" :min="0" :max="255" :defaultValue="64" :stemp="1" @input="ISPSet('dgain')" />
+          <SettingSlider i18n="AdvancedSettings.aecomp" v-model="ISPSettings.aecomp" :min="0" :max="255" :defaultValue="128" :stemp="1" @input="ISPSet('aecomp')" />
+          <SettingSwitch i18n="AdvancedSettings.expmode" v-model="ISPSettings.expmode" :label="['auto', 'manual']" @input="ISPSet('expmode')" />
+          <div v-if="ISPSettings.expmode === 'auto'">
+            <SettingSlider i18n="AdvancedSettings.aeitmin" v-model="ISPSettings.aeitmin" :min="1" :max="ISPSettings.aeitmax" :defaultValue="1" :stemp="1" @input="ISPSet('aeitmin')" />
+            <SettingSlider i18n="AdvancedSettings.aeitmax" v-model="ISPSettings.aeitmax" :min="ISPSettings.aeitmin" :max="1683" :defaultValue="1200" :stemp="1" @input="ISPSet('aeitmax')" />
+          </div>
+          <div v-else>
+            <SettingSlider i18n="AdvancedSettings.expline" v-model="ISPSettings.expline" :min="1" :max="1683" :defaultValue="1200" :stemp="1" @input="ISPSet('expline')" />
+          </div>
 
           <div v-if="selectedTab === 'CameraSettings'">
             <div class="image-frame image-frame-camera-settings">
@@ -517,12 +525,16 @@
           sharp: 128,
           sinter: 128,
           temper: 128,
-          aecomp: 128,
           dpc: 128,
           drc: 128,
           hilight: 2,
           again: 205,
           dgain: 64,
+          aecomp: 128,
+          expmode: 'auto',
+          aeitmin: 1,
+          aeitmax: 1200,
+          expline: 1200,
         },
         loginAuth: 'off',
         loginAuth2: 'off',
@@ -981,7 +993,11 @@
         }, 1000);
       },
       async ISPSet(item) {
-        await this.Exec(`video ${item} ${this.ISPSettings[item]}`, 'socket');
+        if(['aeitmin', 'aeitmax', 'expmode', 'expline'].indexOf(item) >= 0) {
+          await this.Exec(`video expr ${this.ISPSettings.expmode} ${this.ISPSettings.expline} ${this.ISPSettings.aeitmin} ${this.ISPSettings.aeitmax}`, 'socket');
+        } else {
+          await this.Exec(`video ${item} ${this.ISPSettings[item]}`, 'socket');
+        }
         if(this.ispSettingsTimeoutID) clearTimeout(this.ispSettingsTimeoutID);
         this.ispSettingsTimeoutID = setTimeout(async () => {
           this.ispSettingsTimeoutID = null;

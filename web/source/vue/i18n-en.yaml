@@ -76,9 +76,6 @@ AdvancedSettings:
   temper:
     title: 3D-NR intensity
     tooltip: Set 3D noise reduction intensity.
-  aecomp:
-    title: AE compensation
-    tooltip: Setting AE compensation.
   dpc:
     title: DPC Strength
     tooltip: Set DPC Strength.
@@ -94,6 +91,24 @@ AdvancedSettings:
   dgain:
     title: Max Digital Gain
     tooltip: Set the Max value of sensor Digital gain.
+  aecomp:
+    title: AE compensation
+    tooltip: Setting AE compensation.
+  expmode:
+    title: Exposure mode
+    tooltip: Setting the exposure mode.
+    text:
+      - auto
+      - manual
+  aeitmin:
+    title: AE ITMin
+    tooltip: The min value of integration time, the unit is line.
+  aeitmax:
+    title: AE ITMax
+    tooltip: The max value of integration time, the unit is line.
+  expline:
+    title: Exposure line
+    tooltip: Setting Exposure integration line.
 
 SDCard:
   title: SD Card

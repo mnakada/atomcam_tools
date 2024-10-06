@@ -4,8 +4,15 @@ ISP_CONF=/media/mmc/video_isp.conf
 if [ -f $ISP_CONF ] ; then
   while read l
   do
+    [ "${l%%=*}" = 'aeitmin' ] && aeitmin=${l##*=} && continue;
+    [ "${l%%=*}" = 'aeitmax' ] && aeitmax=${l##*=} && continue;
+    [ "${l%%=*}" = 'expmode' ] && expmode=${l##*=} && continue;
+    [ "${l%%=*}" = 'expline' ] && expline=${l##*=} && continue;
     echo "video ${l//=/ }" | /usr/bin/nc localhost:4000 > /dev/null
   done < $ISP_CONF
+  if [ "${expmode}" != "" -a "${expline}" != "" -a "${aeitmin}" != "" -a "${aeitmax}" != "" ] ; then
+    echo "video expr ${expmode} ${expline} ${aeitmin} ${aeitmax}" | /usr/bin/nc localhost:4000 > /dev/null
+  fi
 fi
 
 HACK_INI=/tmp/hack.ini

@@ -482,4 +482,4 @@ executing: Updating. Please wait a bit.
 erasing: Erasing SD-Card. Please wait a bit.
 downloading: Downloading now. Please wait a bit.
 downloadError: Download failed. Please give it some time and try again.
-rebooting:Wait until reboot has completed (approximately 80sec)
+rebooting: Wait until reboot has completed (approximately 80sec)

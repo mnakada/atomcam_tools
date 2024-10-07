@@ -91,15 +91,15 @@ AdvancedSettings:
   dgain:
     title: Max Digital Gain
     tooltip: Set the Max value of sensor Digital gain.
-  aecomp:
-    title: AE compensation
-    tooltip: Setting AE compensation.
   expmode:
     title: Exposure mode
     tooltip: Setting the exposure mode.
     text:
       - auto
       - manual
+  aecomp:
+    title: AE compensation
+    tooltip: Setting AE compensation.
   aeitmin:
     title: AE ITMin
     tooltip: The min value of integration time, the unit is line.

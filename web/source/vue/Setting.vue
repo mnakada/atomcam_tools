@@ -92,9 +92,9 @@
           <SettingSlider i18n="AdvancedSettings.hilight" v-model="ISPSettings.hilight" :min="0" :max="10" :defaultValue="2" :stemp="1" @input="ISPSet('hilight')" />
           <SettingSlider i18n="AdvancedSettings.again" v-model="ISPSettings.again" :min="0" :max="255" :defaultValue="205" :stemp="1" @input="ISPSet('again')" />
           <SettingSlider i18n="AdvancedSettings.dgain" v-model="ISPSettings.dgain" :min="0" :max="255" :defaultValue="64" :stemp="1" @input="ISPSet('dgain')" />
-          <SettingSlider i18n="AdvancedSettings.aecomp" v-model="ISPSettings.aecomp" :min="0" :max="255" :defaultValue="128" :stemp="1" @input="ISPSet('aecomp')" />
           <SettingSwitch i18n="AdvancedSettings.expmode" v-model="ISPSettings.expmode" :label="['auto', 'manual']" @input="ISPSet('expmode')" />
           <div v-if="ISPSettings.expmode === 'auto'">
+            <SettingSlider i18n="AdvancedSettings.aecomp" v-model="ISPSettings.aecomp" :min="0" :max="255" :defaultValue="128" :stemp="1" @input="ISPSet('aecomp')" />
             <SettingSlider i18n="AdvancedSettings.aeitmin" v-model="ISPSettings.aeitmin" :min="1" :max="ISPSettings.aeitmax" :defaultValue="1" :stemp="1" @input="ISPSet('aeitmin')" />
             <SettingSlider i18n="AdvancedSettings.aeitmax" v-model="ISPSettings.aeitmax" :min="ISPSettings.aeitmin" :max="1683" :defaultValue="1200" :stemp="1" @input="ISPSet('aeitmax')" />
           </div>
@@ -993,19 +993,22 @@
         }, 1000);
       },
       async ISPSet(item) {
-        if(['aeitmin', 'aeitmax', 'expmode', 'expline'].indexOf(item) >= 0) {
-          await this.Exec(`video expr ${this.ISPSettings.expmode} ${this.ISPSettings.expline} ${this.ISPSettings.aeitmin} ${this.ISPSettings.aeitmax}`, 'socket');
-        } else {
-          await this.Exec(`video ${item} ${this.ISPSettings[item]}`, 'socket');
-        }
         if(this.ispSettingsTimeoutID) clearTimeout(this.ispSettingsTimeoutID);
         this.ispSettingsTimeoutID = setTimeout(async () => {
-          this.ispSettingsTimeoutID = null;
+          if(['aeitmin', 'aeitmax', 'expmode', 'expline'].indexOf(item) >= 0) {
+            await this.Exec(`video expr ${this.ISPSettings.expmode} ${this.ISPSettings.expline} ${this.ISPSettings.aeitmin} ${this.ISPSettings.aeitmax}`, 'socket');
+          } else {
+            await this.Exec(`video ${item} ${this.ISPSettings[item]}`, 'socket');
+          }
+        }, 300);
+        if(this.ispSettingsFileTimeoutID) clearTimeout(this.ispSettingsFileTimeoutID);
+        this.ispSettingsFileTimeoutID = setTimeout(async () => {
+          this.ispSettingsFileTimeoutID = null;
           await axios.post('./cgi-bin/video_isp.cgi', this.ISPSettings).catch(err => {
             // eslint-disable-next-line no-console
             console.log('axios.post ./cgi-bin/video_isp.cgi', err);
           });
-        }, 1000);
+        }, 1500);
       },
       async CheckHomeKit() {
         if((this.oldConfig.HOMEKIT_ENABLE !== 'on') || (this.config.HOMEKIT_ENABLE !== 'on')) return;

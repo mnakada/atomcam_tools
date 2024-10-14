@@ -72,6 +72,7 @@ extern char CommandResBuf[];
 
 static struct ProcessingInfoSt ProcessingInfo;
 static char Filename[256];
+static int ScheduleNo;
 static pthread_mutex_t TimelapseMutex = PTHREAD_MUTEX_INITIALIZER;
 static int TimelapseFd = -1;
 static DirectiveSt Directive = Directive_Nop;
@@ -243,9 +244,16 @@ char *Timelapse(int fd, char *tokenPtr) {
 
     p = strtok_r(NULL, " \t\r\n", &tokenPtr);
     stszHeader.fps = 20;
-    if(p) stszHeader.fps = atoi(p);
-    if(stszHeader.fps < 1) stszHeader.fps = 1;
-    if(stszHeader.fps > 60) stszHeader.fps = 60;
+    ScheduleNo = 0;
+    if(p) {
+      stszHeader.fps = atoi(p);
+      if(stszHeader.fps < 1) stszHeader.fps = 1;
+      if(stszHeader.fps > 60) stszHeader.fps = 60;
+
+      p = strtok_r(NULL, " \t\r\n", &tokenPtr);
+      if(p) ScheduleNo = atoi(p);
+      if(ScheduleNo < 0) ScheduleNo = 0;
+    }
 
     struct timeval tv;
     gettimeofday(&tv, NULL);
@@ -291,16 +299,23 @@ static void *TimelapseThread() {
     if((Directive == Directive_Start) || (Directive == Directive_Restart)) {
       char file[256];
       file[0] = 0;
+      int scheduleNo = 0;
       FILE *fp = fopen(TimelapseInfoFile, "r");
       if(fp) {
         fgets(file, 255, fp);
+        strtok(file, "\r\n");
+        char buf[64];
+        buf[0] = 0;
+        fgets(buf, 63, fp);
         fclose(fp);
+        if(strlen(buf) > 0) scheduleNo = atoi(buf);
       }
       fp = NULL;
       if(strlen(file)) fp = fopen(file, "r");
       if(fp) {
         fclose(fp);
         strcpy(ProcessingInfo.stszFile, file);
+        ScheduleNo = scheduleNo;
         if(Directive == Directive_Start) Directive = Directive_CloseAndStart;
       } else {
         if(Directive == Directive_Restart) {
@@ -345,7 +360,8 @@ static void *TimelapseThread() {
     if(Directive == Directive_Start) {
       fp = fopen(TimelapseInfoFile, "w");
       if(fp) {
-        fputs(ProcessingInfo.stszFile, fp);
+        fprintf(fp, "%s\n", ProcessingInfo.stszFile);
+        fprintf(fp, "%d\n", ScheduleNo);
         fclose(fp);
       }
     }
@@ -440,8 +456,8 @@ static void *TimelapseThread() {
       char str[32];
       strftime(str, sizeof(str), "[%Y/%m/%d-%T]", localtime(&t));
       fputs(str, stderr);
-      fprintf(stderr, "[timelapse] %d/%d\n", ProcessingInfo.count, ProcessingInfo.numOfTimes);
-      printf("[webhook] time_lapse_event %s %d/%d\n", ProcessingInfo.mp4File, ProcessingInfo.count, ProcessingInfo.numOfTimes);
+      fprintf(stderr, "[timelapse] %d/%d %d\n", ProcessingInfo.count, ProcessingInfo.numOfTimes, ScheduleNo);
+      printf("[webhook] time_lapse_event %s %d/%d %d\n", ProcessingInfo.mp4File, ProcessingInfo.count, ProcessingInfo.numOfTimes, ScheduleNo);
 
       if(Directive != Directive_Nop) {
         CommandResponse(TimelapseFd, "ok");
@@ -472,8 +488,8 @@ static void *TimelapseThread() {
 
     char *res = AppendMoov();
     if(!strcasecmp(res, "ok")) {
-      printf("[webhook] time_lapse_finish %s %d/%d\n", ProcessingInfo.mp4File, ProcessingInfo.count, ProcessingInfo.numOfTimes);
-      fprintf(stderr, "[timelapse] finish %s %d/%d\n", ProcessingInfo.mp4File, ProcessingInfo.count, ProcessingInfo.numOfTimes);
+      printf("[webhook] time_lapse_finish %s %d/%d %d\n", ProcessingInfo.mp4File, ProcessingInfo.count, ProcessingInfo.numOfTimes, ScheduleNo);
+      fprintf(stderr, "[timelapse] finish %s %d/%d %d\n", ProcessingInfo.mp4File, ProcessingInfo.count, ProcessingInfo.numOfTimes, ScheduleNo);
     }
     CommandResponse(TimelapseFd, res);
 

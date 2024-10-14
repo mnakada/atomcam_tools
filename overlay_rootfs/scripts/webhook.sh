@@ -22,7 +22,7 @@ BEGIN {
 /\[webhook\] time_lapse_event/ {
   if(TIMELAPSE_HOOK == "on") {
     split($4, count, "/");
-    system("/media/mmc/timelapse_hook.sh " $3 " " count[1] " " count[2] " >/dev/null 2>&1 &");
+    system("/media/mmc/timelapse_hook.sh " $3 " " count[1] " " count[2] " " $5 " >/dev/null 2>&1 &");
   }
 }
 

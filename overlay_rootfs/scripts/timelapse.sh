@@ -51,9 +51,9 @@ if [ "$1" = "start" ] ; then
   TIMELAPSE_DIR=${TIMELAPSE_FILE%/*}
   mkdir -p $TIMELAPSE_DIR
 
-  [ -f /media/mmc/timelapse_hook.sh ] && /media/mmc/timelapse_hook.sh $TIMELAPSE_FILE start
+  [ -f /media/mmc/timelapse_hook.sh ] && /media/mmc/timelapse_hook.sh $TIMELAPSE_FILE start $4
 
-  res=`/scripts/cmd timelapse $TIMELAPSE_FILE $2 $3 $TIMELAPSE_FPS`
+  res=`/scripts/cmd timelapse $TIMELAPSE_FILE $2 $3 $TIMELAPSE_FPS $4`
   [ "$res" = "ok" ] || exit 1
   if [ "$WEBHOOK_URL" != "" ] && [ "$WEBHOOK_TIMELAPSE_START" = "on" ]; then
     /usr/bin/curl -X POST -m 3 -H "Content-Type: application/json" -d "{\"type\":\"timelapseStart\", \"device\":\"${HOSTNAME}\"}" $INSECURE_FLAG $WEBHOOK_URL > /dev/null 2>&1

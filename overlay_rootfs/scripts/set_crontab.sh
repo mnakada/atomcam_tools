@@ -27,7 +27,7 @@ BEGIN {
   for(i in schedule) {
     if(schedule[i] == "") continue;
     gsub(/:/,",", schedule[i]);
-    printf("%s\n", schedule[i]);
+    printf("%s %d\n", schedule[i], i);
   }
 }
 ' $HACK_INI | crontab -

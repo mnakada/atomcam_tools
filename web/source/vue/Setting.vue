@@ -686,7 +686,13 @@
       });
       (res2?.data ?? '').split('\n').forEach(l => {
         const name = l.split(/[ \t=]/)[0].trim();
-        if(this.ISPSettings[name] != null) this.$set(this.ISPSettings, name, l.replace(new RegExp(name + '[ \t=]*'), '').trim());
+        if(this.ISPSettings[name] != null) {
+          if(typeof(this.ISPSettings[name]) === 'number') {
+            this.$set(this.ISPSettings, name, parseInt(l.replace(new RegExp(name + '[ \t=]*'), '')));
+          } else {
+            this.$set(this.ISPSettings, name, l.replace(new RegExp(name + '[ \t=]*'), '').trim());
+          }
+        }
       });
       // eslint-disable-next-line no-console
       console.log('video isp', this.ISPSettings);

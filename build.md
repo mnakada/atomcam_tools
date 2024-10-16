@@ -107,14 +107,10 @@ AtomCamの起動シーケンスは以下の通りです:
 
 1. `/sbin/init`が`inittab`に従って`/etc/init.d/rcS`を起動
 2. `rcS`が`/etc/init.d/S*`を順番に実行
-3. `/etc/init.d`の実行完了後:
-   - **シリアル接続時:** gettyでログインプロンプトが表示
-   - **AtomCam:** 背面LEDが青点滅から青点灯に変わるとSSHログイン可能
+3. `/etc/init.d`の実行
+- **シリアル接続時:** gettyでログインプロンプトが表示
+- **AtomCam:** 背面LEDが青点滅から青点灯に変わるとSSHログイン可能
 
-### ログイン方法
-
-- **シリアル接続:** ログインプロンプトから
-- **SSH:** AtomCamの背面LEDが青点灯になったら可能
 
 ## `/etc/init.d/S31fwupdate`
 

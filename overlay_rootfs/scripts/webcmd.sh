@@ -68,8 +68,8 @@ do
     echo "$cmd $params $res" >> /var/run/webres
     cmd=""
   fi
-  if [ "$cmd" = "SkipRecJpeg" ]; then
-    res=`/scripts/cmd SkipRecJpeg ${params}`
+  if [ "$cmd" = "skipRecJpeg" ]; then
+    res=`/scripts/cmd skipRecJpeg ${params}`
     echo "$cmd $params $res" >> /var/run/webres
     cmd=""
   fi

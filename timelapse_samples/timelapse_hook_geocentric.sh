@@ -9,6 +9,9 @@
 # 4. Set timelapse to start at 18:00, with 720 times in 60-second cycles.
 # 5. The next morning, the constellations stand still and the ground rotates, creating a time-lapse video.
 
+# awk <mp4-file> start <TotalFrames> <ScheduleID>
+# awk <mp4-file> <FrameNo> <TotalFrames> <ScheduleID>
+
 BEGIN {
 
   # Angle from the Polaris
@@ -33,7 +36,40 @@ BEGIN {
   "date +%s" | getline GMT;
   JST = GMT + 9 * 60 * 60;
 
-  if(((JST % 86400) >= 8 * 60 * 60) && ((JST % 86400) < 18 * 60 * 60)) {
+  ScheduleID = 1;
+  if(ARGC >= 4) ScheduleID = ARGV[4];
+  if((ARGC >= 3) && (ARGV[2] == "start")) ScheduleID = ARGV[3];
+  printf("ScheduleID: %d\n", ScheduleID) >> "/tmp/log/timelapse_hook.log";
+  if(ScheduleID == 1) {
+    dir = 1;
+    if(direction == "SOUTH") dir = -1;
+    pan = (720 + dir * 360 * ((JST - timeOffset) % 86400) / secondsOfsiderealDay) % 360;
+    if(pan < 0) pan = 0;
+    if(pan > 355) pan = 355;
+
+    cmd = sprintf("/scripts/cmd move %3.3f %d 3 0", pan, 180 - tiltAngle);
+    if((ARGC >=2) && (ARGV[2] == "start")) {
+      "/scripts/cmd move 355 180 3 1" | getline res;
+      sleep 3;
+      cmd | getline res;
+      sleep 3;
+      print "start: " >> "/tmp/log/timelapse_hook.log";
+      print cmd >> "/tmp/log/timelapse_hook.log";
+      print res >> "/tmp/log/timelapse_hook.log";
+    } else {
+      pan0 = pan - 15;
+      if(pan0 < 0) pan0 += 30;
+      cmd0 = sprintf("/scripts/cmd move %3.3f %d 3 0", pan0, 180 - tiltAngle);
+      cmd0 | getline res;
+      sleep 3
+    }
+    for(i = 0; i < 3; i++) {
+      cmd | getline res;
+      print cmd >> "/tmp/log/timelapse_hook.log";
+      print res >> "/tmp/log/timelapse_hook.log";
+      if(res != "" && index(res, "error") == 0) break;
+    }
+  } else {
     cmd = sprintf("/scripts/cmd move %3.3f %d 1 0", daytimePanAngle, 180 - daytimeTiltAngle);
     if((ARGC >=2) && (ARGV[2] == "start")) {
       cmd | getline res;
@@ -45,28 +81,5 @@ BEGIN {
     cmd | getline res;
     print cmd >> "/tmp/log/timelapse_hook.log";
     print res >> "/tmp/log/timelapse_hook.log";
-  } else {
-    dir = 1;
-    if(direction == "SOUTH") dir = -1;
-    pan = (720 + dir * 360 * ((JST - timeOffset) % 86400) / secondsOfsiderealDay) % 360;
-    if(pan < 0) pan = 0;
-    if(pan > 355) pan = 355;
-
-    # "/scripts/cmd move 0 0 9 1" | getline res;
-    "/scripts/cmd move 355 180 9 1" | getline res;
-    cmd = sprintf("/scripts/cmd move %3.3f %d 3 0", pan, 180 - tiltAngle);
-    if((ARGC >=2) && (ARGV[2] == "start")) {
-      cmd | getline res;
-      sleep 3;
-      print "start: " >> "/tmp/log/timelapse_hook.log";
-      print cmd >> "/tmp/log/timelapse_hook.log";
-      print res >> "/tmp/log/timelapse_hook.log";
-    }
-    for(i = 0; i < 3; i++) {
-      cmd | getline res;
-      print cmd >> "/tmp/log/timelapse_hook.log";
-      print res >> "/tmp/log/timelapse_hook.log";
-      if(res != "" && index(res, "error") == 0) break;
-    }
   }
 }

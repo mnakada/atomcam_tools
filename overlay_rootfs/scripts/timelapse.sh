@@ -51,7 +51,7 @@ if [ "$1" = "start" ] ; then
   TIMELAPSE_DIR=${TIMELAPSE_FILE%/*}
   mkdir -p $TIMELAPSE_DIR
 
-  [ -f /media/mmc/timelapse_hook.sh ] && /media/mmc/timelapse_hook.sh $TIMELAPSE_FILE start $4
+  [ -f /media/mmc/timelapse_hook.sh ] && /media/mmc/timelapse_hook.sh $TIMELAPSE_FILE start $3 $4
 
   res=`/scripts/cmd timelapse $TIMELAPSE_FILE $2 $3 $TIMELAPSE_FPS $4`
   [ "$res" = "ok" ] || exit 1

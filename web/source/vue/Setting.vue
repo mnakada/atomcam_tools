@@ -153,6 +153,7 @@
             <div v-if="config.PERIODICREC_SCHEDULE === 'on'">
               <SettingSchedule v-for="(timeTable, idx) of periodicRecSchedule" :key="'timetable'+idx" :timeRange="true" :removeSchedule="true" v-model="periodicRecSchedule[idx]" @add="AddSchedule('periodicRecSchedule')" @remove="DeleteSchedule('periodicRecSchedule', idx, 'PERIODICREC_SCHEDULE')" />
             </div>
+            <SettingSwitch i18n="record.skipJpeg" v-model="config.PERIODICREC_SKIP_JPEG" />
           </div>
 
           <h3 v-t="'record.alarmRec.title'" />
@@ -464,6 +465,7 @@
           PERIODICREC_CIFS_REMOVE_DAYS: 30,
           PERIODICREC_SCHEDULE: 'off',
           PERIODICREC_SCHEDULE_LIST: '',
+          PERIODICREC_SKIP_JPEG: 'off',
           ALARMREC_SDCARD: 'on',
           ALARMREC_SDCARD_PATH: '%Y%m%d/%H%M%S',
           ALARMREC_SDCARD_REMOVE: 'off',
@@ -1357,6 +1359,9 @@
         }
         if(parseInt(this.config.BITRATE_MAIN_HEVC) !== parseInt(this.oldConfig.BITRATE_MAIN_HEVC)) {
           execCmds.push(`bitrate 3 ${this.config.BITRATE_MAIN_HEVC < 0 ? 'auto' : this.config.BITRATE_MAIN_HEVC}`);
+        }
+        if(parseInt(this.config.PERIODICREC_SKIP_JPEG) !== parseInt(this.oldConfig.PERIODICREC_SKIP_JPEG)) {
+          execCmds.push(`skipRecJpeg ${this.config.PERIODICREC_SKIP_JPEG}`);
         }
         if(this.config.HOSTNAME !== this.oldConfig.HOSTNAME) {
           execCmds.push(`hostname ${this.config.HOSTNAME}`);

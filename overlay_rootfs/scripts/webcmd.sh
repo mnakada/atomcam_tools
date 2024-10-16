@@ -68,6 +68,11 @@ do
     echo "$cmd $params $res" >> /var/run/webres
     cmd=""
   fi
+  if [ "$cmd" = "SkipRecJpeg" ]; then
+    res=`/scripts/cmd SkipRecJpeg ${params}`
+    echo "$cmd $params $res" >> /var/run/webres
+    cmd=""
+  fi
   if [ "$cmd" = "flip" ]; then
     res=`/scripts/cmd video flip ${params}`
     awk '

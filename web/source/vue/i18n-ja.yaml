@@ -155,6 +155,9 @@ record:
     text:
       - 常時録画
       - スケジュール
+  skipJpeg:
+    title: JPEG記録の停止
+    tooltip: recordディレクトリへのJPEGファイルの記録を停止
 
 timelapse:
   tab: タイムラプス設定

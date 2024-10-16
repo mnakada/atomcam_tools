@@ -30,6 +30,7 @@ extern char *AlarmConfig(int fd, char *tokenPtr);
 extern char *CenterMark(int fd, char *tokenPtr);
 extern char *Property(int fd, char *tokenPtr);
 extern char *Watermark(int fd, char *tokenPtr);
+extern char *SkipRecordJpeg(int fd, char *tokenPtr);
 //extern char *MemoryAccess(int fd, char *tokenPtr);
 
 char *CommandResBuf[256];
@@ -58,6 +59,7 @@ struct CommandTableSt CommandTable[] = {
   { "center",     &CenterMark },
   { "property",   &Property },
   { "watermark",  &Watermark },
+  { "skipRecJpeg",&SkipRecordJpeg },
 //  { "mem",        &MemoryAccess },
 };
 

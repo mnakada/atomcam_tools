@@ -25,6 +25,7 @@ BITRATE_SUB_HEVC=$(awk -F "=" '/^BITRATE_SUB_HEVC *=/ {print $2}' $HACK_INI)
 BITRATE_MAIN_HEVC=$(awk -F "=" '/^BITRATE_MAIN_HEVC *=/ {print $2}' $HACK_INI)
 MINIMIZE_ALARM_CYCLE=$(awk -F "=" '/^MINIMIZE_ALARM_CYCLE *=/ {print $2}' $HACK_INI)
 AWS_VIDEO_DISABLE=$(awk -F "=" '/^AWS_VIDEO_DISABLE *=/ {print $2}' $HACK_INI)
+PERIODICREC_SKIP_JPEG=$(awk -F "=" '/^SKIP_REC_JPEG *=/ {print $2}' $HACK_INI)
 
 PERIODIC="ram"
 ALARM="ram"
@@ -33,6 +34,7 @@ if [ "$STORAGE_SDCARD_DIRECT_WRITE" = "on" ] ; then
   [ "$ALARMREC_SDCARD" = "on" ] && ALARM="sd"
 fi
 /scripts/cmd mp4write $PERIODIC $ALARM > /dev/null
+/scripts/cmd skipRecJpeg $PERIODICREC_SKIP_JPEG > /dev/null
 
 [ "$MINIMIZE_ALARM_CYCLE" = "on" ] && /scripts/cmd alarm 30 > /dev/null
 [ "$AWS_VIDEO_DISABLE" = "on" ] && /scripts/cmd curl upload disable > /dev/null

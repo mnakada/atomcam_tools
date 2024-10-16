@@ -155,6 +155,9 @@ record:
     text:
       - Schedule
       - Constant Recoring
+  skipJpeg:
+    title: Skip JPEG Recording
+    tooltip: Stop recording JPEG files to record directory
 
 timelapse:
   tab: Timelapse

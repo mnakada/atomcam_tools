@@ -189,6 +189,27 @@ AtomCamSwingでカメラを動かすと動体検知が反応するため、動�
 
 
 
+### get_jpeg.c
+
+#####  commandIF
+
+```
+skipRecJpeg [on|off]
+```
+
+/media/mmc/record/以下の連続録画の記録時にjpegも一緒に記録されるが、不要な時にonにすることで記録されなくなる。
+
+##### hook point
+
+```C
+/thirdlib/liblocalsdk.so : int local_sdk_video_get_jpeg(int ch, char *path)
+```
+
+skipRecJpegがonの場合、指定chの静止画をjpegとして記録する時にpathを比較して/media/mmc/record/以下の場合は無視する。
+
+
+
+
 ### jpeg.c
 
 #####  commandIF

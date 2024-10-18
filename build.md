@@ -21,7 +21,7 @@ make lima  # macOSのみ
 make
 ```
 
-環境によりますが、約1時間で`atomcam_tools/target/atomcam_tools.zip`が生成されます。
+環境によりますが、約1時間で`atomcam_tools/atomcam_tools.zip`が生成されます。
 
 **以下のファイルが含まれます:**
 - `authorized_keys`

@@ -112,15 +112,15 @@ AtomCamの起動シーケンスは以下の通りです:
 - **AtomCam:** 背面LEDが青点滅から青点灯に変わるとSSHログイン可能
 
 
-## `/etc/init.d/S31fwupdate`
+## `/etc/init.d/S16fwupdate`
 
 AtomCamのファームウェアアップデートのシーケンスが実行中の場合、その処理を代行します。
 
-## `/etc/init.d/S34mount`
+## `/etc/init.d/S20mountfs`
 
 overlayfsが使用できないため、bind mountでシステムのファイル/フォルダーの配置を入れ替えています。
 
-## `/etc/init.d/S38atomcam`
+## `/etc/init.d/S61atomcam`
 
 /atom/以下に本来のATOMCamのシステムと幾つかのmount-pointを共通でアクセスできるようにmountします。
 

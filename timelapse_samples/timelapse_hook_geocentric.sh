@@ -38,7 +38,6 @@ BEGIN {
 
   ScheduleID = 1;
   if(ARGC >= 4) ScheduleID = ARGV[4];
-  if((ARGC >= 3) && (ARGV[2] == "start")) ScheduleID = ARGV[3];
   printf("ScheduleID: %d\n", ScheduleID) >> "/tmp/log/timelapse_hook.log";
   if(ScheduleID == 1) {
     dir = 1;

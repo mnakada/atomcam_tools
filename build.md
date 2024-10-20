@@ -235,6 +235,14 @@ WebUIで使用している設定値の取得、設定をします。
 
 モバイルアプリからのアクセス時の要求に応答するためのCGIです。
 
+## `/var/www/cgi-bin/video_isp.cgi`
+
+カメラ設定の詳細設定項目を操作するCGIです。
+
+## `/var/www/cgi-bin/watermark.cgi`
+
+システム設定のロゴを設定するためのCGIです。
+
 # WebUI
 
 `web/`ディレクトリ以下にWebUIのソースコードがあります。

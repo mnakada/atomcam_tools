@@ -16,7 +16,7 @@
 		15AD4A35273934B30093AC3F /* build.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = build.md; sourceTree = "<group>"; };
 		15B1B2D22765CEB60034BDCF /* patches */ = {isa = PBXFileReference; lastKnownFileType = folder; path = patches; sourceTree = "<group>"; };
 		15B1B2D32765CEB60034BDCF /* configs */ = {isa = PBXFileReference; lastKnownFileType = folder; path = configs; sourceTree = "<group>"; };
-		15B1B2D42765CEB60034BDCF /* docker-compose.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = "docker-compose.yml"; sourceTree = "<group>"; };
+		15B1B2D42765CEB60034BDCF /* compose.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = "compose.yml"; sourceTree = "<group>"; };
 		15B1B2D52765CEB60034BDCF /* web */ = {isa = PBXFileReference; lastKnownFileType = folder; path = web; sourceTree = "<group>"; };
 		15B1B2D62765CEB60034BDCF /* libcallback */ = {isa = PBXFileReference; lastKnownFileType = folder; path = libcallback; sourceTree = "<group>"; };
 		15B1B2D72765CEB60034BDCF /* buildscripts */ = {isa = PBXFileReference; lastKnownFileType = folder; path = buildscripts; sourceTree = "<group>"; };
@@ -41,7 +41,7 @@
 				156A36DA1F5AE96F0026EC60 /* README.md */,
 				15AD4A35273934B30093AC3F /* build.md */,
 				1541FB8D1F1116CE006343F3 /* license */,
-				15B1B2D42765CEB60034BDCF /* docker-compose.yml */,
+				15B1B2D42765CEB60034BDCF /* compose.yml */,
 				15B1B2D72765CEB60034BDCF /* buildscripts */,
 				15B1B2D32765CEB60034BDCF /* configs */,
 				15B1B2D62765CEB60034BDCF /* libcallback */,

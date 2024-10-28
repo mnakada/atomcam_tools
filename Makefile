@@ -3,7 +3,7 @@
 
 DOCKER_IMAGE=$(shell sed -ne 's/^.*image:[ \t]*//p' compose.yml)
 DOCKER_ARCH=-$(subst x86_64,amd64,$(subst aarch64,arm64,$(shell uname -m)))
-DOCKER_COMPOSE=$(shell docker compose version > /dev/null 2>&1 && echo docker compose || echo docker-compose)
+DOCKER_COMPOSE=$(shell docker compose version > /dev/null 2>&1 && echo script -q /dev/null docker compose || echo docker-compose)
 
 build:
 	-docker pull ${DOCKER_IMAGE} | awk '{ print } /Downloaded newer image/ { system("$(DOCKER_COMPOSE) down"); }'

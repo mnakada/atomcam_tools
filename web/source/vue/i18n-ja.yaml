@@ -112,6 +112,7 @@ AdvancedSettings:
 
 SDCard:
   tab: SD Card
+  remainingCapacity: 空き容量
 
 record:
   tab: 録画設定

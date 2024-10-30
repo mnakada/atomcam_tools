@@ -131,6 +131,9 @@
         <!-- SD-Card Tab -->
         <ElTabPane name="SDCard" class="well-transparent container-flex-no-submit" :label="$t('SDCard.tab')">
           <iframe ref="sdcardFrame" class="sdcard-frame" src="/sdcard" />
+          <div class="media-size">
+            {{ $t('SDCard.remainingCapacity') }}: {{ Math.round(mediaAvailable / 1024 / 1024 * 10) / 10 }}GB / {{ Math.round(mediaSize / 1024 / 1024 * 10) / 10 }}GB
+          </div>
         </ElTabPane>
 
         <!-- Record Setting Tab -->
@@ -599,6 +602,8 @@
         videoFlip: false,
         isDrag: false,
         watermarkUploaded: false,
+        mediaSize: 0,
+        mediaAvailable: 0,
       };
     },
     computed: {
@@ -835,6 +840,11 @@
       }, {});
 
       this.latestVer = status.LATESTVER;
+      if(status.MEDIASIZE) {
+        const ms = status.MEDIASIZE.split(' ');
+        this.mediaSize = ms[1];
+        this.mediaAvailable = ms[0];
+      }
       if(status.MOTORPOS) {
         const pos = status.MOTORPOS.split(' ');
         this.pan = Math.round(parseFloat(pos[0]));
@@ -868,6 +878,11 @@
           if(name) d[name] = l.replace(new RegExp(name + '[ \t=]*'), '').trim();
           return d;
         }, {});
+        if(this.intervalValue.MEDIASIZE) {
+          const ms = this.intervalValue.MEDIASIZE.split(' ');
+          this.mediaSize = ms[1];
+          this.mediaAvailable = ms[0];
+        }
         if(this.intervalValue.MOTORPOS) {
           const pos = this.intervalValue.MOTORPOS.split(' ');
           const pan = Math.round(parseFloat(pos[0]));
@@ -1527,6 +1542,13 @@
     padding: 5px;
     display: flex;
     justify-content: flex-end;
+  }
+
+  .media-size {
+    font-size: 1.5em;
+    font-weight: 500;
+    position: fixed;
+    margin:20px;
   }
 
   .image-frame {

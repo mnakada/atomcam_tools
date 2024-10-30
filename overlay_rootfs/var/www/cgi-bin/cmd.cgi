@@ -24,6 +24,9 @@ if [ "$REQUEST_METHOD" = "GET" ]; then
     res=`echo video flip | nc localhost:4000`
     echo FLIP=$res
   fi
+  if [ "$NAME" = "" -o "$NAME" = "media-size" ] ; then
+    df -k /media/mmc | awk '/\/media\/mmc/ { printf("MEDIASIZE=%d %d\n", $3, $2); }'
+  fi
   if [ "$NAME" = "" -o "$NAME" = "status" ] ; then
     if [ -f /tmp/motor_initialize_done ] ; then
       res=`echo move | nc localhost:4000`

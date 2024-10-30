@@ -112,6 +112,7 @@ AdvancedSettings:
 
 SDCard:
   title: SD Card
+  remainingCapacity: remaining capacity
 
 record:
   tab: Recording

@@ -535,7 +535,7 @@
           aecomp: 128,
           expmode: 'auto',
           aeitmin: 1,
-          aeitmax: 1200,
+          aeitmax: 1683,
           expline: 1200,
         },
         loginAuth: 'off',

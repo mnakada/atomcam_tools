@@ -96,7 +96,7 @@
           <div v-if="ISPSettings.expmode === 'auto'">
             <SettingSlider i18n="AdvancedSettings.aecomp" v-model="ISPSettings.aecomp" :min="0" :max="255" :defaultValue="128" :stemp="1" @input="ISPSet('aecomp')" />
             <SettingSlider i18n="AdvancedSettings.aeitmin" v-model="ISPSettings.aeitmin" :min="1" :max="ISPSettings.aeitmax" :defaultValue="1" :stemp="1" @input="ISPSet('aeitmin')" />
-            <SettingSlider i18n="AdvancedSettings.aeitmax" v-model="ISPSettings.aeitmax" :min="ISPSettings.aeitmin" :max="1683" :defaultValue="1200" :stemp="1" @input="ISPSet('aeitmax')" />
+            <SettingSlider i18n="AdvancedSettings.aeitmax" v-model="ISPSettings.aeitmax" :min="ISPSettings.aeitmin" :max="1683" :defaultValue="1683" :stemp="1" @input="ISPSet('aeitmax')" />
           </div>
           <div v-else>
             <SettingSlider i18n="AdvancedSettings.expline" v-model="ISPSettings.expline" :min="1" :max="1683" :defaultValue="1200" :stemp="1" @input="ISPSet('expline')" />

@@ -376,7 +376,7 @@
     </div>
     <ElDrawer :visible.sync="drawerVisible" direction="btt" :show-close="drawerClosable" :wrapperClosable="drawerClosable" :close-on-press-escape="drawerClosable" @closed="drawerClosable=false">
       <h4 class="comment" v-t="drawerComment" />
-      <ElProgress v-if="progress > 0" :show-text="false" :stroke-width="18" :percentage="progress" class="progress progress-striped" />
+      <ElProgress v-if="progress >= 0" :show-text="false" :stroke-width="18" :percentage="progress" class="progress progress-striped" />
     </ElDrawer>
   </div>
 </template>
@@ -590,7 +590,7 @@
         drawerVisible: false,
         drawerClosable: false,
         drawerComment: '',
-        progress: 0,
+        progress: -1,
         stillImage: null,
         pan: 0,
         tilt: 0,
@@ -1188,7 +1188,7 @@
       },
       DoReboot() {
         this.drawerComment = 'rebooting';
-        this.progress = 0;
+        this.progress = -1;
         this.drawerVisible = true;
         this.rebootStart = new Date();
         this.rebootStart.setSeconds(this.rebootStart.getSeconds() + 30);
@@ -1196,7 +1196,7 @@
       },
       async DoErase() {
         this.drawerComment = 'erasing';
-        this.progress = 0;
+        this.progress = -1;
         this.drawerVisible = true;
         await this.Exec('sderase');
         this.drawerVisible = false;
@@ -1206,19 +1206,23 @@
         this.drawerComment = 'downloading';
         this.progress = 0;
         this.drawerVisible = true;
+        this.updateTimeout = 30;
         await this.Exec('update');
         const updateIntervalID = setInterval(async () => {
-          this.progress = parseInt(((await this.Exec('update_status'))?.data ?? '').replace(/^.* ([+-]*\d+) .*\n*$/, '$1')) ?? -1;
-          if(this.progress < 0) {
-            clearInterval(updateIntervalID);
-            this.drawerComment = 'downloadError';
-            this.progress = 0;
-            this.drawerClosable = true;
+          this.progress = parseInt(((await this.Exec('update_status'))?.data ?? '').replace(/^.* ([+-]*\d+) .*\n*$/, '$1'));
+          if(isNaN(this.progress)) {
+            this.updateTimeout--;
+            if(this.updateTimeout === 0) {
+              clearInterval(updateIntervalID);
+              this.drawerComment = 'downloadError';
+              this.progress = -1;
+              this.drawerClosable = true;
+            }
           }
           if(this.progress === 100) {
             clearInterval(updateIntervalID);
             this.drawerComment = 'rebooting';
-            this.progress = 0;
+            this.progress = -1;
             this.rebootStart = new Date();
             this.rebootStart.setSeconds(this.rebootStart.getSeconds() + 30);
           }
@@ -1431,16 +1435,18 @@
         this.oldConfig = Object.assign({}, this.config);
         if(execCmds.length) {
           this.drawerComment = 'executing';
-          this.progress = 0;
+          this.progress = -1;
           this.drawerVisible = true;
           this.$nextTick(async () => {
             for(const cmd of execCmds) {
               await this.Exec(cmd);
             }
-            if(execCmds.indexOf('lighttpd') >= 0) {
-              setTimeout(() => this.drawerVisible = false, 3000);
-            } else {
-              this.drawerVisible = false;
+            if(this.progress < 0) {
+              if(execCmds.indexOf('lighttpd') >= 0) {
+                setTimeout(() => this.drawerVisible = false, 3000);
+              } else {
+                this.drawerVisible = false;
+              }
             }
             if(href) window.location.href = href;
           });

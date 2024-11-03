@@ -25,7 +25,7 @@ if [ "$REQUEST_METHOD" = "GET" ]; then
     echo FLIP=$res
   fi
   if [ "$NAME" = "" -o "$NAME" = "media-size" ] ; then
-    df -k /media/mmc | awk '/\/media\/mmc/ { printf("MEDIASIZE=%d %d\n", $3, $2); }'
+    df -k /media/mmc | awk '/\/media\/mmc/ { printf("MEDIASIZE=%d %d\n", $4, $2); }'
   fi
   if [ "$NAME" = "" -o "$NAME" = "status" ] ; then
     if [ -f /tmp/motor_initialize_done ] ; then

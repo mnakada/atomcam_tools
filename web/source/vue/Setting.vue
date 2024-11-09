@@ -131,7 +131,7 @@
         <!-- SD-Card Tab -->
         <ElTabPane name="SDCard" class="well-transparent container-flex-no-submit" :label="$t('SDCard.tab')">
           <iframe ref="sdcardFrame" class="sdcard-frame" src="/sdcard" />
-          <div class="media-size">
+          <div v-if="showMediaSize" class="media-size">
             {{ $t('SDCard.remainingCapacity') }}: {{ Math.round(mediaAvailable / 1024 / 1024 * 10) / 10 }}GB / {{ Math.round(mediaSize / 1024 / 1024 * 10) / 10 }}GB
           </div>
         </ElTabPane>
@@ -604,6 +604,7 @@
         watermarkUploaded: false,
         mediaSize: 0,
         mediaAvailable: 0,
+        showMediaSize: false,
       };
     },
     computed: {
@@ -1098,6 +1099,16 @@
         this.selectedTabIndex = parseInt(tab.index);
         if(this.selectedTab === 'CameraSettings') this.GetCameraProperty();
         if(this.selectedTab === 'maintenance') this.GetLatestVer();
+        if(this.selectedTab === 'SDCard') {
+          if(!this.sdcardIntervalID) this.sdcardIntervalID = setInterval(() => {
+            this.showMediaSize = this.$refs.sdcardFrame?.contentDocument?.title?.indexOf('Index of') === 0;
+          }, 500);
+        } else {
+          if(this.sdcardIntervalID) {
+            clearInterval(this.sdcardIntervalID);
+            this.sdcardIntervalID = null;
+          }
+        }
       },
       async Move() {
         if(!this.posValid || !this.moveDone) return;

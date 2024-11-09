@@ -13,7 +13,10 @@ cp /src/configs/atomcam_defconfig .config
 make oldconfig
 for i in `ls /src/custompackages/package`
 do
-  rm -rf package/$i
-  cp -pr /src/custompackages/package/$i package
+  if ! diff -urb /src/custompackages/package/$i package/$i > /dev/null 2>&1 ; then
+    rm -rf package/$i
+    cp -pr /src/custompackages/package/$i package
+    [ "$i" != "Config.in" ] && make $i-dirclean
+  fi
 done
 make

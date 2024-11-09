@@ -981,7 +981,7 @@
       },
       async GetCameraProperty() {
         const property = ((await this.Exec('property', 'socket')).data ?? '').split(/[\n\x00]/);
-        if(!property.length) return;
+        if(!property?.length) return;
         this.property = property.reduce((d, s) => {
           if(s.length && (s !== 'ok')) d[s.replace(/ *=.*$/, '')] = s.replace(/^.*= */, '');
           return d;

@@ -14,7 +14,6 @@ if [ "$REQUEST_METHOD" = "GET" ]; then
     echo TIMELAPSE=`echo "timelapse" | nc localhost:4000`
   fi
   if [ "$NAME" = "" -o "$NAME" = "status" ] ; then
-    export TZ=`cat /tmp/TZ`
     echo TIMESTAMP=`date +"%Y/%m/%d %X"`
   fi
   if [ "$NAME" = "" -o "$NAME" = "status" ] ; then

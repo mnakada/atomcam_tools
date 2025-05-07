@@ -85,7 +85,7 @@ else
   FMT=`date +"%Y%m%d_%H%M%S"`
 fi
 
-TMPFILE="${SPATH}/rm_`cat /proc/sys/kernel/random/uuid`"
+TMPFILE="${SPATH}/rm_`cat /proc/sys/kernel/random/uuid`.${FILE##*.}"
 /bin/busybox mv $FILE $TMPFILE
 (
   if [ "$WEBHOOK_URL" != "" ]; then

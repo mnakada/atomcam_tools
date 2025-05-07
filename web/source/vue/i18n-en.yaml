@@ -427,7 +427,7 @@ watermark:
     title: Logo
     image:
       title: PNG image
-      comment: Create and drop a PNG file within 500px x 100px.
+      comment: Create and drop a PNG file within 500px x 200px.
 
 maintenance:
   tab: Maintenance

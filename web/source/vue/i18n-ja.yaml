@@ -426,7 +426,7 @@ watermark:
     title: ロゴ
     image:
       title: PNGイメージ
-      comment: PNGファイルを500px x 100px以内で作成してdropしてください。
+      comment: PNGファイルを500px x 200px以内で作成してdropしてください。
 
 maintenance:
   tab: メンテナンス

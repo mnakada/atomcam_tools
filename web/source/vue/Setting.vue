@@ -1251,7 +1251,7 @@
           await img.decode();
           const width = img.naturalWidth;
           const height = img.naturalHeight;
-          if((width > 500) || (height > 100)) return;
+          if((width > 500) || (height > 200)) return;
           const canvas = document.getElementById("watermark");
           canvas.width = width;
           canvas.height = height;
@@ -1747,12 +1747,12 @@
     border-radius: 5px;
     box-shadow: inset 0 1px 1px rgba(0,0,0,.05);
     width: 500px;
-    height: 100px;
+    height: 200px;
   }
 
   #watermark {
     width: 500px;
-    height: 100px;
+    height: 200px;
     border: solid 1px #999;
      background-image: linear-gradient(45deg, #ccc 25%, transparent 25%, transparent 75%, #ccc 75%),
         linear-gradient(45deg, #ccc 25%, transparent 25%, transparent 75%, #ccc 75%);

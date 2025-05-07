@@ -285,6 +285,9 @@ RTMP:
     title: URL
     tooltip: Set the destination URL.
   Restart: restart
+  RestartSchedule:
+    title: Periodic Restart
+    tooltip: Set the RTMP to restart on a schedule.
 
 WebRTC:
   title: WebRTC

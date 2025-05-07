@@ -268,9 +268,11 @@
 
           <h3 v-t="'RTMP.title'" />
           <SettingSwitch i18n="RTMP" :value="(config.RTSP_VIDEO0 == 'on' && (config.RTSP_AUDIO0 == 'AAC' || config.RTSP_AUDIO0 == 'off')) ? config.RTMP_ENABLE : 'off'" @input="config.RTMP_ENABLE=$event" :disabled="config.RTSP_VIDEO0 !== 'on' || (config.RTSP_AUDIO0 !== 'AAC' && config.RTSP_AUDIO0 !== 'off')" />
-          <SettingInput v-if="config.RTMP_ENABLE === 'on'" i18n="RTMP.URL" :titleOffset="2" :span="8" v-model="config.RTMP_URL" placeholder="rtmp://<server addr>/<livekey>">
-            <ElButton @click="RTMPRestart" type="primary" v-t="'RTMP.Restart'" />
+          <SettingInput v-if="config.RTMP_ENABLE === 'on'" i18n="RTMP.URL" :titleOffset="2" :span="8" v-model="config.RTMP_URL" placeholder="rtmp://<server addr>/<livekey>" :disabled="config.RTSP_VIDEO0 !== 'on' || (config.RTSP_AUDIO0 !== 'AAC' && config.RTSP_AUDIO0 !== 'off')">
+            <ElButton @click="RTMPRestart" type="primary" v-t="'RTMP.Restart'" :disabled="config.RTSP_VIDEO0 !== 'on' || (config.RTSP_AUDIO0 !== 'AAC' && config.RTSP_AUDIO0 !== 'off')" />
           </SettingInput>
+          <SettingSwitch v-if="config.RTMP_ENABLE === 'on' && config.RTSP_VIDEO0 == 'on' && (config.RTSP_AUDIO0 == 'AAC' || config.RTSP_AUDIO0 == 'off')" i18n="RTMP.RestartSchedule" v-model="config.RTMP_RESET" />
+          <SettingSchedule v-if="config.RTMP_ENABLE === 'on' && config.RTMP_RESET === 'on' && config.RTSP_VIDEO0 == 'on' && (config.RTSP_AUDIO0 == 'AAC' || config.RTSP_AUDIO0 == 'off')" v-model="rtmp_schedule" />
 
           <h3 v-t="'WebRTC.title'" />
           <SettingSwitch i18n="WebRTC" :value="(config.RTSP_VIDEO0 == 'on') ? config.WEBRTC_ENABLE : 'off'" @input="config.WEBRTC_ENABLE=$event" :disabled="config.RTSP_VIDEO0 !== 'on'" />
@@ -458,6 +460,8 @@
           HOMEKIT_SOURCE: '',
           RTMP_ENABLE: 'off',
           RTMP_URL: '',
+          RTMP_RESET: 'off',
+          RTMP_RESET_SCHEDULE: '0 4 * * 0:1:2:3:4:5:6', // -> /var/spool/crontabs/root
           WEBRTC_ENABLE: 'off',
           PERIODICREC_SDCARD: 'on',
           PERIODICREC_SDCARD_REMOVE: 'off',
@@ -584,6 +588,11 @@
           startTime: '02:00',
           endTime: '02:00',
           dayOfWeekSelect: [6],
+        },
+        rtmp_schedule: {
+          startTime: '04:00',
+          endTime: '04:00',
+          dayOfWeekSelect: [0,1,2,3,4,4,5,6],
         },
         stillInterval: 500,
         latestVer: '',
@@ -851,6 +860,15 @@
         this.pan = Math.round(parseFloat(pos[0]));
         this.tilt = Math.round(parseFloat(pos[1]));
         this.posValid = true;
+      }
+
+      if(this.config.RTMP_RESET_SCHEDULE) {
+        const str = this.config.RTMP_RESET_SCHEDULE.split(' ');
+        const days = (str[4] || '').split(':');
+        this.rtmp_schedule = {
+          startTime: `${str[1].padStart(2, '0')}:${str[0].padStart(2, '0')}`,
+          dayOfWeekSelect: days.map(d => (parseInt(d) + 6) % 7),
+        };
       }
 
       if(this.config.REBOOT_SCHEDULE) {
@@ -1326,6 +1344,10 @@
           this.config.RTSP_AUDIO2 = 'off';
         }
         this.config.HOMEKIT_SOURCE = this.RtspUrl0.replace(/^rtsp:\/\/.*:/, 'rtsp://localhost:');
+
+        this.config.RTMP_RESET_SCHEDULE = parseInt(this.rtmp_schedule.startTime.slice(-2)) + ' ' +
+          parseInt(this.rtmp_schedule.startTime.slice(0, 2)) + ' * * ' +
+          this.rtmp_schedule.dayOfWeekSelect.sort((a, b) => a - b).reduce((v, d) => v + (v.length ? ':' : '') + ((d + 1) % 7).toString(), '');
 
         await axios.post('./cgi-bin/hack_ini.cgi', this.config).catch(err => {
           // eslint-disable-next-line no-console

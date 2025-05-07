@@ -286,6 +286,9 @@ RTMP:
     title: URL
     tooltip: 送信先のURLを設定してください
   Restart: restart
+  RestartSchedule:
+    title: 定期リスタート
+    tooltip: 定期的にRTMPを再起動する設定をします
 
 WebRTC:
   title: WebRTC

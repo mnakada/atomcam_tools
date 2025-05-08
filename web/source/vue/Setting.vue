@@ -461,7 +461,7 @@
           RTMP_ENABLE: 'off',
           RTMP_URL: '',
           RTMP_RESET: 'off',
-          RTMP_RESET_SCHEDULE: '0 4 * * 0:1:2:3:4:5:6', // -> /var/spool/crontabs/root
+          RTMP_RESET_SCHEDULE: '0 4 * * 7', // -> /var/spool/crontabs/root
           WEBRTC_ENABLE: 'off',
           PERIODICREC_SDCARD: 'on',
           PERIODICREC_SDCARD_REMOVE: 'off',
@@ -1387,6 +1387,7 @@
         const execCmds = [];
         let href = null;
         if((this.config.TIMELAPSE_SCHEDULE !== this.oldConfig.TIMELAPSE_SCHEDULE) ||
+           (this.config.RTMP_RESET_SCHEDULE !== this.oldConfig.RTMP_RESET_SCHEDULE) ||
            (this.config.REBOOT_SCHEDULE !== this.oldConfig.REBOOT_SCHEDULE)) {
           execCmds.push('setCron');
         }

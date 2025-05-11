@@ -111,7 +111,8 @@ WEBRTC_ENABLE=$(awk -F "=" '/^WEBRTC_ENABLE *=/ {print $2}' $HACK_INI)
 cat > $GO2RTC_CONFIG << EOF
 log:
     api: trace
-    streams: error
+    streams: debug
+    rtmp: debug
 api:
     origin: '*'
     static_dir: '/var/www-redirect'
@@ -176,5 +177,6 @@ EOF
 fi
 
 echo -n "go2rtc: "
-/usr/bin/go2rtc $option -daemon
+#/usr/bin/go2rtc $option -daemon
+/usr/bin/go2rtc $option >> /tmp/log/go2rtc.log &
 exit 0

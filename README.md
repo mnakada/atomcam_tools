@@ -180,9 +180,9 @@ Qiitaに少し解説を書いています。
 
 [atomcam_toolsのMobileApp代替機能の実装](https://qiita.com/mnakada/items/310954397db6f16fe0b5)
 
-<br>
 [Devinがatomcam_toolsの構造を説明してくれるページ](https://deepwiki.com/mnakada/atomcam_tools)
-[Devinがatomcam_toolsの構造を説明してくれるページ(日本語翻訳)](https://translate.google.com/translate?sl=auto&tl=ja&u=https://deepwiki.com/mnakada/atomcam_tools)
+
+[Devinがatomcam_toolsの構造を説明してくれるページ-日本語翻訳-](https://translate.google.com/translate?sl=auto&tl=ja&u=https://deepwiki.com/mnakada/atomcam_tools)
 
 （linkが途切れるので上の英語のページを開いてブラウザの翻訳機能で見た方がいいかも）
 

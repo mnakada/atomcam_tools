@@ -22,12 +22,6 @@ BEGIN {
   printf("%s /scripts/reboot.sh\n", $2);
 }
 
-/^RTMP_RESET_SCHEDULE *=/ {
-  if($2 == "") next;
-  gsub(/:/,",", $2);
-  printf("%s /scripts/rtspserver.sh restart-rtmp\n", $2);
-}
-
 /^TIMELAPSE_SCHEDULE *=/ {
   split($2, schedule, ";");
   for(i in schedule) {

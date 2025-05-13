@@ -11,7 +11,11 @@
         <ElSwitch v-model="switchValue" @change="SwitchChange" />
       </ElCol>
       <ElCol v-if="inputEnabled" :span="span">
-        <ElInputNumber v-model="innerValue" @input="Input" @change="Change" :min="min" :max="max" :step-strictly="true" size="mini" />
+        <ElInputNumber v-model="innerValue" @input="Input" @change="Change" :min="min" :max="max" :step="step" :step-strictly="true" size="mini" />
+        <span v-if="$te(i18n + '.title')" v-t="i18n+'.unit'" />
+        <span v-else>
+          {{ unit }}
+        </span>
       </ElCol>
     </ElRow>
   </ElTooltip>
@@ -56,7 +60,7 @@
       },
       span: {
         type: Number,
-        default: 6,
+        default: 10,
       },
       min: {
         type: Number,
@@ -65,6 +69,14 @@
       max: {
         type: Number,
         default: Infinity,
+      },
+      step: {
+        type: Number,
+        default: 1,
+      },
+      unit: {
+        type: String,
+        default: '',
       },
     },
     data() {

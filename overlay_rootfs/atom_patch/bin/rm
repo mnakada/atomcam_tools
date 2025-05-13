@@ -89,11 +89,12 @@ TMPFILE="${SPATH}/rm_`cat /proc/sys/kernel/random/uuid`.${FILE##*.}"
 /bin/busybox mv $FILE $TMPFILE
 (
   if [ "$WEBHOOK_URL" != "" ]; then
+    FILENAME="${HOSTNAME}_`date +"%Y%m%d_%H%M%S"`.${FILE##*.}"
     if [ "$WEBHOOK_ALERM_PICT" = "on" ] && [ "${FILE##*.}" = "jpg" ]; then
-      LD_LIBRARY_PATH=/tmp/system/lib:/tmp/system/usr/lib /tmp/system/lib/ld.so.1 /tmp/system/bin/curl -X POST -m 3 -F "image=@$TMPFILE" -F "type=image/jpeg" -F "device=${HOSTNAME}" $INSECURE_FLAG $WEBHOOK_URL > /dev/console 2>&1
+      LD_LIBRARY_PATH=/tmp/system/lib:/tmp/system/usr/lib /tmp/system/lib/ld.so.1 /tmp/system/bin/curl -X POST -m 3 -F "image=@$TMPFILE;filename=${FILENAME};type=image/jpeg" -F "type=image/jpeg" -F "device=${HOSTNAME}" $INSECURE_FLAG $WEBHOOK_URL > /dev/console 2>&1
     fi
     if [ "$WEBHOOK_ALERM_VIDEO" = "on" ] && [ "${FILE##*.}" = "mp4" ]; then
-      LD_LIBRARY_PATH=/tmp/system/lib:/tmp/system/usr/lib /tmp/system/lib/ld.so.1 /tmp/system/bin/curl -X POST -m 3 -F "video=@$TMPFILE" -F "type=video/mp4" -F "device=${HOSTNAME}" $INSECURE_FLAG $WEBHOOK_URL > /dev/null 2>&1
+      LD_LIBRARY_PATH=/tmp/system/lib:/tmp/system/usr/lib /tmp/system/lib/ld.so.1 /tmp/system/bin/curl -X POST -m 3 -F "video=@$TMPFILE;filename=${FILENAME};type=video/mp4" -F "type=video/mp4" -F "device=${HOSTNAME}" $INSECURE_FLAG $WEBHOOK_URL > /dev/null 2>&1
     fi
   fi
   if [ "$FMT" != "" ] ; then

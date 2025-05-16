@@ -12,7 +12,7 @@
       </ElCol>
       <ElCol v-if="inputEnabled" :span="span">
         <ElInputNumber v-model="innerValue" @input="Input" @change="Change" :min="min" :max="max" :step="step" :step-strictly="true" size="mini" />
-        <span v-if="$te(i18n + '.title')" v-t="i18n+'.unit'" />
+        <span v-if="$te(i18n + '.unit')" v-t="i18n+'.unit'" />
         <span v-else>
           {{ unit }}
         </span>

@@ -271,7 +271,7 @@
           <SettingInput v-if="config.RTMP_ENABLE === 'on'" i18n="RTMP.URL" :titleOffset="2" :span="8" v-model="config.RTMP_URL" placeholder="rtmp://<server addr>/<livekey>" :disabled="config.RTSP_VIDEO0 !== 'on' || (config.RTSP_AUDIO0 !== 'AAC' && config.RTSP_AUDIO0 !== 'off')">
             <ElButton @click="RTMPRestart" type="primary" v-t="'RTMP.Restart'" :disabled="config.RTSP_VIDEO0 !== 'on' || (config.RTSP_AUDIO0 !== 'AAC' && config.RTSP_AUDIO0 !== 'off')" />
           </SettingInput>
-          <SettingInputNumber v-if="config.RTMP_ENABLE === 'on' && config.RTSP_VIDEO0 == 'on' && (config.RTSP_AUDIO0 == 'AAC' || config.RTSP_AUDIO0 == 'off')" i18n="RTMP.RestartInterval" :withSwitch="true" :defaultValue="240" :span="10" v-model="config.RTMP_RESTART" :min="20" :max="2880" :step="20" />
+          <SettingInputNumber v-if="config.RTMP_ENABLE === 'on' && config.RTSP_VIDEO0 == 'on' && (config.RTSP_AUDIO0 == 'AAC' || config.RTSP_AUDIO0 == 'off')" i18n="RTMP.IntervalRestart" :withSwitch="true" :defaultValue="240" :span="10" v-model="config.RTMP_RESTART" :min="20" :max="2880" :step="20" />
 
           <h3 v-t="'WebRTC.title'" />
           <SettingSwitch i18n="WebRTC" :value="(config.RTSP_VIDEO0 == 'on') ? config.WEBRTC_ENABLE : 'off'" @input="config.WEBRTC_ENABLE=$event" :disabled="config.RTSP_VIDEO0 !== 'on'" />

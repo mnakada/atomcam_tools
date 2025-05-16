@@ -286,8 +286,8 @@ RTMP:
     title: URL
     tooltip: 送信先のURLを設定してください
   Restart: restart
-  RestartInterval:
-    title: リスタート周期
+  IntervalRestart:
+    title: 周期リスタート
     unit: 分
     tooltip: 定期的にRTMPを再スタートします
 

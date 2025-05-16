@@ -285,8 +285,8 @@ RTMP:
     title: URL
     tooltip: Set the destination URL.
   Restart: restart
-  RestartInterval:
-    title: Restart Interval
+  IntervalRestart:
+    title: Interval Restart
     unit: minutes
     tooltip: Restart the RTMP periodically.
 

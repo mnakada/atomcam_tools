@@ -1,331 +1,361 @@
-# SD-Cardイメージの作成方法
+# 🛠️ SD-Cardイメージの作成方法
 
-## 必要な環境
+> 🚀 atomcam_toolsの開発・ビルド環境構築ガイド
 
-- Windows / macOS / Linux
-- GitHubにアクセスできる環境
-- Dockerが実行可能な環境
+## 📋 必要な環境
 
-※ 以下の手順はmacOS Sonomaで動作確認済みです。
+### 💻 対応OS
+- 🪟 Windows
+- 🍎 macOS  
+- 🐧 Linux
 
-## ビルド手順   
+### 🔧 必要なツール
+- 🌐 GitHubアクセス環境
+- 🐳 Docker実行環境
+- 📱 Lima（macOSの場合）
 
-適当なディレクトリで以下のコマンドを実行します。
-macOSの場合はDockerの起動にLimaを使用します。
-事前にLima、Docker CLI、docker-composeをインストールしておいてください。
+> ✅ **動作確認済み環境**: macOS Sonoma
 
-```sh
+## 🚀 クイックスタート
+
+### 📥 基本ビルド手順
+
+適当なディレクトリで以下のコマンドを実行：
+
+```bash
+# 📂 リポジトリのクローン
 git clone https://github.com/mnakada/atomcam_tools
 cd atomcam_tools
-make lima  # macOSのみ
+
+# 🐳 Docker環境準備（macOSのみ）
+make lima
+
+# 🔨 ビルド実行
 make
 ```
 
-環境によりますが、約1時間で`atomcam_tools/atomcam_tools.zip`が生成されます。
+⏱️ **所要時間**: 約1時間で`atomcam_tools/atomcam_tools.zip`が生成されます
 
-**以下のファイルが含まれます:**
-- `authorized_keys`
-- `hostname`
-- `factory_t31_ZMC6tiIDQN`
-- `rootfs_hack.squashfs`
+### 📦 生成されるファイル
 
+ビルド完了後、以下のファイルが`atomcam_tools.zip`に含まれます：
 
-リモートログインを行う場合は、SSHの公開鍵を`authorized_keys`に追加してください:
+| ファイル名 | 説明 |
+|---|---|
+| 🔑 `authorized_keys` | SSH公開鍵認証用 |
+| 🏷️ `hostname` | デバイス名設定 |
+| 🏭 `factory_t31_ZMC6tiIDQN` | ファクトリーブートファイル |
+| 💾 `rootfs_hack.squashfs` | カスタムルートファイルシステム |
 
-```sh
+## ⚙️ カスタマイズ設定
+
+### 🔐 SSH設定（リモートログイン用）
+
+公開鍵を追加してリモートアクセスを有効化：
+
+```bash
 cat ~/.ssh/id_rsa.pub >> ./target/authorized_keys
 ```
 
-デバイス名を変更したい場合、`hostname`を編集してください（デフォルト: atomcam）:
+### 🏷️ デバイス名変更
 
-```sh
+デフォルトの`atomcam`から変更する場合：
+
+```bash
 echo "新しいホスト名" > ./target/hostname
 ```
 
-**上記4つのファイルをSDカードにコピー**し、AtomCamに挿入して起動します。
+### 💿 SD-Cardへの配置
 
-> **注意**: 初回起動時は、スワップファイルの作成とSSHホストキーの生成のため、約40秒ほど時間がかかります。
+**上記4つのファイルをSD-Cardルートにコピー**し、AtomCamに挿入して起動
 
-ビルド環境はイメージ作成後、Docker上にコンテナが起動した状態になります。
+> ⏰ **初回起動時の注意**: スワップファイル作成とSSHホストキー生成のため約40秒かかります
 
-コンテナに入るには以下のコマンドを使用します：
+## 🐳 Docker環境操作
 
-```sh
+### 🔧 開発環境管理
+
+```bash
+# 🖥️ コンテナへログイン
 make login
+
+# 🚀 手動でDocker起動
+make lima               # macOS
+docker-compose up -d    # Linux
 ```
 
-Dockerコンテナを手動で起動:
+ビルド環境はイメージ作成後、Docker上にコンテナが起動状態になります。
 
-```sh
-make lima               # macOSの場合
-docker-compose up -d    # Linuxの場合
-```
+## 🏗️ システム構成
 
+### 💻 ハードウェア仕様
 
-## AtomCam内部の環境
+| 項目 | 仕様 |
+|---|---|
+| 🔧 **SoC** | Ingenic T31 SoC |
+| ⚡ **CPU** | MIPS32R5 I$32K/D$32K/L2$128K |
+| 🐧 **Kernel** | Linux 3.10.14 MIPSEL |
 
-このイメージでAtomCamを起動すると、glibcで生成されたMIPSEL版のLinux環境が起動します。
+### 🏛️ AtomCam内部環境
 
-この環境内で`/atom`ディレクトリ以下に本来のAtomCamシステムを起動し、chroot監獄に閉じ込めています。
+このイメージでAtomCamを起動すると：
 
-システム構成は以下の通りです:
+- 🔧 **glibcベース**: MIPSEL版Linux環境が起動
+- 📁 **chroot構成**: `/atom`ディレクトリ以下に本来のAtomCamシステム
+- 🏗️ **監獄化**: chrootで本来システムを隔離
 
-- **SoC:** Ingenic T31 SoC
-- **CPU:** MIPS32R5 I\$32K/D\$32K/L2\$128K
-- **Kernel:** Linux 3.10.14 MIPSEL
+## 🔄 起動シーケンス
 
-# 起動シーケンス
+### 1️⃣ U-Boot
+- 📂 カーネル内蔵initramfsの`/init`ディレクトリに配置
 
-AtomCamの起動シーケンスは以下の通りです:
+### 2️⃣ Initramfs  
+- 📁 内容: `initramfs_skeleton/`ディレクトリに格納
+- 🚀 カーネル起動時に`/init`実行を設定
 
-#### 1. U-Boot
+### 3️⃣ ツール更新
+- 🔄 必要に応じて更新処理実行
 
-- カーネルに内蔵されたinitramfsの`/init`ディレクトリに配置されます
+### 4️⃣ ルートファイルシステム切り替え
+- 💾 SD-Card上の`rootfs_hack.squashfs`をルートにswitch_root
+- 🔄 remount処理実行
+- 🚀 `/sbin/init（busybox）`起動
 
-#### 2. Initramfs
+## 📁 rootfs_hack.squashfs 詳細
 
-- 内容は`initramfs_skeleton/`ディレクトリに格納されています
-- カーネル起動時のコマンドラインで`/init`を実行するよう設定されています
+### 🏗️ 構成
+`configs/atomcam_defconfig`設定でビルドされたイメージに`overlay_rootfs`を重ねて構成
 
-#### 3. ツール更新
+### 🔄 起動プロセス
 
-必要に応じて、ツールの更新処理が実行されます
+1. **🚀 初期化**
+   - `/sbin/init`が`inittab`に従って`/etc/init.d/rcS`起動
 
-#### 4. ルートファイルシステムの切り替え
+2. **📜 スクリプト実行**  
+   - `rcS`が`/etc/init.d/S*`を順番に実行
 
-- SD-Card上の`rootfs_hack.squashfs`をルートにswitch_rootします
-- remountの処理を行います
-- `/sbin/init（busybox）`を起動します
+3. **🎯 完了サイン**
+   - **シリアル接続**: gettyでログインプロンプト表示
+   - **AtomCam**: 背面LED青点滅→青点灯でSSHログイン可能
 
-これにより、AtomCamのカスタムファームウェアが正常に起動します。
+## 🔧 重要な初期化スクリプト
 
-## `rootfs_hack.squashfs`
+### 🔄 `/etc/init.d/S16fwupdate`
+- 🔧 AtomCamファームウェアアップデートシーケンスの代行処理
 
-`rootfs_hack.squashfs`は、`configs/atomcam_defconfig`の設定でビルドされたイメージに`overlay_rootfs`を重ねたものです。
+### 📁 `/etc/init.d/S20mountfs`
+- 🔗 overlayfs未対応のため、bind mountでファイル/フォルダー配置を入れ替え
 
-### 起動プロセス
+### 🏠 `/etc/init.d/S61atomcam`
+- 📂 `/atom/`以下に本来のATOMCamシステムをmount
+- 🔗 共通アクセス可能なmount-point設定
+- 🏗️ chrootで`/atom`の`/tmp/system/bin/atom_init.sh`呼び出し
 
-1. `/sbin/init`が`inittab`に従って`/etc/init.d/rcS`を起動
-2. `rcS`が`/etc/init.d/S*`を順番に実行
-3. `/etc/init.d`の実行
-- **シリアル接続時:** gettyでログインプロンプトが表示
-- **AtomCam:** 背面LEDが青点滅から青点灯に変わるとSSHログイン可能
+> 🌐 **ここまではglibcの世界で動作**
 
+### 🎯 `/atom/tmp/system/bin/atom_init.sh`
+- 🔧 本来のAtomCam初期化シーケンス実行
+- 📚 **ここからuClibcの環境**
+- 🔗 iCamera_app実行時に`libcallback.so`介在でパッチ適用
+- 📝 WebHook用ログを名前付きFIFOファイル（`/var/run/atomapp`）出力
+- ⚠️ **注意**: ウォッチドッグ起動のため、assist・iCamera_appは停止不可
+- ☁️ **機能**: 認識機能等はクラウドから動的読み込み実行
 
-## `/etc/init.d/S16fwupdate`
+---
 
-AtomCamのファームウェアアップデートのシーケンスが実行中の場合、その処理を代行します。
+## 📜 システムスクリプト詳細
 
-## `/etc/init.d/S20mountfs`
+### 🔧 コマンド置き換えスクリプト
 
-overlayfsが使用できないため、bind mountでシステムのファイル/フォルダーの配置を入れ替えています。
+#### 📁 `/atom/bin/mv`, `/atom/bin/rm`
+- 🎯 **目的**: AtomCamのiCloud_app動作を拡張
+- 🗑️ **rm**: 動体検知クラウド送信後の削除処理
+- 📁 **mv**: 1分毎のSD-Card記録ファイル移動処理
+- 🔗 **機能**: NAS記録・WebHookイベント送信
 
-## `/etc/init.d/S61atomcam`
+### 🎛️ システム制御スクリプト
 
-/atom/以下に本来のATOMCamのシステムと幾つかのmount-pointを共通でアクセスできるようにmountします。
+#### 🖥️ `/scripts/cmd`
+- 🎚️ iCamera_app内部パラメータ・動作変更のラッパーコマンド
 
-その後、chrootで/atom の`/tmp/system/bin/atom_init.sh`を呼び出します。
+#### 🛣️ `/scripts/cruise.sh` 
+- 🔄 AtomSwingクルーズ動作実行
 
-> **ここまではglibcの世界で動作しています。**
+#### 🔧 `/scripts/hack_ini_reconfig.sh`
+- 🔄 バージョンアップ時のhack_ini互換性処理
 
-## `/atom/tmp/system/bin/atom_init.sh`
+#### 🏥 `/scripts/health_check.sh`
+- 📡 定期的ネットワーク健全性チェック
 
-本来のAtomCamの初期化シーケンスを実行します。ここからuClibcの環境に入ります。
-iCamera_app実行時にlibcallback.soを介在させ、各種パッチを適用して処理を追加しています。さらにWebHook用にログを名前付きFIFOファイル（`/var/run/atomapp`）に出力させています。
+#### 🌐 `/scripts/lighttpd.sh`
+- 🖥️ WebUI lighttpd起動処理・認証切り替え
 
-これを実行するとウォッチドッグが起動するため、assistとiCamera_appは停止できなくなります。
+#### 🧠 `/scripts/memory_check.sh`
+- 📊 定期的メモリー状態ログ記録
 
-認識機能などの機能はiCamera_app内にあるわけではなく、クラウドから読み込まれて実行されているようです。
+#### 🎮 `/scripts/motor_init`
+- 🔄 AtomSwingモーター初期位置動作
 
-# 各種スクリプト
+#### 🌐 `/scripts/network_init.sh`
+- 📡 ネットワーク接続初期化
 
-## `/atom/bin/mv`, `/atom/bin/rm`
+#### 🔄 `/scripts/reboot.sh`
+- ⏰ WebUI定期リブート設定のcrontab実行
+- 🔄 同期リブート実行
 
-AtomCamのiCloud_appが動体検知をクラウドに送信後に削除する際のrmコマンド、1分ごとのSD-Cardへの記録ファイルを/tmpから移動するmvコマンドを置き換えて、NASへの記録やWebHookのイベントを送信するためのスクリプトです。
+#### 🗑️ `/scripts/remove_old.sh`
+- 📅 指定時間経過録画データ削除
 
-## `/scripts/cmd`
+#### 📺 `/scripts/rtspserver.sh`
+- 🎥 v4l2rtspserver on/off制御
+- 🔗 init.d/S58rtspserver・WebUI RTSPから呼び出し
 
-iCamera_app内部パラメータや動作を変更するためのコマンドを実行するラッパーコマンドです。
+#### 📂 `/scripts/samba.sh`
+- 🌐 **Samba起動/終了**制御
 
-## `/scripts/cruise.sh`
+#### ⏰ `/scripts/set_crontab.sh`
+- 📅 `reboot.sh`・`timelapse.sh`のcrontab時刻設定
 
-AtomSwingでのクルーズ動作を実行するためのスクリプトです。
+#### ⚙️ `/scripts/set_icamera_config.sh`
+- 🎛️ `iCamera_app`起動直後の必須設定値処理
 
-## `/scripts/hack_ini_reconfig.sh`
+#### 🎬 `/scripts/timelapse.sh`
+- ⏱️ タイムラプス開始処理・終了時ファイル処理
 
-バージョンアップでhack_iniの互換性がない場合に引き継ぎ処理をするためのスクリプトです。
+#### 🖥️ `/scripts/webcmd.sh`
+- 🔗 `/var/www/cgi-bin/exec.cgi`から名前付きFIFO経由コマンド実行
+- 👤 **www-data**アカウント制限対応の安全実行構造
 
-## `/scripts/health_check.sh`
+#### 🔔 `/scripts/webhook.sh`
+- 📝 iCamera_appログ受信・WebHookイベント処理
+- 🚰 名前付きFIFO経由ログ受信・curl POST送信
 
-定期的にネットワークの健全性のチェックを行うスクリプトです。
+### 🌐 WebUI CGIスクリプト
 
-## `/scripts/lighttpd.sh`
+#### 🖥️ `/var/www/cgi-bin/cmd.cgi`
+- 🔗 WebUIコマンドを名前付きパイプ経由でwebcmd.shに転送
 
-WebUIのlighttpdの起動処理と認証の切り替え等の処理を行うスクリプトです。
+#### 📷 `/var/www/cgi-bin/get_jpeg.cgi`
+- 🖼️ WebUI表示用JPEG画像取得
 
-## `/scripts/memory_check.sh`
+#### ⚙️ `/var/www/cgi-bin/hack_ini.cgi`
+- 📝 WebUI設定値の取得・設定処理
 
-定期的にメモリーの状態をログに記録するスクリプトです。
+#### 📱 `/var/www/cgi-bin/hello.cgi`
+- 📲 モバイルアプリアクセス要求応答
 
-## `/scripts/motor_init`
+#### 🎥 `/var/www/cgi-bin/video_isp.cgi`
+- 🎛️ カメラ設定詳細項目操作
 
-AtomSwingでモーターの初期位置動作をするスクリプトです。
+#### 🖼️ `/var/www/cgi-bin/watermark.cgi`
+- 🏷️ システム設定ロゴ設定処理
 
-## `/scripts/network_init.sh`
+---
 
-ネットワークの接続をするための初期化スクリプトです。
+## 💻 WebUI開発環境
 
-## `/scripts/reboot.sh`
+### 🎨 技術スタック
+- **📁 ソースディレクトリ**: `web/`
+- **🖼️ フロントエンド**: Vue.js + ElementUI
+- **⚙️ バックエンド**: lighttpd + CGI
+- **🔗 通信**: axios経由API通信
 
-WebUIの定期リブート設定をcrontabで指定時間に実行するためのスクリプトです。
+### 🏗️ アーキテクチャ
+- **🎯 ターゲット**: MIPSEL（Node.js最新版未対応）
+- **🔧 構成**: フロントエンドのみビルド、バックエンドはlighttpd+CGI
+- **📄 メインコンポーネント**: `web/source/vue/Setting.vue`
 
-同期してリブートを実行します。
+---
 
-## `/scripts/remove_old.sh`
+## 🐳 Docker開発環境
 
-指定時間経過した録画データを削除するためのスクリプトです。
+### 📂 ディレクトリマッピング
+- **🔗 マッピング**: `/src` ↔ `atomcam_tools/`
 
-## `/scripts/rtspserver.sh`
-
-init.d/S58rtspserverとWebUIのRTSPのオン/オフから呼ばれます。
-
-v4l2rtspserverをオン/オフします。
-
-## `/scripts/samba.sh`
-
-設定に従って**Sambaの起動／終了をする**スクリプトです。
-
-## `/scripts/set_crontab.sh`
-
-`reboot.sh`や`timelapse.sh`を起動する時刻をcrontabに設定するためのスクリプトです。
-
-## `/scripts/set_icamera_config.sh`
-
-`iCamera_app`起動直後に設定しておくべき設定値を処理するためのスクリプトです。
-
-## `/scripts/timelapse.sh`
-
-タイムラプスの開始処理、終了時のファイル処理のスクリプトです。
-
-## `/scripts/webcmd.sh`
-
-`/var/www/cgi-bin/exec.cgi`から名前付きFIFO経由でコマンドを実行します。
-
-CGIの実行は`www-data`アカウントでの実行なのでシステム制御系のコマンドは直接実行できないため、コマンドを受けて実行して問題ないものだけ実行する構造にしています。
-
-## `/scripts/webhook.sh`
-
-iCamera_appのログを受けてWebHookのイベントを拾っています。
-
-iCamera_appの実行環境では制限があるため、名前付きFIFO経由でログを受けて必要に応じてcurlでポストしています。
-
-## `/var/www/cgi-bin/cmd.cgi`
-
-WebUIからのコマンドを名前付きパイプ経由でwebcmd.shに渡しています。
-
-## `/var/www/cgi-bin/get_jpeg.cgi`
-
-WebUIで表示するJPEG画像を取得しています。
-
-## `/var/www/cgi-bin/hack_ini.cgi`
-
-WebUIで使用している設定値の取得、設定をします。
-
-## `/var/www/cgi-bin/hello.cgi`
-
-モバイルアプリからのアクセス時の要求に応答するためのCGIです。
-
-## `/var/www/cgi-bin/video_isp.cgi`
-
-カメラ設定の詳細設定項目を操作するCGIです。
-
-## `/var/www/cgi-bin/watermark.cgi`
-
-システム設定のロゴを設定するためのCGIです。
-
-# WebUI
-
-`web/`ディレクトリ以下にWebUIのソースコードがあります。
-WebUIはVue.jsとElementUIで記述しています。
-ターゲット環境はMIPSELなのでNode.jsの最新のバージョンは未対応です。
-
-そのため、フロントエンド側のみビルドして、バックエンド側はlighttpdとCGIで対応し、フロントエンドからaxios経由でアクセスする構造にしています。
-
-WebUIの画面は`web/source/vue/Setting.vue`に記述しています。
-
-# Docker環境
-
-Docker環境では `/src` が `atomcam_tools/` にマップされています。
-
-以下、基本的にDocker内のコマンドは下記のディレクトリから実行します:
-
-```
+### 🖥️ 基本作業ディレクトリ
+```bash
 root@ac0375635c01:/atomtools# cd /atomtools/build/buildroot-2016.02
 ```
 
-rootfsはglibc環境でDocker内のgccを使用します。
-ビルド時にgccも生成されます。
+### 🔧 コンパイラ環境
 
-**gccのプレフィックスは以下の通りです:**
-`/atomtools/build/buildroot-2016.02/output/host/usr/bin/mipsel-ingenic-linux-gnu-`
+#### 🌐 glibc環境（rootfs用）
+- **📦 環境**: glibcでDocker内gcc使用
+- **🔧 gccプレフィックス**: 
+  ```
+  /atomtools/build/buildroot-2016.02/output/host/usr/bin/mipsel-ingenic-linux-gnu-
+  ```
 
-ATOMCam本来のシステムのカメラアプリiCamera_appはuClibc環境でビルドされています。
-そのため、iCamera_appのハック用のlibcallback.soのビルドにはuClibc環境が必要です。
-別途**cross tools-ng-1.26.0**を導入しています。
+#### 📚 uClibc環境（iCamera_app用）
+- **🎯 用途**: iCamera_appハック用libcallback.soビルド
+- **🔧 ツールチェーン**: cross tools-ng-1.26.0
+- **🔧 gccプレフィックス**:
+  ```
+  /atomtools/build/cross/mips-uclibc/bin/mipsel-ingenic-linux-uclibc-
+  ```
 
-**uClibc用gccのプレフィックスは以下の通りです:**
-`/atomtools/build/cross/mips-uclibc/bin/mipsel-ingenic-linux-uclibc-`
+---
 
-# 各種変更時のビルド方法
+## 🔨 各種変更時のビルド方法
 
-### initramfs, kernelのconfigを変更した場合
+### 🐧 initramfs・kernelのconfig変更
 
-```sh
+```bash
 make linux-rebuild
 make
 ```
+📁 ビルド結果は`atomcam_tools/target`にコピーされます
 
-これでビルドされ、`atomcam_tools/target`にコピーされます。
+### 📦 rootfs内ファイル・busybox menuconfig修正
 
-### rootfs内のファイルやbusyboxのmenuconfigを修正した場合
-
-```sh
+```bash
 make
 ```
+📁 ビルド結果は`atomcam_tools/target`にコピーされます
 
-これでビルドされ、`atomcam_tools/target`にコピーされます。
+### 📋 rootfs含有パッケージ変更
 
-### rootfsに含まれるパッケージを変更した場合
-
-```sh
+```bash
 make menuconfig
 make
 ```
+📁 ビルド結果は`atomcam_tools/target`にコピーされます
 
-これでビルドされ、`atomcam_tools/target`にコピーされます。
+### 🔧 個別パッケージリビルド
 
-### 個別のパッケージをリビルドする場合
-
-```sh
+```bash
 make <package>-rebuild
 make
 ```
 
-### busyboxのコマンド等の設定を変更する場合
+### 🛠️ busyboxコマンド設定変更
 
-```sh
+```bash
 make busybox-menuconfig
 make
 ```
+🔧 rootfsがビルドされます
 
-これでrootfsがビルドされます。
+### ⚙️ kernel設定変更
 
-### kernelの設定を変更する場合
-
-```sh
+```bash
 make linux-menuconfig
 make linux-rebuild
 make
 ```
+📁 ビルド結果は`atomcam_tools/target`にコピーされます
 
-これでビルドされ、`atomcam_tools/target`にコピーされます。
+---
+
+## 📞 開発サポート
+
+### 🐛 問題解決
+- **Issues**: [GitHub Issues](https://github.com/mnakada/atomcam_tools/issues)
+- **ドキュメント**: [README.md](./README.md)
+
+### 🔧 開発のヒント
+- 🐳 Docker環境での開発が推奨
+- 🔄 変更は段階的にテスト
+- 📝 ビルドログを確認して問題を特定
+
+---

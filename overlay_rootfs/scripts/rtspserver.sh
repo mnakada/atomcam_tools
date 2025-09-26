@@ -10,6 +10,7 @@ if [ "$1" = "off" -o "$1" = "restart" ]; then
     killall go2rtc > /dev/null 2>&1
     sleep 0.5
   done
+  echo `date +"%Y/%m/%d %H:%M:%S"` ": go2rtc stop"
   while pidof v4l2rtspserver > /dev/null ; do
     killall v4l2rtspserver > /dev/null 2>&1
     sleep 0.5
@@ -20,6 +21,7 @@ fi
 
 HACK_INI=/tmp/hack.ini
 RTMP_ENABLE=$(awk -F "=" '/^RTMP_ENABLE *=/ {print $2}' $HACK_INI)
+RTMP_RESTART=$(awk -F "=" '/^RTMP_RESTART *=/ {if($2 > 0) print $2}' $HACK_INI)
 RTSP_VIDEO0=$(awk -F "=" '/^RTSP_VIDEO0 *=/ {print $2}' $HACK_INI)
 RTSP_AUDIO0=$(awk -F "=" '/^RTSP_AUDIO0 *=/ {print $2}' $HACK_INI)
 [ "$RTSP_AUDIO0" = "on" ] && RTSP_AUDIO0="S16_BE"
@@ -40,41 +42,54 @@ RTSP_OVER_HTTP=$(awk -F "=" '/^RTSP_OVER_HTTP *=/ {print $2}' $HACK_INI)
 RTSP_AUTH=$(awk -F "=" '/^RTSP_AUTH *=/ {print $2}' $HACK_INI)
 RTSP_USER=$(awk -F "=" '/^RTSP_USER *=/ {print $2}' $HACK_INI)
 RTSP_PASSWD=$(awk -F "=" '/^RTSP_PASSWD *=/ {print $2}' $HACK_INI)
-if [ "$1" = "watchdog" ]; then
-  [ "$RTSP_VIDEO0" = "on" -o "$RTSP_VIDEO1" = "on" -o "$RTSP_VIDEO2" = "on" ] || exit 0
-  pidof v4l2rtspserver > /dev/null && exit 0
-fi
 
-[ "$1" != "on" -a "$1" != "restart" -a "$1" != "watchdog" -a "$RTSP_VIDEO0" != "on" -a "$RTSP_VIDEO1" != "on" -a "$RTSP_VIDEO2" != "on" ] && exit 0
-
-/scripts/cmd video 0 $RTSP_VIDEO0 > /dev/null
-/scripts/cmd video 1 $RTSP_VIDEO1 > /dev/null
-/scripts/cmd video 2 $RTSP_VIDEO2 > /dev/null
-[ "$RTSP_VIDEO0" = "on" ] && /scripts/cmd audio 0 on > /dev/null
-[ "$RTSP_VIDEO1" = "on" ] && /scripts/cmd audio 1 on > /dev/null
-[ "$RTSP_VIDEO2" = "on" ] && /scripts/cmd audio 2 on > /dev/null
-if ! pidof v4l2rtspserver > /dev/null ; then
-  while netstat -ltn 2> /dev/null | egrep ":(8554|8080)"; do
+if [ "$1" = "watchdog" ] && [ "$RTMP_RESTART" != "" ] && [ $(( `date +"%s"` / 60 % RTMP_RESTART )) == 0 ] ; then
+  while pidof go2rtc > /dev/null ; do
+    killall go2rtc > /dev/null 2>&1
     sleep 0.5
   done
-  echo `date +"%Y/%m/%d %H:%M:%S"` ": v4l2rtspserever start"
-  [ "$RTSP_OVER_HTTP" = "on" ] && option="-p 8080"
-  [ "$RTSP_AUTH" = "on" -a "$RTSP_USER" != "" -a "$RTSP_PASSWD" != "" ] && option="$option -U $RTSP_USER:$RTSP_PASSWD"
-  [ "$RTSP_VIDEO0" = "on" ] && path="/dev/video0,hw:0,0@$RTSP_AUDIO0 "
-  [ "$RTSP_VIDEO1" = "on" ] && path="$path /dev/video1,hw:2,0@$RTSP_AUDIO1 "
-  [ "$RTSP_VIDEO2" = "on" ] && path="$path /dev/video2,hw:4,0@$RTSP_AUDIO2 "
-  /usr/bin/v4l2rtspserver $option -C 1 -a S16_LE $path >> /tmp/log/rtspserver.log 2>&1 &
+  echo `date +"%Y/%m/%d %H:%M:%S"` ": go2rtc stop"
 fi
-while [ "`pidof v4l2rtspserver`" = "" ]; do
-  sleep 0.5
-done
-[ "$RTSP_VIDEO0" = "on" ] && /scripts/cmd audio 0 $AUDIO0 > /dev/null
-[ "$RTSP_VIDEO1" = "on" ] && /scripts/cmd audio 1 $AUDIO1 > /dev/null
-[ "$RTSP_VIDEO2" = "on" ] && /scripts/cmd audio 2 $AUDIO2 > /dev/null
+
+if [ "$1" = "watchdog" ]; then
+  [ "$RTSP_VIDEO0" = "on" -o "$RTSP_VIDEO1" = "on" -o "$RTSP_VIDEO2" = "on" ] || exit 0
+fi
+
+if ! pidof v4l2rtspserver > /dev/null ; then
+  [ "$1" != "on" -a "$1" != "restart" -a "$1" != "watchdog" -a "$RTSP_VIDEO0" != "on" -a "$RTSP_VIDEO1" != "on" -a "$RTSP_VIDEO2" != "on" ] && exit 0
+
+  echo "RTSP Restart " >> /tmp/log/rtspserver.log
+
+  /scripts/cmd video 0 $RTSP_VIDEO0 > /dev/null
+  /scripts/cmd video 1 $RTSP_VIDEO1 > /dev/null
+  /scripts/cmd video 2 $RTSP_VIDEO2 > /dev/null
+  [ "$RTSP_VIDEO0" = "on" ] && /scripts/cmd audio 0 on > /dev/null
+  [ "$RTSP_VIDEO1" = "on" ] && /scripts/cmd audio 1 on > /dev/null
+  [ "$RTSP_VIDEO2" = "on" ] && /scripts/cmd audio 2 on > /dev/null
+  if ! pidof v4l2rtspserver > /dev/null ; then
+    while netstat -ltn 2> /dev/null | egrep ":(8554|8080)"; do
+      sleep 0.5
+    done
+    echo `date +"%Y/%m/%d %H:%M:%S"` ": v4l2rtspserever start"
+    [ "$RTSP_OVER_HTTP" = "on" ] && option="-p 8080"
+    [ "$RTSP_AUTH" = "on" -a "$RTSP_USER" != "" -a "$RTSP_PASSWD" != "" ] && option="$option -U $RTSP_USER:$RTSP_PASSWD"
+    [ "$RTSP_VIDEO0" = "on" ] && path="/dev/video0,hw:0,0@$RTSP_AUDIO0 "
+    [ "$RTSP_VIDEO1" = "on" ] && path="$path /dev/video1,hw:2,0@$RTSP_AUDIO1 "
+    [ "$RTSP_VIDEO2" = "on" ] && path="$path /dev/video2,hw:4,0@$RTSP_AUDIO2 "
+    /usr/bin/v4l2rtspserver $option -C 1 -a S16_LE $path >> /tmp/log/rtspserver.log 2>&1 &
+  fi
+  while [ "`pidof v4l2rtspserver`" = "" ]; do
+    sleep 0.5
+  done
+  [ "$RTSP_VIDEO0" = "on" ] && /scripts/cmd audio 0 $AUDIO0 > /dev/null
+  [ "$RTSP_VIDEO1" = "on" ] && /scripts/cmd audio 1 $AUDIO1 > /dev/null
+  [ "$RTSP_VIDEO2" = "on" ] && /scripts/cmd audio 2 $AUDIO2 > /dev/null
+fi
 
 #
 # go2rtc
 #
+pidof go2rtc > /dev/null && exit 0
 HOMEKIT_CONFIG=/media/mmc/homekit.yaml
 OLD_GO2RTC_CONFIG=/media/mmc/go2rtc.yaml
 GO2RTC_CONFIG=/tmp/go2rtc.yaml
@@ -161,5 +176,6 @@ EOF
 fi
 
 echo -n "go2rtc: "
-/usr/bin/go2rtc $option -daemon
+#/usr/bin/go2rtc $option -daemon
+/usr/bin/go2rtc $option >> /tmp/log/go2rtc.log &
 exit 0

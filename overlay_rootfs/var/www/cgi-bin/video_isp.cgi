@@ -8,6 +8,7 @@ if [ "$REQUEST_METHOD" = "POST" ]; then
   awk '
   BEGIN {
     RS="[{},]";
+    printf("ver=1.0.0\n");
   }
   /^$/ { next; }
   {

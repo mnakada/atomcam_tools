@@ -8,15 +8,6 @@
 
 <br>
 
-> [!IMPORTANT]
->
-> **Ver.2.3.xからVer.2.4.0以降へのVer. Upは設定を記録しているhack.iniが変換されます**。  
-> Ver. 2.3.x以下にVer.Downする場合はSD-Cardに保存されている```hack.ini_0_9_9.bak```ファイルを```hack.ini```に上書きしてください。
->
-> 設定項目が増えてきて分かりにくくなってきたのでVer.2.4.0からメニュー構成を変更しました。
-
-<br>
-
 AtomSwingの画面
 
 <kbd><img src="https://github.com/mnakada/atomcam_tools/blob/images/camera.jpg" /></kbd>
@@ -162,9 +153,9 @@ sshは物理的にSD-Cardへアクセスして公開鍵を書かないとlogin�
 
 ATOMCam Ver.4.33.3.68, 4.33.3.73
 
-ATOMCam2 Ver.4.58.0.115, 4.58.0.120, 4.58.0.135, 4.58.0.139
+ATOMCam2 Ver.4.58.0.139, 4.58.0.154, 4.58.0.160
 
-ATOMSwing Ver.4.37.1.117, 4.37.1.122, 4.37.1.142, 4.37.1.152
+ATOMSwing Ver.4.37.1.152, 4.37.1.162, 4.37.1.166
 
 WyzeCamV3 Ver.4.36.9.139 （Experimental release)  4.36.10.xx以降のVer.では動作しません。
 
@@ -188,6 +179,12 @@ Qiitaに少し解説を書いています。
 [ATOMSwingのtimelapseで星座追尾](https://qiita.com/mnakada/items/e2337f7b73e3a9e1539c)
 
 [atomcam_toolsのMobileApp代替機能の実装](https://qiita.com/mnakada/items/310954397db6f16fe0b5)
+
+[Devinがatomcam_toolsの構造を説明してくれるページ](https://deepwiki.com/mnakada/atomcam_tools)
+
+[Devinがatomcam_toolsの構造を説明してくれるページ-日本語翻訳-](https://translate.google.com/translate?sl=auto&tl=ja&u=https://deepwiki.com/mnakada/atomcam_tools)
+
+（linkが途切れるので上の英語のページを開いてブラウザの翻訳機能で見た方がいいかも）
 
 <br>
 
@@ -627,6 +624,12 @@ YouTube liveへの配信の場合は`rtmp://a.rtmp.youtube.com/live2/<livekey>`�
 
 配信するアカウントのYouTube Studioのライブ配信設定を確認してください。
 
+##### 周期リスタート
+
+RTMPの配信が１日程度で停止することがあります。
+
+対策として周期的なRTMPのリスタート機能を追加しています。
+
 #### WebRTC
 
 <kbd><img src="https://github.com/mnakada/atomcam_tools/blob/images/webrtc.jpg" /></kbd>
@@ -822,7 +825,7 @@ Sub360p/320pのビットレート(100-500bps)を設定します。
 
 枠内にPNGイメージをdropすることで画面左下のロゴを変更することができます。
 
-PNGファイルはRGBA 各色8bitのフォーマットで500px X 100px以内で作成してください。
+PNGファイルはRGBA 各色8bitのフォーマットで500px X 200px以内で作成してください。
 
 設定ボタンを押すと反映されます。
 

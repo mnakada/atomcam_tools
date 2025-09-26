@@ -164,3 +164,23 @@ if [ "$CONFIG_VER" = "1.0.1" ] ; then
   ' $HACK_INI > $HACK_INI.new
   mv $HACK_INI.new $HACK_INI
 fi
+
+ISP_CONF=/media/mmc/video_isp.conf
+if [ -f $ISP_CONF ] ; then
+  ISP_CONF_VER=$(awk -F "=" '/ver *=/ {print $2}' $ISP_CONF)
+  if [ "$ISP_CONF_VER" = "" ] ; then
+    awk '
+    BEGIN {
+      printf("ver=1.0.0\n");
+    }
+    /aeitmax=1200/ {
+      printf("aeitmax=1683\n");
+      next;
+    }
+    {
+      print;
+    }
+    ' $ISP_CONF > $ISP_CONF.new
+    mv $ISP_CONF.new $ISP_CONF
+  fi
+fi

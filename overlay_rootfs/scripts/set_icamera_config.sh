@@ -8,8 +8,14 @@ if [ -f $ISP_CONF ] ; then
     [ "${l%%=*}" = 'aeitmax' ] && aeitmax=${l##*=} && continue;
     [ "${l%%=*}" = 'expmode' ] && expmode=${l##*=} && continue;
     [ "${l%%=*}" = 'expline' ] && expline=${l##*=} && continue;
+    if [ "${l%%=*}" != 'sinter' -a "${l%%=*}" != 'temper' ] ; then
+      res=`echo "video ${l%%=*}" | /usr/bin/nc localhost:4000`
+      echo "${l%%=*} : ${res}"
+    fi
     echo "video ${l//=/ }" | /usr/bin/nc localhost:4000 > /dev/null
   done < $ISP_CONF
+  res=`echo "video expr" | /usr/bin/nc localhost:4000`
+  echo "expr : ${res}"
   if [ "${expmode}" != "" -a "${expline}" != "" -a "${aeitmin}" != "" -a "${aeitmax}" != "" ] ; then
     echo "video expr ${expmode} ${expline} ${aeitmin} ${aeitmax}" | /usr/bin/nc localhost:4000 > /dev/null
   fi
@@ -25,7 +31,7 @@ BITRATE_SUB_HEVC=$(awk -F "=" '/^BITRATE_SUB_HEVC *=/ {print $2}' $HACK_INI)
 BITRATE_MAIN_HEVC=$(awk -F "=" '/^BITRATE_MAIN_HEVC *=/ {print $2}' $HACK_INI)
 MINIMIZE_ALARM_CYCLE=$(awk -F "=" '/^MINIMIZE_ALARM_CYCLE *=/ {print $2}' $HACK_INI)
 AWS_VIDEO_DISABLE=$(awk -F "=" '/^AWS_VIDEO_DISABLE *=/ {print $2}' $HACK_INI)
-PERIODICREC_SKIP_JPEG=$(awk -F "=" '/^SKIP_REC_JPEG *=/ {print $2}' $HACK_INI)
+PERIODICREC_SKIP_JPEG=$(awk -F "=" '/^PERIODICREC_SKIP_JPEG *=/ {print $2}' $HACK_INI)
 
 PERIODIC="ram"
 ALARM="ram"

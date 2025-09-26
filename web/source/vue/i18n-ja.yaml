@@ -112,6 +112,7 @@ AdvancedSettings:
 
 SDCard:
   tab: SD Card
+  remainingCapacity: 空き容量
 
 record:
   tab: 録画設定
@@ -285,6 +286,10 @@ RTMP:
     title: URL
     tooltip: 送信先のURLを設定してください
   Restart: restart
+  IntervalRestart:
+    title: 周期リスタート
+    unit: 分
+    tooltip: 定期的にRTMPを再スタートします
 
 WebRTC:
   title: WebRTC
@@ -425,7 +430,7 @@ watermark:
     title: ロゴ
     image:
       title: PNGイメージ
-      comment: PNGファイルを500px x 100px以内で作成してdropしてください。
+      comment: PNGファイルを500px x 200px以内で作成してdropしてください。
 
 maintenance:
   tab: メンテナンス

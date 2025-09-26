@@ -112,6 +112,7 @@ AdvancedSettings:
 
 SDCard:
   title: SD Card
+  remainingCapacity: remaining capacity
 
 record:
   tab: Recording
@@ -284,6 +285,10 @@ RTMP:
     title: URL
     tooltip: Set the destination URL.
   Restart: restart
+  IntervalRestart:
+    title: Interval Restart
+    unit: minutes
+    tooltip: Restart the RTMP periodically.
 
 WebRTC:
   title: WebRTC
@@ -426,7 +431,7 @@ watermark:
     title: Logo
     image:
       title: PNG image
-      comment: Create and drop a PNG file within 500px x 100px.
+      comment: Create and drop a PNG file within 500px x 200px.
 
 maintenance:
   tab: Maintenance

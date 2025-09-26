@@ -96,7 +96,7 @@
           <div v-if="ISPSettings.expmode === 'auto'">
             <SettingSlider i18n="AdvancedSettings.aecomp" v-model="ISPSettings.aecomp" :min="0" :max="255" :defaultValue="128" :stemp="1" @input="ISPSet('aecomp')" />
             <SettingSlider i18n="AdvancedSettings.aeitmin" v-model="ISPSettings.aeitmin" :min="1" :max="ISPSettings.aeitmax" :defaultValue="1" :stemp="1" @input="ISPSet('aeitmin')" />
-            <SettingSlider i18n="AdvancedSettings.aeitmax" v-model="ISPSettings.aeitmax" :min="ISPSettings.aeitmin" :max="1683" :defaultValue="1200" :stemp="1" @input="ISPSet('aeitmax')" />
+            <SettingSlider i18n="AdvancedSettings.aeitmax" v-model="ISPSettings.aeitmax" :min="ISPSettings.aeitmin" :max="1683" :defaultValue="1683" :stemp="1" @input="ISPSet('aeitmax')" />
           </div>
           <div v-else>
             <SettingSlider i18n="AdvancedSettings.expline" v-model="ISPSettings.expline" :min="1" :max="1683" :defaultValue="1200" :stemp="1" @input="ISPSet('expline')" />
@@ -131,6 +131,9 @@
         <!-- SD-Card Tab -->
         <ElTabPane name="SDCard" class="well-transparent container-flex-no-submit" :label="$t('SDCard.tab')">
           <iframe ref="sdcardFrame" class="sdcard-frame" src="/sdcard" />
+          <div v-if="showMediaSize" class="media-size">
+            {{ $t('SDCard.remainingCapacity') }}: {{ Math.round(mediaAvailable / 1024 / 1024 * 10) / 10 }}GB / {{ Math.round(mediaSize / 1024 / 1024 * 10) / 10 }}GB
+          </div>
         </ElTabPane>
 
         <!-- Record Setting Tab -->
@@ -265,9 +268,10 @@
 
           <h3 v-t="'RTMP.title'" />
           <SettingSwitch i18n="RTMP" :value="(config.RTSP_VIDEO0 == 'on' && (config.RTSP_AUDIO0 == 'AAC' || config.RTSP_AUDIO0 == 'off')) ? config.RTMP_ENABLE : 'off'" @input="config.RTMP_ENABLE=$event" :disabled="config.RTSP_VIDEO0 !== 'on' || (config.RTSP_AUDIO0 !== 'AAC' && config.RTSP_AUDIO0 !== 'off')" />
-          <SettingInput v-if="config.RTMP_ENABLE === 'on'" i18n="RTMP.URL" :titleOffset="2" :span="8" v-model="config.RTMP_URL" placeholder="rtmp://<server addr>/<livekey>">
-            <ElButton @click="RTMPRestart" type="primary" v-t="'RTMP.Restart'" />
+          <SettingInput v-if="config.RTMP_ENABLE === 'on'" i18n="RTMP.URL" :titleOffset="2" :span="8" v-model="config.RTMP_URL" placeholder="rtmp://<server addr>/<livekey>" :disabled="config.RTSP_VIDEO0 !== 'on' || (config.RTSP_AUDIO0 !== 'AAC' && config.RTSP_AUDIO0 !== 'off')">
+            <ElButton @click="RTMPRestart" type="primary" v-t="'RTMP.Restart'" :disabled="config.RTSP_VIDEO0 !== 'on' || (config.RTSP_AUDIO0 !== 'AAC' && config.RTSP_AUDIO0 !== 'off')" />
           </SettingInput>
+          <SettingInputNumber v-if="config.RTMP_ENABLE === 'on' && config.RTSP_VIDEO0 == 'on' && (config.RTSP_AUDIO0 == 'AAC' || config.RTSP_AUDIO0 == 'off')" i18n="RTMP.IntervalRestart" :withSwitch="true" :defaultValue="240" :span="10" v-model="config.RTMP_RESTART" :min="20" :max="2880" :step="20" />
 
           <h3 v-t="'WebRTC.title'" />
           <SettingSwitch i18n="WebRTC" :value="(config.RTSP_VIDEO0 == 'on') ? config.WEBRTC_ENABLE : 'off'" @input="config.WEBRTC_ENABLE=$event" :disabled="config.RTSP_VIDEO0 !== 'on'" />
@@ -373,7 +377,7 @@
     </div>
     <ElDrawer :visible.sync="drawerVisible" direction="btt" :show-close="drawerClosable" :wrapperClosable="drawerClosable" :close-on-press-escape="drawerClosable" @closed="drawerClosable=false">
       <h4 class="comment" v-t="drawerComment" />
-      <ElProgress v-if="progress > 0" :show-text="false" :stroke-width="18" :percentage="progress" class="progress progress-striped" />
+      <ElProgress v-if="progress >= 0" :show-text="false" :stroke-width="18" :percentage="progress" class="progress progress-striped" />
     </ElDrawer>
   </div>
 </template>
@@ -455,6 +459,7 @@
           HOMEKIT_SOURCE: '',
           RTMP_ENABLE: 'off',
           RTMP_URL: '',
+          RTMP_RESTART: -60,
           WEBRTC_ENABLE: 'off',
           PERIODICREC_SDCARD: 'on',
           PERIODICREC_SDCARD_REMOVE: 'off',
@@ -535,7 +540,7 @@
           aecomp: 128,
           expmode: 'auto',
           aeitmin: 1,
-          aeitmax: 1200,
+          aeitmax: 1683,
           expline: 1200,
         },
         loginAuth: 'off',
@@ -587,7 +592,7 @@
         drawerVisible: false,
         drawerClosable: false,
         drawerComment: '',
-        progress: 0,
+        progress: -1,
         stillImage: null,
         pan: 0,
         tilt: 0,
@@ -599,6 +604,9 @@
         videoFlip: false,
         isDrag: false,
         watermarkUploaded: false,
+        mediaSize: 0,
+        mediaAvailable: 0,
+        showMediaSize: false,
       };
     },
     computed: {
@@ -835,6 +843,11 @@
       }, {});
 
       this.latestVer = status.LATESTVER;
+      if(status.MEDIASIZE) {
+        const ms = status.MEDIASIZE.split(' ');
+        this.mediaSize = ms[1];
+        this.mediaAvailable = ms[0];
+      }
       if(status.MOTORPOS) {
         const pos = status.MOTORPOS.split(' ');
         this.pan = Math.round(parseFloat(pos[0]));
@@ -868,6 +881,11 @@
           if(name) d[name] = l.replace(new RegExp(name + '[ \t=]*'), '').trim();
           return d;
         }, {});
+        if(this.intervalValue.MEDIASIZE) {
+          const ms = this.intervalValue.MEDIASIZE.split(' ');
+          this.mediaSize = ms[1];
+          this.mediaAvailable = ms[0];
+        }
         if(this.intervalValue.MOTORPOS) {
           const pos = this.intervalValue.MOTORPOS.split(' ');
           const pan = Math.round(parseFloat(pos[0]));
@@ -966,7 +984,7 @@
       },
       async GetCameraProperty() {
         const property = ((await this.Exec('property', 'socket')).data ?? '').split(/[\n\x00]/);
-        if(!property.length) return;
+        if(!property?.length) return;
         this.property = property.reduce((d, s) => {
           if(s.length && (s !== 'ok')) d[s.replace(/ *=.*$/, '')] = s.replace(/^.*= */, '');
           return d;
@@ -1083,6 +1101,16 @@
         this.selectedTabIndex = parseInt(tab.index);
         if(this.selectedTab === 'CameraSettings') this.GetCameraProperty();
         if(this.selectedTab === 'maintenance') this.GetLatestVer();
+        if(this.selectedTab === 'SDCard') {
+          if(!this.sdcardIntervalID) this.sdcardIntervalID = setInterval(() => {
+            this.showMediaSize = this.$refs.sdcardFrame?.contentDocument?.title?.indexOf('Index of') === 0;
+          }, 500);
+        } else {
+          if(this.sdcardIntervalID) {
+            clearInterval(this.sdcardIntervalID);
+            this.sdcardIntervalID = null;
+          }
+        }
       },
       async Move() {
         if(!this.posValid || !this.moveDone) return;
@@ -1173,7 +1201,7 @@
       },
       DoReboot() {
         this.drawerComment = 'rebooting';
-        this.progress = 0;
+        this.progress = -1;
         this.drawerVisible = true;
         this.rebootStart = new Date();
         this.rebootStart.setSeconds(this.rebootStart.getSeconds() + 30);
@@ -1181,7 +1209,7 @@
       },
       async DoErase() {
         this.drawerComment = 'erasing';
-        this.progress = 0;
+        this.progress = -1;
         this.drawerVisible = true;
         await this.Exec('sderase');
         this.drawerVisible = false;
@@ -1191,19 +1219,23 @@
         this.drawerComment = 'downloading';
         this.progress = 0;
         this.drawerVisible = true;
+        this.updateTimeout = 30;
         await this.Exec('update');
         const updateIntervalID = setInterval(async () => {
-          this.progress = parseInt(((await this.Exec('update_status'))?.data ?? '').replace(/^.* ([+-]*\d+) .*\n*$/, '$1')) ?? -1;
-          if(this.progress < 0) {
-            clearInterval(updateIntervalID);
-            this.drawerComment = 'downloadError';
-            this.progress = 0;
-            this.drawerClosable = true;
+          this.progress = parseInt(((await this.Exec('update_status'))?.data ?? '').replace(/^.* ([+-]*\d+) .*\n*$/, '$1'));
+          if(isNaN(this.progress)) {
+            this.updateTimeout--;
+            if(this.updateTimeout === 0) {
+              clearInterval(updateIntervalID);
+              this.drawerComment = 'downloadError';
+              this.progress = -1;
+              this.drawerClosable = true;
+            }
           }
           if(this.progress === 100) {
             clearInterval(updateIntervalID);
             this.drawerComment = 'rebooting';
-            this.progress = 0;
+            this.progress = -1;
             this.rebootStart = new Date();
             this.rebootStart.setSeconds(this.rebootStart.getSeconds() + 30);
           }
@@ -1221,7 +1253,7 @@
           await img.decode();
           const width = img.naturalWidth;
           const height = img.naturalHeight;
-          if((width > 500) || (height > 100)) return;
+          if((width > 500) || (height > 200)) return;
           const canvas = document.getElementById("watermark");
           canvas.width = width;
           canvas.height = height;
@@ -1416,16 +1448,18 @@
         this.oldConfig = Object.assign({}, this.config);
         if(execCmds.length) {
           this.drawerComment = 'executing';
-          this.progress = 0;
+          this.progress = -1;
           this.drawerVisible = true;
           this.$nextTick(async () => {
             for(const cmd of execCmds) {
               await this.Exec(cmd);
             }
-            if(execCmds.indexOf('lighttpd') >= 0) {
-              setTimeout(() => this.drawerVisible = false, 3000);
-            } else {
-              this.drawerVisible = false;
+            if(this.progress < 0) {
+              if(execCmds.indexOf('lighttpd') >= 0) {
+                setTimeout(() => this.drawerVisible = false, 3000);
+              } else {
+                this.drawerVisible = false;
+              }
             }
             if(href) window.location.href = href;
           });
@@ -1527,6 +1561,13 @@
     padding: 5px;
     display: flex;
     justify-content: flex-end;
+  }
+
+  .media-size {
+    font-size: 1.5em;
+    font-weight: 500;
+    position: fixed;
+    margin:20px;
   }
 
   .image-frame {
@@ -1708,12 +1749,12 @@
     border-radius: 5px;
     box-shadow: inset 0 1px 1px rgba(0,0,0,.05);
     width: 500px;
-    height: 100px;
+    height: 200px;
   }
 
   #watermark {
     width: 500px;
-    height: 100px;
+    height: 200px;
     border: solid 1px #999;
      background-image: linear-gradient(45deg, #ccc 25%, transparent 25%, transparent 75%, #ccc 75%),
         linear-gradient(45deg, #ccc 25%, transparent 25%, transparent 75%, #ccc 75%);

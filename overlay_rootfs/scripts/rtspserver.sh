@@ -53,11 +53,11 @@ fi
 
 if [ "$1" = "watchdog" ]; then
   [ "$RTSP_VIDEO0" = "on" -o "$RTSP_VIDEO1" = "on" -o "$RTSP_VIDEO2" = "on" ] || exit 0
+else
+  [ "$1" != "on" -a "$1" != "restart" -a "$RTSP_VIDEO0" != "on" -a "$RTSP_VIDEO1" != "on" -a "$RTSP_VIDEO2" != "on" ] && exit 0
 fi
 
 if ! pidof v4l2rtspserver > /dev/null ; then
-  [ "$1" != "on" -a "$1" != "restart" -a "$1" != "watchdog" -a "$RTSP_VIDEO0" != "on" -a "$RTSP_VIDEO1" != "on" -a "$RTSP_VIDEO2" != "on" ] && exit 0
-
   echo "RTSP Restart " >> /tmp/log/rtspserver.log
 
   /scripts/cmd video 0 $RTSP_VIDEO0 > /dev/null
@@ -81,10 +81,11 @@ if ! pidof v4l2rtspserver > /dev/null ; then
   while [ "`pidof v4l2rtspserver`" = "" ]; do
     sleep 0.5
   done
-  [ "$RTSP_VIDEO0" = "on" ] && /scripts/cmd audio 0 $AUDIO0 > /dev/null
-  [ "$RTSP_VIDEO1" = "on" ] && /scripts/cmd audio 1 $AUDIO1 > /dev/null
-  [ "$RTSP_VIDEO2" = "on" ] && /scripts/cmd audio 2 $AUDIO2 > /dev/null
 fi
+
+[ "$RTSP_VIDEO0" = "on" ] && /scripts/cmd audio 0 $AUDIO0 > /dev/null
+[ "$RTSP_VIDEO1" = "on" ] && /scripts/cmd audio 1 $AUDIO1 > /dev/null
+[ "$RTSP_VIDEO2" = "on" ] && /scripts/cmd audio 2 $AUDIO2 > /dev/null
 
 #
 # go2rtc

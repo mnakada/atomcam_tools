@@ -451,7 +451,7 @@ videoSpec:
     tooltip: Set the bitrate of Sub 360p/320p. (100-500bps)
   timestampSize:
     title: Timestamp size
-    tooltip: Set the size of the timestamp on Main HD. Takes effect after reboot.
+    tooltip: Set the size of the timestamp on Main HD (recordings and the preview on this page). Sub 360p is not changed. Takes effect after reboot.
     text:
       - Original
       - 3/4

@@ -450,7 +450,7 @@ videoSpec:
     tooltip: Sub360p/320pのビットレート(100-500bps)を設定します
   timestampSize:
     title: タイムスタンプの大きさ
-    tooltip: Main HDのタイムスタンプの大きさを設定します。変更は再起動後に反映されます
+    tooltip: Main HD（録画・この画面のプレビュー）のタイムスタンプの大きさを設定します。Sub 360p は変わりません。変更は再起動後に反映されます
     text:
       - 原寸
       - 3/4

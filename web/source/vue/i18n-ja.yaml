@@ -448,6 +448,15 @@ videoSpec:
   bitrateSub:
     title: Subの帯域
     tooltip: Sub360p/320pのビットレート(100-500bps)を設定します
+  jpegQuality:
+    title: JPEG画質
+    tooltip: 静止画(JPEG)の画質を設定します。値が大きいほど高画質でファイルが大きくなります。Web画面の静止画、webhook、録画のサムネイルなどに使われます。変更は再起動後に反映されます
+    text:
+      - 標準(32)
+      - 50
+      - 70
+      - 80
+      - 90
 watermark:
     title: ロゴ
     image:

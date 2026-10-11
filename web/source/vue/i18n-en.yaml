@@ -454,10 +454,10 @@ videoSpec:
     tooltip: Set the quality of still images (JPEG). Higher values give better images and larger files. Used for snapshots on this page, webhooks, recording thumbnails, etc. Takes effect after reboot.
     text:
       - Default (32)
-      - 50
-      - 70
-      - 80
-      - 90
+      - '50'
+      - '70'
+      - '80'
+      - '90'
 watermark:
     title: Logo
     image:

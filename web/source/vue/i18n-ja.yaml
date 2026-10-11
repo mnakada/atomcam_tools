@@ -448,6 +448,14 @@ videoSpec:
   bitrateSub:
     title: Subの帯域
     tooltip: Sub360p/320pのビットレート(100-500bps)を設定します
+  timestampSize:
+    title: タイムスタンプの大きさ
+    tooltip: Main HDのタイムスタンプの大きさを設定します。変更は再起動後に反映されます
+    text:
+      - 原寸
+      - 3/4
+      - 2/3
+      - 1/2
 watermark:
     title: ロゴ
     image:

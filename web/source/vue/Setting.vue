@@ -349,6 +349,7 @@
           <SettingInputNumber i18n="videoSpec.bitrateMain" :withSwitch="true" :span="3" v-model="config.BITRATE_MAIN_AVC" :min="300" :max="2000" />
           <SettingInputNumber v-if="distributor === 'ATOM'" i18n="videoSpec.bitrateMainHEVC" :withSwitch="true" :span="3" v-model="config.BITRATE_MAIN_HEVC" :min="300" :max="2000" />
           <SettingInputNumber i18n="videoSpec.bitrateSub" :withSwitch="true" :span="3" v-model="config.BITRATE_SUB_HEVC" :min="100" :max="500" />
+          <SettingSelect i18n="videoSpec.timestampSize" v-model="config.TIMESTAMP_SIZE" :label="['100', '75', '67', '50']" />
           <h3 v-t="'watermark.title'" />
           <SettingComment i18n="watermark.image">
             <div class="watermark-drop-area" :class="[{'is-drag': isDrag }]" @dragover.prevent="isDrag=true" @dragleave.prevent="isDrag=false" @drop.prevent="UploadPNG">
@@ -538,6 +539,7 @@
           BITRATE_MAIN_AVC: 960,   // ch0 H264 HD   Record/Alarm, RTSP AVC Main
           BITRATE_SUB_HEVC: -180,  // ch1 H265 360p MobileApp,    RTSP HEVC Sub
           BITRATE_MAIN_HEVC: -800, // ch3 H265 HD   MobileApp,    RTSP HEVC Main
+          TIMESTAMP_SIZE: '100',
         },
         property: {},
         ISPSettings: {

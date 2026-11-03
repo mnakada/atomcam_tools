@@ -107,6 +107,9 @@ static struct video_capture_st video_capture_wyzecam[] = {
   },
 };
 
+// largest encoded frame: the encoder limits an I frame to 240KB (pMaxPictureSize), also at 3000kbps
+static const int MaxFrameSize = 1024 * 1024;
+
 static struct video_capture_st *video_capture = video_capture_atomcam;
 static int VideoChNum = 3;
 extern int AudioBitrate;
@@ -156,7 +159,10 @@ static int video_encode_capture(int ch, struct frames_st *frames) {
       int err = ioctl(video_capture[ch].fd, VIDIOC_G_FMT, &vid_format);
       vid_format.type = V4L2_BUF_TYPE_VIDEO_OUTPUT;
       vid_format.fmt.pix.width = video_capture[ch].width;
-      vid_format.fmt.pix.height = video_capture[ch].height;
+      // v4l2loopback makes each buffer of a compressed format width x height x 4 bytes and ignores sizeimage.
+      // Pass a smaller height so that a buffer is about MaxFrameSize (16.6MB -> 2.1MB for 1080p).
+      int maxHeight = (MaxFrameSize + video_capture[ch].width * 4 - 1) / (video_capture[ch].width * 4);
+      vid_format.fmt.pix.height = (video_capture[ch].height < maxHeight) ? video_capture[ch].height : maxHeight;
       vid_format.fmt.pix.pixelformat = video_capture[ch].format;
       vid_format.fmt.pix.sizeimage = 0;
       vid_format.fmt.pix.field = V4L2_FIELD_NONE;

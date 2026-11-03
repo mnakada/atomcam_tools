@@ -17,6 +17,16 @@ WEBHOOK_URL=$(awk -F "=" '/^WEBHOOK_URL *=/ {print $2}' $HACK_INI)
 [ "$(awk -F "=" '/^WEBHOOK_INSECURE *=/ {print $2}' $HACK_INI)" = "on" ] && INSECURE_FLAG="-k "
 WEBHOOK_RECORD_EVENT=$(awk -F "=" '/^WEBHOOK_RECORD_EVENT *=/ {print $2}' $HACK_INI)
 HOSTNAME=`hostname`
+# recording start time from the file name: /media/mmc/record/YYYYMMDD/HH/MM.mp4
+TIME=`echo $2 | sed -e 's|^/media/mmc/record/||' -e 's|/||g' -e 's|.mp4$||'`
+case "$TIME" in
+  [0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9])
+    # date -d normalizes out-of-range values, so check that it converts back to the same string
+    [ "`date -d $TIME +%Y%m%d%H%M 2> /dev/null`" = "$TIME" ] && RECTIME=`date -d $TIME +"%w %H %M"`
+  ;;
+esac
+# fall back to the current time if the file name is not in the expected format
+[ "$RECTIME" = "" ] && RECTIME=`date +"%w %H %M"`
 
 if [ "$PERIODICREC_SCHEDULE" = "on" ]; then
   FMT=`awk '
@@ -29,7 +39,12 @@ if [ "$PERIODICREC_SCHEDULE" = "on" ]; then
         print $i;
       }
     }
-  ' /tmp/hack.ini | awk '
+  ' /tmp/hack.ini | awk -v RECTIME="$RECTIME" '
+    # Rule: bit (1 << day) Mon=1 .. Sun=7
+    function dayEnabled(rule, day) {
+      for(; day > 0; day--) rule = int(rule / 2);
+      return rule % 2;
+    }
     BEGIN {
       FS = "=";
       INDEX=-1;
@@ -42,13 +57,7 @@ if [ "$PERIODICREC_SCHEDULE" = "on" ]; then
       ENABLE[INDEX] = 1;
     }
     /Rule=/ {
-      day = strftime("%w");
-      dayMask = $2;
-      if(day == 0) day = 7;
-      for(i = 0; i < day; i++) {
-        dayMask = int(dayMask / 2);
-      }
-      if(dayMask % 2 == 0) ENABLE[INDEX] = 0;
+      RULE[INDEX] = $2;
     }
     /ContinueTime=/ {
       CONTINUETIME[INDEX] = $2;
@@ -63,14 +72,21 @@ if [ "$PERIODICREC_SCHEDULE" = "on" ]; then
       if($2 != 1) ENABLE[INDEX] = 0;
     }
     END {
-      HOUR = strftime("%H");
-      MINUTE = strftime("%M");
-      NOW = HOUR * 60 + MINUTE;
+      split(RECTIME, T, " ");
+      NOW = T[2] * 60 + T[3];
+      DAY = T[1];
+      if(DAY == 0) DAY = 7;
+      PREVDAY = (DAY == 1) ? 7 : DAY - 1;
       FLAG = 0;
       for(i = 1; i <= INDEX; i++) {
-        if(NOW < STARTTIME[i]) ENABLE[i] = 0;
-        if(NOW >= STARTTIME[i] + CONTINUETIME[i]) ENABLE[i] = 0;
-        if(ENABLE[i]) FLAG = 1;
+        if(!ENABLE[i]) continue;
+        # ContinueTime is negative (or 0) when the period crosses midnight
+        LENGTH = CONTINUETIME[i];
+        if(LENGTH <= 0) LENGTH += 1440;
+        # started today
+        if(dayEnabled(RULE[i], DAY) && NOW >= STARTTIME[i] && NOW < STARTTIME[i] + LENGTH) FLAG = 1;
+        # started yesterday and continues past midnight
+        if(dayEnabled(RULE[i], PREVDAY) && NOW + 1440 < STARTTIME[i] + LENGTH) FLAG = 1;
       }
       if(FLAG) print strftime("%Y%m%d_%H%M%S");
     }
@@ -84,7 +100,6 @@ if [ "$FMT" != "" ]; then
   /bin/busybox mv $1 $TMPFILE
   (
     if [ "$PERIODICREC_CIFS" = "on" ] && /tmp/system/bin/mount_cifs.sh ; then
-      TIME=`echo $2 | sed -e 's|^/media/mmc/record/||' -e 's|/||g' -e 's|.mp4$||'`
       CIFSFILE=`date -d $TIME +"record/$PERIODICREC_CIFS_PATH.mp4"`
       OUTFILE="/mnt/$HOSTNAME/$CIFSFILE"
       DIR_PATH=${OUTFILE%/*}

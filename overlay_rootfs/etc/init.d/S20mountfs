@@ -21,8 +21,13 @@
 
 case "$1" in
   start)
-    ss=`ls -l /media/mmc/atom_root.squashfs | awk '{print $5}'`
-    [ "$ss" = "3997696" ] || dd if=/dev/mtdblock2 of=/media/mmc/atom_root.squashfs bs=16k count=244
+    # compare the contents, not the size: the rootfs image has the same size after a vendor firmware update
+    rootfs=`dd if=/dev/mtdblock2 bs=16k count=244 2> /dev/null | md5sum`
+    copy=`cat /media/mmc/atom_root.squashfs 2> /dev/null | md5sum`
+    if [ "$copy" != "$rootfs" ] ; then
+      echo "rebuild atom_root.squashfs" >> /media/mmc/atomhack.log
+      dd if=/dev/mtdblock2 of=/media/mmc/atom_root.squashfs bs=16k count=244
+    fi
     mount -t squashfs /media/mmc/atom_root.squashfs /atom
     mount -t squashfs /dev/mtdblock3 /atom/system
     [ -f /media/mmc/configs ] || ( dd if=/dev/zero of=/media/mmc/configs bs=1M count=1 && mkfs.ext2 -F /media/mmc/configs )

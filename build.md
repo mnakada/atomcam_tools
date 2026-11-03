@@ -11,13 +11,16 @@
 ## ビルド手順   
 
 適当なディレクトリで以下のコマンドを実行します。
-macOSの場合はDockerの起動にLimaを使用します。
-事前にLima、Docker CLI、docker-composeをインストールしておいてください。
+
+macOSではApple Silicon搭載MacとmacOS 26が必要です。
+[Appleのcontainer](https://github.com/apple/container)をインストールし、
+`make`実行時にApple Containerが停止していれば自動で起動します。
+Windows / LinuxではDockerとDocker Compose v2（`docker compose`）を使用します。
+（Docker Compose v1の`docker-compose`にもフォールバックします）
 
 ```sh
 git clone https://github.com/mnakada/atomcam_tools
 cd atomcam_tools
-make lima  # macOSのみ
 make
 ```
 
@@ -46,7 +49,7 @@ echo "新しいホスト名" > ./target/hostname
 
 > **注意**: 初回起動時は、スワップファイルの作成とSSHホストキーの生成のため、約40秒ほど時間がかかります。
 
-ビルド環境はイメージ作成後、Docker上にコンテナが起動した状態になります。
+ビルド環境のコンテナは、ビルド後も起動した状態で残ります。
 
 コンテナに入るには以下のコマンドを使用します：
 
@@ -54,11 +57,14 @@ echo "新しいホスト名" > ./target/hostname
 make login
 ```
 
-Dockerコンテナを手動で起動:
+コンテナを手動で起動する場合:
 
 ```sh
-make lima               # macOSの場合
-docker-compose up -d    # Linuxの場合
+# macOS
+make container-up
+
+# Windows / Linux
+docker compose up -d
 ```
 
 
@@ -253,11 +259,11 @@ WebUIはVue.jsとElementUIで記述しています。
 
 WebUIの画面は`web/source/vue/Setting.vue`に記述しています。
 
-# Docker環境
+# コンテナ環境
 
-Docker環境では `/src` が `atomcam_tools/` にマップされています。
+コンテナ内では `/src` が `atomcam_tools/` にマップされています。
 
-以下、基本的にDocker内のコマンドは下記のディレクトリから実行します:
+以下、基本的にコンテナ内のコマンドは下記のディレクトリから実行します:
 
 ```
 root@ac0375635c01:/atomtools# cd /atomtools/build/buildroot-2016.02

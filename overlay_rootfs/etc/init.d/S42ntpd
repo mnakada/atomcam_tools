@@ -3,28 +3,74 @@
 # Start network time daemon
 #
 
+# sync_time <seconds>: try a one-shot sync until it succeeds or the time runs out
+sync_time() {
+  local end=$(( `cut -d. -f1 /proc/uptime` + $1 ))
+  tries=0
+  while [ `cut -d. -f1 /proc/uptime` -lt $end ] ; do
+    if ping -c 1 -W 1 ntp.nict.jp > /dev/null 2>&1 ; then
+      let tries++
+      timeout -t 10 /usr/sbin/ntpd -qn -p ntp.nict.jp && return 0
+    fi
+    sleep 1
+  done
+  return 1
+}
+
+# log_time <message>: append to atomhack.log in local time (TZ is set after this script at boot)
+log_time() {
+  (
+    [ -f /etc/environment ] && . /etc/environment
+    [ -f /media/mmc/TZ ] && TZ=`cat /media/mmc/TZ`
+    export TZ
+    echo `date +"%Y/%m/%d %H:%M:%S"` ": $1" >> /media/mmc/atomhack.log
+  )
+}
+
 case "$1" in
   start)
     logger -s "Starting ntpd: "
-    if ping -c 1 ntp.nict.jp > /dev/null ; then
-      /usr/sbin/ntpd -qn -p ntp.nict.jp
-    else
-      [ -f /media/mmc/time.ini ] && date -s @`sed -ne 's/utc=//p' /media/mmc/time.ini`
+    # udhcpc may still be getting an address here. Keep trying for about 30 seconds so that
+    # recording, which names its files by the time, starts with the correct time.
+    # (the first query right after the address is assigned can fail)
+    if sync_time 30 ; then
+      log_time "ntpd synced (uptime `cut -d' ' -f1 /proc/uptime`, try $tries)"
+      /usr/sbin/ntpd -p ntp.nict.jp
+      [ $? == 0 ] && logger -s "OK" || logger -s "FAIL"
+      exit 0
     fi
-    /usr/sbin/ntpd -p ntp.nict.jp
-    [ $? == 0 ] && logger -s "OK" || logger -s "FAIL"
+    # last resort: use the saved time and keep trying in the background so the boot continues;
+    # started without the network, ntpd cannot resolve the server and exits
+    [ -f /media/mmc/time.ini ] && date -s @`sed -ne 's/utc=//p' /media/mmc/time.ini`
+    touch /tmp/ntpd_waiting
+    (
+      if sync_time 180 ; then
+        log_time "ntpd synced late (uptime `cut -d' ' -f1 /proc/uptime`, try $tries)"
+      else
+        log_time "ntpd sync failed (uptime `cut -d' ' -f1 /proc/uptime`, try $tries)"
+      fi
+      /usr/sbin/ntpd -p ntp.nict.jp
+      [ $? == 0 ] && logger -s "OK" || logger -s "FAIL"
+      rm -f /tmp/ntpd_waiting
+    ) < /dev/null > /dev/null 2>&1 &
   ;;
   stop)
     logger -s "Stopping ntpd: "
     killall ntpd
     [ $? == 0 ] && logger -s "OK" || logger -s "FAIL"
   ;;
+  watchdog)
+    [ -f /tmp/ntpd_waiting ] && exit 0
+    pidof ntpd > /dev/null && exit 0
+    echo `date +"%Y/%m/%d %H:%M:%S"` ": ntpd restart"
+    /usr/sbin/ntpd -p ntp.nict.jp
+  ;;
   restart|reload)
     "$0" stop
     "$0" start
   ;;
   *)
-    echo "Usage: $0 {start|stop|restart}"
+    echo "Usage: $0 {start|stop|restart|watchdog}"
     exit 1
 esac
 

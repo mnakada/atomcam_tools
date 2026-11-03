@@ -70,6 +70,9 @@ docker-build:
 
 container-build: docker-build
 
+test-device:
+	tests/device/run.sh $(ARGS)
+
 login:
 	${DOCKER_COMPOSE} ls | grep atomcam_tools > /dev/null || ${DOCKER_COMPOSE} up -d
 	${DOCKER_COMPOSE} exec builder bash

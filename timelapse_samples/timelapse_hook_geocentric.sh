@@ -34,6 +34,7 @@ BEGIN {
   secondsOfsiderealDay = 365.2422 / 366.2422 * 24 * 60 * 60;
   timeOffset = anglesAtMidnight * secondsOfsiderealDay / 360;
   "date +%s" | getline GMT;
+  close("date +%s");
   JST = GMT + 9 * 60 * 60;
 
   ScheduleID = 1;
@@ -49,9 +50,11 @@ BEGIN {
     cmd = sprintf("/scripts/cmd move %3.3f %d 3 0", pan, 180 - tiltAngle);
     if((ARGC >=2) && (ARGV[2] == "start")) {
       "/scripts/cmd move 355 180 3 1" | getline res;
-      sleep 3;
+      close("/scripts/cmd move 355 180 3 1");
+      system("sleep 3");
       cmd | getline res;
-      sleep 3;
+      close(cmd);
+      system("sleep 3");
       print "start: " >> "/tmp/log/timelapse_hook.log";
       print cmd >> "/tmp/log/timelapse_hook.log";
       print res >> "/tmp/log/timelapse_hook.log";
@@ -60,10 +63,12 @@ BEGIN {
       if(pan0 < 0) pan0 += 30;
       cmd0 = sprintf("/scripts/cmd move %3.3f %d 3 0", pan0, 180 - tiltAngle);
       cmd0 | getline res;
-      sleep 3
+      close(cmd0);
+      system("sleep 3");
     }
     for(i = 0; i < 3; i++) {
       cmd | getline res;
+      close(cmd);
       print cmd >> "/tmp/log/timelapse_hook.log";
       print res >> "/tmp/log/timelapse_hook.log";
       if(res != "" && index(res, "error") == 0) break;
@@ -72,12 +77,14 @@ BEGIN {
     cmd = sprintf("/scripts/cmd move %3.3f %d 1 0", daytimePanAngle, 180 - daytimeTiltAngle);
     if((ARGC >=2) && (ARGV[2] == "start")) {
       cmd | getline res;
-      sleep 3;
+      close(cmd);
+      system("sleep 3");
       print "start: " >> "/tmp/log/timelapse_hook.log";
       print cmd >> "/tmp/log/timelapse_hook.log";
       print res >> "/tmp/log/timelapse_hook.log";
     }
     cmd | getline res;
+    close(cmd);
     print cmd >> "/tmp/log/timelapse_hook.log";
     print res >> "/tmp/log/timelapse_hook.log";
   }

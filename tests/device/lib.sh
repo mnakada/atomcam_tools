@@ -29,7 +29,34 @@ fail_known() {
 }
 
 # http PATH [curl options] : request to the web server (digest auth with $ATOMCAM_AUTH=user:password)
-http() { local p=$1; shift; curl -s --max-time 10 ${ATOMCAM_AUTH:+--digest -u "$ATOMCAM_AUTH"} "$@" "http://$HOST$p"; }
+curl_config_value() {
+  local value=$1
+  case $value in
+    *$'\n'*|*$'\r'*) return 1 ;;
+  esac
+  value=${value//\\/\\\\}
+  value=${value//\"/\\\"}
+  printf '"%s"' "$value"
+}
+
+http() {
+  local p=$1
+  shift
+  if [ -n "$ATOMCAM_AUTH" ]; then
+    local auth_config
+    auth_config=$(curl_config_value "$ATOMCAM_AUTH") || {
+      printf 'ATOMCAM_AUTH must not contain newline characters\n' >&2
+      return 2
+    }
+    (
+      export -n ATOMCAM_AUTH
+      printf 'user = %s\ndigest\n' "$auth_config" |
+        env -u ATOMCAM_AUTH curl -s --max-time 10 --config - "$@" "http://$HOST$p"
+    )
+  else
+    curl -s --max-time 10 "$@" "http://$HOST$p"
+  fi
+}
 
 load_ini() { INI=$(http /cgi-bin/hack_ini.cgi); }
 

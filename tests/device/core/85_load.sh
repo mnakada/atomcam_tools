@@ -79,8 +79,19 @@ if [ $own_rtsp = 1 ]; then
     (/usr/bin/v4l2rtspserver -P 18554 -C 1 -a S16_LE /dev/video0,hw:0,0@OPUS > /dev/null 2>&1 &)" > /dev/null
 fi
 if [ $own_go2rtc = 1 ]; then
-  remote "printf 'api:\n    listen: \":11984\"\nrtsp:\n    listen: \"\"\nwebrtc:\n    listen: \":18555/tcp\"\nstreams:\n    video0:\n        - http://localhost/cgi-bin/get_jpeg.cgi\n        - $rtsp_local#video=copy#audio=copy\n' > /tmp/loadtest-go2rtc.yaml
-    (/usr/bin/go2rtc -config /tmp/loadtest-go2rtc.yaml > /dev/null 2>&1 &)"
+  remote "cat > /tmp/loadtest-go2rtc.yaml" <<EOF
+api:
+    listen: ":11984"
+rtsp:
+    listen: ""
+webrtc:
+    listen: ":18555/tcp"
+streams:
+    video0:
+        - http://localhost/cgi-bin/get_jpeg.cgi
+        - $rtsp_local#video=copy#audio=copy
+EOF
+  remote "(/usr/bin/go2rtc -config /tmp/loadtest-go2rtc.yaml > /dev/null 2>&1 &)"
 fi
 sleep 15
 

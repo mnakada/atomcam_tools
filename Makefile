@@ -8,7 +8,7 @@ ifeq ($(shell uname -s),Darwin)
 CONTAINER_CLI ?= container
 CONTAINER_NAME=atomcam_tools-builder
 
-.PHONY: build build-local container-up container-build docker-build login _container-system-start _container-ensure
+.PHONY: build build-local container-up container-build docker-build test-device login _container-system-start _container-ensure
 
 build: _container-system-start
 	$(CONTAINER_CLI) image pull $(BUILDER_IMAGE)
@@ -48,13 +48,16 @@ container-build: _container-system-start
 
 docker-build: container-build
 
+test-device:
+	tests/device/run.sh $(ARGS)
+
 login: container-up
 	$(CONTAINER_CLI) exec --interactive --tty $(CONTAINER_NAME) bash
 else
 # Use Docker Compose v2 when available, otherwise fall back to docker-compose v1.
 DOCKER_COMPOSE=$(shell docker compose version >/dev/null 2>&1 && echo "docker compose" || echo "docker-compose")
 
-.PHONY: build build-local container-build docker-build login
+.PHONY: build build-local container-build docker-build test-device login
 
 build:
 	-docker pull ${BUILDER_IMAGE} | awk '{ print } /Downloaded newer image/ { system("${DOCKER_COMPOSE} down"); }'

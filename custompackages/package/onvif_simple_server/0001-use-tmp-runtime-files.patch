@@ -1,0 +1,45 @@
+--- a/onvif_simple_server.c
++++ b/onvif_simple_server.c
+@@ -41,1 +41,1 @@
+-#define DEFAULT_CONF_FILE "/etc/onvif_simple_server.conf"
++#define DEFAULT_CONF_FILE "/tmp/onvif_simple_server.conf"
+@@ -43,1 +43,1 @@
+-#define DEFAULT_LOG_FILE "/var/log/onvif_simple_server.log"
++#define DEFAULT_LOG_FILE "/tmp/log/onvif_simple_server.log"
+@@ -167,1 +167,1 @@
+-    fLog = fopen(DEFAULT_LOG_FILE, "w");
++    fLog = fopen(DEFAULT_LOG_FILE, "a");
+--- a/wsd_simple_server.c
++++ b/wsd_simple_server.c
+@@ -41,1 +41,1 @@
+-#define DEFAULT_LOG_FILE "/var/log/wsd_simple_server.log"
++#define DEFAULT_LOG_FILE "/tmp/log/wsd_simple_server.log"
+@@ -407,1 +407,1 @@
+-    fLog = fopen(DEFAULT_LOG_FILE, "w");
++    fLog = fopen(DEFAULT_LOG_FILE, "a");
+--- a/onvif_notify_server.c
++++ b/onvif_notify_server.c
+@@ -42,1 +42,1 @@
+-#define DEFAULT_CONF_FILE "/etc/onvif_simple_server.conf"
++#define DEFAULT_CONF_FILE "/tmp/onvif_simple_server.conf"
+@@ -44,1 +44,1 @@
+-#define DEFAULT_LOG_FILE "/var/log/onvif_notify_server.log"
++#define DEFAULT_LOG_FILE "/tmp/log/onvif_notify_server.log"
+@@ -662,1 +662,1 @@
+-    fLog = fopen(DEFAULT_LOG_FILE, "w");
++    fLog = fopen(DEFAULT_LOG_FILE, "a");
+--- a/wsd_files/Hello.xml
++++ b/wsd_files/Hello.xml
+@@ -22,1 +22,1 @@
+-            <wsdd:Scopes>onvif://www.onvif.org/type/video_encoder onvif://www.onvif.org/type/audio_encoder onvif://www.onvif.org/type/ptz onvif://www.onvif.org/hardware/%HARDWARE% onvif://www.onvif.org/name/%NAME% onvif://www.onvif.org/location/anywhere</wsdd:Scopes>
++            <wsdd:Scopes>onvif://www.onvif.org/type/video_encoder onvif://www.onvif.org/type/audio_encoder onvif://www.onvif.org/type/ptz onvif://www.onvif.org/hardware/%HARDWARE% onvif://www.onvif.org/name/%NAME% onvif://www.onvif.org/location/anywhere onvif://www.onvif.org/Profile/Streaming onvif://www.onvif.org/Profile/S</wsdd:Scopes>
+--- a/wsd_files/ProbeMatches.xml
++++ b/wsd_files/ProbeMatches.xml
+@@ -24,1 +24,1 @@
+-                <wsdd:Scopes>onvif://www.onvif.org/type/video_encoder onvif://www.onvif.org/type/audio_encoder onvif://www.onvif.org/type/ptz onvif://www.onvif.org/hardware/%HARDWARE% onvif://www.onvif.org/name/%NAME% onvif://www.onvif.org/location/anywhere onvif://www.onvif.org/Profile/Streaming</wsdd:Scopes>
++                <wsdd:Scopes>onvif://www.onvif.org/type/video_encoder onvif://www.onvif.org/type/audio_encoder onvif://www.onvif.org/type/ptz onvif://www.onvif.org/hardware/%HARDWARE% onvif://www.onvif.org/name/%NAME% onvif://www.onvif.org/location/anywhere onvif://www.onvif.org/Profile/Streaming onvif://www.onvif.org/Profile/S</wsdd:Scopes>
+--- a/wsd_files/Bye.xml
++++ b/wsd_files/Bye.xml
+@@ -21,1 +21,1 @@
+-            <wsdd:Scopes>onvif://www.onvif.org/type/video_encoder onvif://www.onvif.org/type/audio_encoder onvif://www.onvif.org/type/ptz onvif://www.onvif.org/hardware/%HARDWARE% onvif://www.onvif.org/name/%NAME% onvif://www.onvif.org/location/anywhere</wsdd:Scopes>
++            <wsdd:Scopes>onvif://www.onvif.org/type/video_encoder onvif://www.onvif.org/type/audio_encoder onvif://www.onvif.org/type/ptz onvif://www.onvif.org/hardware/%HARDWARE% onvif://www.onvif.org/name/%NAME% onvif://www.onvif.org/location/anywhere onvif://www.onvif.org/Profile/Streaming onvif://www.onvif.org/Profile/S</wsdd:Scopes>

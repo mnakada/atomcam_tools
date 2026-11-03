@@ -193,6 +193,13 @@ menu "Filesystem and flash utilities"
 	source "package/xfsprogs/Config.in"
 endmenu
 
+menu "ONVIF"
+
+comment "ONVIF"
+	source "package/onvif_simple_server/Config.in"
+
+endmenu
+
 menu "Fonts, cursors, icons, sounds and themes"
 
 comment "Cursors"

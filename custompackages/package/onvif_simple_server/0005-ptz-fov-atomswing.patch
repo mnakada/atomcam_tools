@@ -1,0 +1,19 @@
+--- a/ptz_service.c
++++ b/ptz_service.c
+@@ -653,10 +653,12 @@
+                         ret = -10;
+                     }
+                     // Convert -100/+100 to degrees values based on FOV
+-                    // Approximation 1: assume FOV for x axys = 63°
+-                    // Approximation 2: assume FOV for y axys = 37°
+-                    dx = (dx / 100.0) * (63.0 / 2.0);
+-                    dy = (dy / 100.0) * (37.0 / 2.0);
++                    // AtomSwing: about 20 px per degree near the image centre, i.e. roughly
++                    // 96 x 54 degrees across 1920 x 1080 (measured on one unit by panning known
++                    // angles and tracking the image shift). The stock 63 x 37 made every FOV move
++                    // 1.5-1.7x too short, so autotracking undershot.
++                    dx = (dx / 100.0) * (96.0 / 2.0);
++                    dy = (dy / 100.0) * (54.0 / 2.0);
+                     // Convert degrees in relative coordinates
+                     // Approximation 3: I don't know how many degrees is max_step_x, assume 360°
+                     // Approximation 4: I don't know how many degrees is max_step_y, assume 180°

@@ -1,0 +1,139 @@
+--- a/ptz_service.c
++++ b/ptz_service.c
+@@ -444,6 +444,23 @@
+     return cat("stdout", "ptz_service_files/GotoHomePosition.xml", 0);
+ }
+ 
++// largest PanTilt speed component of a <Speed> element, or -1 if there is none
++static double get_pantilt_speed(ezxml_t node)
++{
++    const char *sx = NULL;
++    const char *sy = NULL;
++    double speed = -1.0;
++    ezxml_t pt = get_element_in_element_ptr("PanTilt", node);
++
++    if (pt != NULL) {
++        sx = get_attribute(pt, "x");
++        sy = get_attribute(pt, "y");
++        if (sx != NULL) speed = atof(sx);
++        if ((sy != NULL) && (atof(sy) > speed)) speed = atof(sy);
++    }
++    return speed;
++}
++
+ int ptz_continuous_move()
+ {
+     const char *x = NULL;
+@@ -497,6 +514,11 @@
+             sprintf(sys_command, service_ctx.ptz_node.move_left, -dx);
+             system(sys_command);
+             ret = 0;
++        } else if (service_ctx.ptz_node.move_right != NULL) {
++            // zero velocity: tell the hook so it can stop this axis
++            sprintf(sys_command, service_ctx.ptz_node.move_right, 0.0);
++            system(sys_command);
++            ret = 0;
+         }
+     }
+ 
+@@ -519,6 +541,10 @@
+             sprintf(sys_command, service_ctx.ptz_node.move_down, -dy);
+             system(sys_command);
+             ret = 0;
++        } else if (service_ctx.ptz_node.move_up != NULL) {
++            sprintf(sys_command, service_ctx.ptz_node.move_up, 0.0);
++            system(sys_command);
++            ret = 0;
+         }
+     }
+ 
+@@ -561,6 +587,7 @@
+     double dx = 0;
+     double dy = 0;
+     double dz = 0;
++    double speed = -1.0;
+     char sys_command_tmp[MAX_LEN];
+     char sys_command[MAX_LEN];
+     int ret = 0;
+@@ -599,7 +626,7 @@
+ 
+     node = get_element_ptr(NULL, "Speed", "Body");
+     if (node != NULL) {
+-        // do nothing
++        speed = get_pantilt_speed(node);
+     }
+ 
+     if (node_p != NULL) {
+@@ -627,7 +654,7 @@
+                             ret = -7;
+                         }
+                     }
+-                    sprintf(sys_command, service_ctx.ptz_node.jump_to_rel, dx, dy, dz);
++                    sprintf(sys_command, service_ctx.ptz_node.jump_to_rel, dx, dy, dz, speed);
+                 }
+             }
+         } else if (strcmp("http://www.onvif.org/ver10/tptz/PanTiltSpaces/TranslationSpaceFov", space_p) == 0) {
+@@ -664,7 +691,7 @@
+                     // Approximation 4: I don't know how many degrees is max_step_y, assume 180°
+                     dx = dx / (360.0 / service_ctx.ptz_node.max_step_x);
+                     dy = dy / (180.0 / service_ctx.ptz_node.max_step_y);
+-                    sprintf(sys_command, service_ctx.ptz_node.jump_to_rel, dx, dy, 0);
++                    sprintf(sys_command, service_ctx.ptz_node.jump_to_rel, dx, dy, 0.0, speed);
+                 }
+             }
+         }
+@@ -699,6 +726,7 @@
+     double dx = 0.0;
+     double dy = 0.0;
+     double dz = 0.0;
++    double speed = -1.0;
+     char sys_command_tmp[MAX_LEN];
+     char sys_command[MAX_LEN];
+     int ret = 0;
+@@ -735,7 +763,7 @@
+ 
+     node = get_element_ptr(NULL, "Speed", "Body");
+     if (node != NULL) {
+-        // do nothing
++        speed = get_pantilt_speed(node);
+     }
+ 
+     if (((x == NULL) && (y == NULL) && (z == NULL)) ||
+@@ -760,7 +788,7 @@
+                     ret = -7;
+                 }
+             }
+-            sprintf(sys_command, service_ctx.ptz_node.jump_to_abs, dx, dy, dz);
++            sprintf(sys_command, service_ctx.ptz_node.jump_to_abs, dx, dy, dz, speed);
+         }
+     }
+ 
+@@ -838,6 +866,7 @@
+     FILE *fp;
+     double x, y, z = 1.0;
+     int i = 0;
++    int moving = -1;
+     char out[256], sx[128], sy[128], sz[128], si[128];
+     ezxml_t node;
+ 
+@@ -865,7 +894,8 @@
+             if (fgets(out, sizeof(out), fp) == NULL) {
+                 ret = -4;
+             } else {
+-                if (sscanf(out, "%lf,%lf,%lf", &x, &y, &z) < 2) {
++                // optional 4th field: moving (0/1), saves a second hook run per GetStatus
++                if (sscanf(out, "%lf,%lf,%lf,%d", &x, &y, &z, &moving) < 2) {
+                     ret = -5;
+                 }
+             }
+@@ -877,7 +907,9 @@
+     }
+ 
+     // Run command that returns to stdout if PTZ is moving (1) or not (0)
+-    if (service_ctx.ptz_node.is_moving != NULL) {
++    if (moving >= 0) {
++        i = moving;
++    } else if (service_ctx.ptz_node.is_moving != NULL) {
+         fp = popen(service_ctx.ptz_node.is_moving, "r");
+         if (fp == NULL) {
+             ret = -7;

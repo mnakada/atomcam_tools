@@ -56,18 +56,20 @@ BEGIN {
     }
     if(!logPause) print >> "/tmp/log/atom.log";
   }
-  if(ENV["WEBHOOK_URL"] == "") next;
 }
 
 /\[aiAlgo\] start/ {
+  OnvifEvent("motion");
   if(ENV["WEBHOOK_ALARM_EVENT"] == "on") Post("alarmEvent");
 }
 
 /alarm_event_handle.*timestamp/ {
+  OnvifEvent("motion");
   if(ENV["WEBHOOK_ALARM_EVENT"] == "on") Post("alarmEvent");
 }
 
 /(alarm_event_handle).*== readly to alarm ==/ {
+  OnvifEvent("motion");
   if(ENV["WEBHOOK_ALARM_EVENT"] == "on") Post("alarmEvent");
 }
 
@@ -83,6 +85,11 @@ BEGIN {
 
 /alarm_event_handle.*alarmType/ {
   gsub(/^.*alarmType:/, "");
+  if($0 ~ /fire|smoke|co|caution/i) {
+    OnvifEvent("caution");
+  } else if($0 ~ /sound|audio|cry/i) {
+    OnvifEvent("sound");
+  }
   if(ENV["WEBHOOK_ALARM_INFO"] == "on") Post("recognitionNotify", "\"" $0 "\"");
 }
 
@@ -92,10 +99,15 @@ BEGIN {
 }
 
 function Post(event, data) {
+  if(ENV["WEBHOOK_URL"] == "") return;
   if(data == "") {
     system("curl -X POST -m 3 -H \x27Content-Type: application/json\x27 -d \x27{\"type\":\"" event "\", \"device\":\"" HOSTNAME "\"}\x27 " INSECURE_FLAG ENV["WEBHOOK_URL"] " > /dev/null 2>&1");
   } else {
     system("curl -X POST -m 3 -H \x27Content-Type: application/json\x27 -d \x27{\"type\":\"" event "\", \"device\":\"" HOSTNAME "\", \"data\":" data "}\x27 " INSECURE_FLAG ENV["WEBHOOK_URL"] " > /dev/null 2>&1");
   }
+}
+
+function OnvifEvent(file) {
+  system("/scripts/onvif_event.sh trigger " file " >/dev/null 2>&1");
 }
 ' -v HACK_INI=$HACK_INI -v ATOM_LOG=$ATOM_LOG -v TIMELAPSE_HOOK=$TIMELAPSE_HOOK /var/run/atomapp

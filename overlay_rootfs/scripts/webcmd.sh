@@ -106,6 +106,11 @@ do
     echo "$cmd $params OK" >> /var/run/webres
     cmd=""
   fi
+  if [ "$cmd" = "onvif" ] && [ "$params" != "" ]; then
+    /scripts/onvif.sh $params
+    echo "$cmd $params OK" >> /var/run/webres
+    cmd=""
+  fi
   if [ "$cmd" = "cruise" ]; then
     kill -9 `pidof cruise.sh`
     /scripts/cruise.sh &

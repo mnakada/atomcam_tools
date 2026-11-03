@@ -242,6 +242,16 @@
             <SettingInput v-if="config.RTSP_AUTH === 'on'" i18n="RTSP.password" type="password" :titleOffset="2" v-model="config.RTSP_PASSWD" show-password />
           </div>
 
+          <h3 v-t="'ONVIF.title'" />
+          <SettingSwitch i18n="ONVIF" v-model="config.ONVIF_ENABLE" />
+          <div v-if="config.ONVIF_ENABLE === 'on'">
+            <SettingInput i18n="ONVIF.account" type="text" :titleOffset="2" v-model="config.ONVIF_USER" />
+            <SettingInput i18n="ONVIF.password" type="password" :titleOffset="2" v-model="config.ONVIF_PASSWD" show-password />
+            <SettingSelect v-if="config.RTSP_VIDEO0 === 'on' && config.RTSP_VIDEO2 === 'on'" i18n="ONVIF.mainStream" :titleOffset="2" v-model="config.ONVIF_MAIN_STREAM" :label="['avc', 'hevc']" />
+            <SettingSwitch i18n="ONVIF.allEventsAsMotion" :titleOffset="2" v-model="config.ONVIF_EVENT_ALL_AS_MOTION" />
+          </div>
+          <SettingComment v-if="config.ONVIF_ENABLE === 'on' && config.RTSP_VIDEO0 !== 'on' && config.RTSP_VIDEO1 !== 'on' && config.RTSP_VIDEO2 !== 'on'" i18n="ONVIF.note" color="red" weight="bold" />
+
           <h3 v-t="'HomeKit.title'" />
           <SettingSwitch i18n="HomeKit" :value="(config.RTSP_VIDEO0 == 'on') ? config.HOMEKIT_ENABLE : 'off'" @input="config.HOMEKIT_ENABLE=$event" :disabled="config.RTSP_VIDEO0 !== 'on'" />
           <SettingComment v-if="config.RTSP_VIDEO0 === 'on' && config.RTSP_AUDIO0 !== 'OPUS' && config.RTSP_AUDIO0 !== 'off' && config.HOMEKIT_ENABLE === 'on'" i18n="HomeKit.note" color="red" weight="bold" />
@@ -452,6 +462,11 @@
           RTSP_AUTH: 'off',
           RTSP_USER: '',
           RTSP_PASSWD: '',
+          ONVIF_ENABLE: 'off',
+          ONVIF_USER: '',
+          ONVIF_PASSWD: '',
+          ONVIF_MAIN_STREAM: 'avc',
+          ONVIF_EVENT_ALL_AS_MOTION: 'on',
           HOMEKIT_ENABLE: 'off',
           HOMEKIT_SETUP_ID: '',
           HOMEKIT_DEVICE_ID: '',
@@ -1323,6 +1338,13 @@
           this.config.RTMP_ENABLE = 'off';
           this.config.WEBRTC_ENABLE = 'off';
         }
+        if(this.config.ONVIF_ENABLE === 'on' &&
+           this.config.RTSP_VIDEO0 !== 'on' &&
+           this.config.RTSP_VIDEO1 !== 'on' &&
+           this.config.RTSP_VIDEO2 !== 'on') {
+          this.config.RTSP_VIDEO0 = 'on';
+          this.config.RTSP_AUDIO0 = 'off';
+        }
         if(this.distributor !== 'ATOM') {
           this.config.RTSP_VIDEO2 = 'off';
           this.config.RTSP_AUDIO2 = 'off';
@@ -1421,6 +1443,7 @@
              (this.config.RTSP_AUTH !== this.oldConfig.RTSP_AUTH) ||
              (this.config.RTSP_USER !== this.oldConfig.RTSP_USER) ||
              (this.config.RTSP_PASSWD !== this.oldConfig.RTSP_PASSWD) ||
+             (this.config.ONVIF_ENABLE !== this.oldConfig.ONVIF_ENABLE) ||
              (this.config.HOMEKIT_ENABLE !== this.oldConfig.HOMEKIT_ENABLE) ||
              (this.config.RTMP_ENABLE !== this.oldConfig.RTMP_ENABLE) ||
              (this.config.RTMP_URL !== this.oldConfig.RTMP_URL) ||
@@ -1434,6 +1457,23 @@
              this.rtspRestart) {
             execCmds.push('rtspserver restart');
           }
+        }
+        if(this.config.ONVIF_ENABLE !== this.oldConfig.ONVIF_ENABLE ||
+           this.config.RTSP_OVER_HTTP !== this.oldConfig.RTSP_OVER_HTTP ||
+           this.config.RTSP_AUTH !== this.oldConfig.RTSP_AUTH ||
+           this.config.RTSP_USER !== this.oldConfig.RTSP_USER ||
+           this.config.RTSP_PASSWD !== this.oldConfig.RTSP_PASSWD ||
+           this.config.ONVIF_USER !== this.oldConfig.ONVIF_USER ||
+           this.config.ONVIF_PASSWD !== this.oldConfig.ONVIF_PASSWD ||
+           this.config.ONVIF_MAIN_STREAM !== this.oldConfig.ONVIF_MAIN_STREAM ||
+           this.config.ONVIF_EVENT_ALL_AS_MOTION !== this.oldConfig.ONVIF_EVENT_ALL_AS_MOTION ||
+           this.config.RTSP_VIDEO0 !== this.oldConfig.RTSP_VIDEO0 ||
+           this.config.RTSP_VIDEO1 !== this.oldConfig.RTSP_VIDEO1 ||
+           this.config.RTSP_VIDEO2 !== this.oldConfig.RTSP_VIDEO2 ||
+           this.config.RTSP_AUDIO0 !== this.oldConfig.RTSP_AUDIO0 ||
+           this.config.RTSP_AUDIO1 !== this.oldConfig.RTSP_AUDIO1 ||
+           this.config.RTSP_AUDIO2 !== this.oldConfig.RTSP_AUDIO2) {
+          execCmds.push(`onvif ${this.config.ONVIF_ENABLE === 'on' ? 'restart' : 'off'}`);
         }
         this.RTSPRestart = false;
         if(Object.keys(this.config).some(prop => (prop.search(/WEBHOOK/) === 0) && (this.config[prop] !== this.oldConfig[prop]))) {

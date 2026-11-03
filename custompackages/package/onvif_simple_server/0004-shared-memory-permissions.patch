@@ -1,0 +1,26 @@
+--- a/utils.c
++++ b/utils.c
+@@ -63,7 +63,7 @@
+  */
+ int sem_memory_open()
+ {
+-    sem_memory_lock = sem_open(MEM_LOCK_FILE, O_CREAT, S_IRUSR | S_IWUSR, 1);
++    sem_memory_lock = sem_open(MEM_LOCK_FILE, O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH, 1);
+     if (sem_memory_lock == SEM_FAILED) {
+         fprintf(stderr, "Error opening semaphore file %s\n", MEM_LOCK_FILE);
+         return -1;
+@@ -119,9 +119,12 @@
+                On failure,  shm_open()  returns -1.
+     */
+     if (create) {
+-        shmfd = shm_open(SHMOBJ_PATH, O_CREAT | O_EXCL | O_RDWR, S_IRWXU | S_IRWXG);
++        shmfd = shm_open(SHMOBJ_PATH, O_CREAT | O_EXCL | O_RDWR, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
++        if (shmfd >= 0) {
++            fchmod(shmfd, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
++        }
+     } else {
+-        shmfd = shm_open(SHMOBJ_PATH, O_RDWR, S_IRWXU | S_IRWXG);
++        shmfd = shm_open(SHMOBJ_PATH, O_RDWR, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
+     }
+     if (shmfd < 0) {
+         log_error("shm_open() failed");

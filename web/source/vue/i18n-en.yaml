@@ -268,6 +268,28 @@ RTSP:
     title: Password
     tooltip: set RTSP password
 
+ONVIF:
+  title: ONVIF
+  tooltip: Publish the Main RTSP stream through ONVIF discovery.
+  account:
+    title: Account
+    tooltip: Set ONVIF username
+  password:
+    title: Password
+    tooltip: Set ONVIF password
+  mainStream:
+    title: Main stream
+    tooltip: Select which 1080p stream ONVIF should expose first when both Main AVC and Main HEVC are enabled.
+    text:
+      - AVC
+      - HEVC
+  allEventsAsMotion:
+    title: Report all events as motion
+    tooltip: Also report sound and alarm-sound events as motion events for NVR compatibility.
+  note:
+    comment: |
+      ONVIF publishes enabled RTSP streams. Main RTSP will be enabled when no RTSP stream is selected.
+
 HomeKit:
   title: HomeKit
   tooltip: RTSP Main must be on.

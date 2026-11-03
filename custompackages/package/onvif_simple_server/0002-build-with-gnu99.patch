@@ -1,0 +1,19 @@
+--- a/Makefile
++++ b/Makefile
+@@ -31,13 +31,13 @@
+ all: onvif_simple_server onvif_notify_server wsd_simple_server
+ 
+ log.o: log.c $(HEADERS)
+-	$(CC) -c $< -std=c99 -fPIC -Os $(INCLUDE) -o $@
++	$(CC) -c $< -std=gnu99 -fPIC -Os $(INCLUDE) -o $@
+ 
+ utils_zlib.o: utils.c $(HEADERS)
+-	$(CC) -c $< $(DUSE_ZLIB) -fPIC -Os $(INCLUDE) -o $@
++	$(CC) -c $< -std=gnu99 $(DUSE_ZLIB) -fPIC -Os $(INCLUDE) -o $@
+ 
+ %.o: %.c $(HEADERS)
+-	$(CC) -c $< -fPIC -Os $(INCLUDE) -o $@
++	$(CC) -c $< -std=gnu99 -fPIC -Os $(INCLUDE) -o $@
+ 
+ onvif_simple_server: $(OBJECTS_O)
+ 	$(CC) $(OBJECTS_O) $(LIBS_O) -fPIC -Os -o $@

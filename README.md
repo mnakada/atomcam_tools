@@ -42,6 +42,10 @@ WyzeCamV3の画面
   - AtomCamの場合、Main(video0)に1080p AVC/HEVC、Sub(video1)に360p HEVCを出しています。
   - WyzeCamV3の場合、Main(video0)に1080p AVC、Sub(video1)に320p AVCを出しています。
 
+- ONVIF機能(Port:80)
+  - ONVIF対応のNVR（Frigateで動作確認）から、映像の取得とイベント受信ができます。
+  - AtomSwingの場合はPTZ（パン/チルトの相対移動、連続移動、停止、プリセット、ホームポジション）も操作できます。Frigateのautotrackingで使えます。
+
 - avahi(mDNS)機能(Port:5353)
   - microSDカードのhostnameファイルを編集することでデバイス名を変更できます（WebUIからも変更可能）
   - hostnameの命名規則は英数と-(hyphen)のみ（RFC952,1123で規定)です。\_(underscore)は使用できません。defaultはatomcamになっています。
@@ -637,6 +641,65 @@ RTMPの配信が１日程度で停止することがあります。
 WebRTCのOn/Offを設定します。
 
 URLをコピーしてブラウザで開くか、Linkボタンで開くことができます。
+
+#### ONVIF
+
+ONVIFのOn/Offを設定します。Onにするとlighttpd(Port:80)でONVIFサーバが起動し、WS-Discoveryでもカメラが検出されます。
+
+接続先は`http://[ATOMCamのIPアドレス]/onvif/device_service`です。
+
+ONVIFは有効なRTSPストリームを公開します。RTSPが選択されていない場合は、設定保存時にRTSP Mainをonにします。
+
+##### - アカウント / パスワード
+
+ONVIFの認証(WS-Security)を設定します。
+
+設定しない場合は認証なしでLAN内の誰でもカメラを操作できます（AtomSwingではパン/チルトも）。LANを信頼できない場合は必ず設定してください。
+
+アカウントを空にしたままでもサーバはWS-SecurityのUsernameTokenを要求します。Frigateでは`user: ""`と`password: ""`を設定してください（項目を省略するとエラーになります）。
+
+##### - Mainストリーム
+
+Main AVCとMain HEVCの両方が有効な場合に、ONVIFで優先して公開する1080pストリームを選択します。
+
+##### - すべてのイベントをモーションとして通知
+
+NVRの互換性のため、サウンド検出と警報音検出もモーションイベントとして通知します。
+
+##### PTZ（AtomSwingのみ）
+
+| ONVIFの操作 | 動作 |
+|---|---|
+| RelativeMove | 現在位置からの相対移動。汎用座標系(度)とFOV座標系(画角に対する割合)に対応します。 |
+| ContinuousMove / Stop | 停止するまで動かし続けます。移動可能範囲の端の30度手前、または6秒で自動的に止まります。 |
+| GetStatus | 現在のpan/tiltと移動中(MOVING/IDLE)を返します。 |
+| SetPreset / GetPresets / GotoPreset / RemovePreset | プリセットを最大32個保存します。名前に空白は使えません。 |
+| SetHomePosition / GotoHomePosition | `home`という名前のプリセットがホームポジションです。 |
+
+- ズームには対応していません。
+- 移動は常に最新の要求が優先され、移動中の動作は新しい要求でキャンセルされます。
+- 速度(Speed 0-1)は実機の速度1-9にマッピングされます。上限はhack.iniの`ONVIF_MAX_SPEED`(1-9、default 5)です。実機は速度1-3が同じ速さのため、ONVIFの速度は4から`ONVIF_MAX_SPEED`の範囲に割り当てます。
+- プリセットはmicroSDカードの`onvif_presets.txt`に保存されます。
+- ContinuousMoveは再起動後の最初の1回だけ、方向を確認するため2秒ほど余分にかかります。
+- FOV座標系の画角は水平96度/垂直54度として計算しています（AtomSwing 1台での実測値で、約±10%の誤差があります）。
+
+###### Frigateの設定例
+
+```yaml
+cameras:
+  swing:
+    onvif:
+      host: [ATOMCamのIPアドレス]
+      port: 80
+      user: ""
+      password: ""
+      autotracking:
+        enabled: true
+        calibrate_on_startup: true
+        return_preset: home
+```
+
+`return_preset`に指定する`home`プリセットは、ホームにしたい位置でONVIFクライアントから`home`という名前のプリセットを保存して作成してください。
 
 <br>
 

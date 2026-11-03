@@ -18,6 +18,10 @@ extern char *JpegCapture(int fd, char *tokenPtr);
 extern char *VideoCommand(int fd, char *tokenPtr);
 extern char *AudioCommand(int fd, char *tokenPtr);
 extern char *MotorMove(int fd, char *tokenPtr);
+extern char *MotorRelMove(int fd, char *tokenPtr);
+extern char *MotorContMove(int fd, char *tokenPtr);
+extern char *MotorContStop(int fd, char *tokenPtr);
+extern char *MotorPtzStatus(int fd, char *tokenPtr);
 extern char *WaitMotion(int fd, char *tokenPtr);
 extern char *NightLight(int fd, char *tokenPtr);
 extern char *AudioPlay(int fd, char *tokenPtr);
@@ -47,6 +51,10 @@ struct CommandTableSt CommandTable[] = {
   { "audio",      &AudioCommand },
   { "jpeg",       &JpegCapture },
   { "move",       &MotorMove },
+  { "relmove",    &MotorRelMove },
+  { "contmove",   &MotorContMove },
+  { "contstop",   &MotorContStop },
+  { "ptzstatus",  &MotorPtzStatus },
   { "waitMotion", &WaitMotion },
   { "night",      &NightLight },
   { "aplay",      &AudioPlay },

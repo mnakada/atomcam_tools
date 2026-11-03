@@ -133,7 +133,7 @@ CURLcode curl_easy_perform(struct SessionHandle *data) {
   }
 
   const char *alarmPath = wyze ? AlarmPathWyze : AlarmPathAtom;
-  if(url && !strcmp(url + strlen(url) - strlen(alarmPath), alarmPath)) {
+  if(url && strlen(url) >= strlen(alarmPath) && !strcmp(url + strlen(url) - strlen(alarmPath), alarmPath)) {
     static time_t lastAccess = 0;
     struct timeval now;
     gettimeofday(&now, NULL);

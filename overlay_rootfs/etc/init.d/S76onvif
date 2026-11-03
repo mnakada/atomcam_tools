@@ -1,0 +1,21 @@
+#!/bin/sh
+#
+# onvif
+#
+
+case "$1" in
+  start)
+    /scripts/onvif.sh &
+    ;;
+  stop)
+    /scripts/onvif.sh off
+    ;;
+  restart|reload)
+    /scripts/onvif.sh restart &
+    ;;
+  *)
+    echo "Usage: $0 {start|stop|restart}"
+    exit 1
+esac
+
+exit $?

@@ -1,0 +1,266 @@
+--- a/events_service.c
++++ b/events_service.c
+@@ -34,6 +34,43 @@
+ 
+ shm_t *subs_evts;
+ 
++static int get_subscription_id(const char *method)
++{
++    int qs_size;
++    char *qs_string;
++    char *sub_id_s;
++    const char *sub_id_ref;
++    int sub_id;
++
++    get_from_query_string(&qs_string, &qs_size, "sub");
++    if ((qs_size != -1) && (qs_string != NULL)) {
++        sub_id_s = (char *) malloc((qs_size + 1) * sizeof(char));
++        if (sub_id_s == NULL) {
++            log_error("Unable to allocate subscription id buffer for %s method", method);
++            return -1;
++        }
++        memset(sub_id_s, '\0', qs_size + 1);
++        strncpy(sub_id_s, qs_string, qs_size);
++        sub_id = atoi(sub_id_s);
++        free(sub_id_s);
++    } else {
++        sub_id_ref = get_element("SubscriptionId", "Header");
++        if (sub_id_ref == NULL) {
++            log_error("No subscription id for %s method", method);
++            return -1;
++        }
++        sub_id = atoi(sub_id_ref);
++    }
++
++    if ((sub_id <= 0) || (sub_id > 65535)) {
++        log_error("Subscription id %d out of range for %s method", sub_id, method);
++        return -1;
++    }
++
++    log_debug("Subscription id %d for %s method", sub_id, method);
++    return sub_id;
++}
++
+ int events_get_service_capabilities()
+ {
+     char ebasesubscription[8], epullpoint[8];
+@@ -69,12 +106,14 @@
+     time_t now, expire_time;
+     char iso_str[21];
+     char iso_str_2[21];
++    char msg_uuid[UUID_LEN + 1];
+     int i, subscription_id, sub_index;
+ 
+     char my_address[16];
+     char my_netmask[16];
+     char my_port[8];
+     char events_service_address[MAX_LEN];
++    char subscription_id_s[8];
+     topic_expressions_t *topic_expression;
+ 
+     log_info("CreatePullPointSubscription received");
+@@ -106,6 +145,9 @@
+             expire_time = from_iso_date(itt);
+         }
+     }
++    if (expire_time < now + 3600) {
++        expire_time = now + 3600;
++    }
+ 
+     subs_evts = (shm_t *) create_shared_memory(0);
+     if (subs_evts == NULL) {
+@@ -159,21 +201,27 @@
+     destroy_shared_memory((void *) subs_evts, 0);
+ 
+     sprintf(events_service_address, "http://%s%s/onvif/events_service?sub=%d", my_address, my_port, subscription_id);
++    sprintf(subscription_id_s, "%d", subscription_id);
++    gen_uuid(msg_uuid);
+ 
+     to_iso_date(iso_str, sizeof(iso_str), now);
+     to_iso_date(iso_str_2, sizeof(iso_str_2), expire_time);
+ 
+     log_debug("Subscription data: expire %s - subscription id %d", iso_str_2, subscription_id);
+ 
+-    long size = cat(NULL, "events_service_files/CreatePullPointSubscription.xml", 6,
++    long size = cat(NULL, "events_service_files/CreatePullPointSubscription.xml", 10,
++        "%MSG_UUID%", msg_uuid,
+         "%ADDRESS%", events_service_address,
++        "%SUBSCRIPTION_ID%", subscription_id_s,
+         "%CURRENT_TIME%", iso_str,
+         "%TERMINATION_TIME%", iso_str_2);
+ 
+     output_http_headers(size);
+ 
+-    return cat("stdout", "events_service_files/CreatePullPointSubscription.xml", 6,
++    return cat("stdout", "events_service_files/CreatePullPointSubscription.xml", 10,
++        "%MSG_UUID%", msg_uuid,
+         "%ADDRESS%", events_service_address,
++        "%SUBSCRIPTION_ID%", subscription_id_s,
+         "%CURRENT_TIME%", iso_str,
+         "%TERMINATION_TIME%", iso_str_2);
+ }
+@@ -188,9 +236,6 @@
+     char iso_str_2[21];
+     char iso_str_3[21];
+ 
+-    int qs_size;
+-    char *qs_string;
+-    char *sub_id_s;
+     int sub_id, sub_index;
+ 
+     int at_least_one_message;
+@@ -206,26 +251,14 @@
+     // Initialize subs_evts to NULL to prevent crashes in error paths
+     subs_evts = NULL;
+ 
+-    // Subscription manager replies to address http://%s%s/onvif/events_service?sub=%d
++    // Subscription manager replies to address http://%s%s/onvif/events_service
+     log_info("PullMessages request received");
+ 
+-    // Get parameters from query string
+-    get_from_query_string(&qs_string, &qs_size, "sub");
+-    if ((qs_size == -1) || (qs_string == NULL)) {
+-        log_error("No sub parameter in query string for PullMessages method");
++    sub_id = get_subscription_id("PullMessages");
++    if (sub_id < 0) {
+         send_fault("events_service", "Receiver", "wsrf-rw:ResourceUnknownFault", "wsrf-rw:ResourceUnknownFault", "Resource unknown", "");
+         return -1;
+     }
+-    sub_id_s = (char *) malloc((qs_size + 1) * sizeof(char));
+-    memset(sub_id_s, '\0', qs_size + 1);
+-    strncpy(sub_id_s, qs_string, qs_size);
+-    sub_id = atoi(sub_id_s);
+-    free(sub_id_s);
+-    if ((sub_id <= 0) || (sub_id > 65535)) {
+-        log_error("sub index out of range for PullMessages method");
+-        send_fault("events_service", "Receiver", "wsrf-rw:ResourceUnknownFault", "wsrf-rw:ResourceUnknownFault", "Resource unknown", "");
+-        return -2;
+-    }
+ 
+     // Get parameters from xml content
+     timeout = get_element("Timeout", "Body");
+@@ -541,31 +574,15 @@
+     char iso_str_2[21];
+ 
+     int i;
+-    int qs_size;
+-    char *qs_string;
+-    char *sub_id_s;
+     int sub_id, sub_index;
+ 
+-    // Subscription manager replies to address http://%s%s/onvif/events_service?sub=%d
+     log_info("Renew request received");
+ 
+-    // Get parameters from query string
+-    get_from_query_string(&qs_string, &qs_size, "sub");
+-    if ((qs_size == -1) || (qs_string == NULL)) {
+-        log_error("No sub parameter in query string for Renew method");
++    sub_id = get_subscription_id("Renew");
++    if (sub_id < 0) {
+         send_fault("events_service", "Receiver", "wsrf-rw:ResourceUnknownFault", "wsrf-rw:ResourceUnknownFault", "Resource unknown", "");
+         return -1;
+     }
+-    sub_id_s = (char *) malloc((qs_size + 1) * sizeof(char));
+-    memset(sub_id_s, '\0', qs_size + 1);
+-    strncpy(sub_id_s, qs_string, qs_size);
+-    sub_id = atoi(sub_id_s);
+-    free(sub_id_s);
+-    if ((sub_id <= 0) || (sub_id > 65535)) {
+-        log_error("Sub index out of range for Renew method");
+-        send_fault("events_service", "Receiver", "wsrf-rw:ResourceUnknownFault", "wsrf-rw:ResourceUnknownFault", "Resource unknown", "");
+-        return -2;
+-    }
+ 
+     // Get parameters from xml content
+     time(&now);
+@@ -730,34 +747,17 @@
+ 
+ int events_unsubscribe()
+ {
+-    int qs_size;
+-    char *qs_string;
+-    char *sub_id_s;
+     int sub_id, sub_index;
+     int i;
+ 
+-    // Subscription manager replies to address http://%s%s/onvif/events_service?sub=%d
+     log_info("Unsubscribe request received");
+ 
+-    // Get parameters from query string
+-    get_from_query_string(&qs_string, &qs_size, "sub");
+-    if ((qs_size == -1) || (qs_string == NULL)) {
+-        log_error("No sub parameter in query string for Unsubscribe method");
++    sub_id = get_subscription_id("Unsubscribe");
++    if (sub_id < 0) {
+         send_fault("events_service", "Receiver", "wsrf-rw:ResourceUnknownFault", "wsrf-rw:ResourceUnknownFault", "Resource unknown", "");
+         return -1;
+     }
+ 
+-    sub_id_s = (char *) malloc((qs_size + 1) * sizeof(char));
+-    memset(sub_id_s, '\0', qs_size + 1);
+-    strncpy(sub_id_s, qs_string, qs_size);
+-    sub_id = atoi(sub_id_s);
+-    free(sub_id_s);
+-    if ((sub_id <= 0) || (sub_id > 65535)) {
+-        log_error("sub index out of range for Unsubscribe method");
+-        send_fault("events_service", "Receiver", "wsrf-rw:ResourceUnknownFault", "wsrf-rw:ResourceUnknownFault", "Resource unknown", "");
+-        return -2;
+-    }
+-
+     subs_evts = (shm_t *) create_shared_memory(0);
+     if (subs_evts == NULL) {
+         log_error("No shared memory found, is onvif_notify_server running?");
+@@ -804,30 +804,13 @@
+ int events_set_synchronization_point()
+ {
+     int i;
+-    int qs_size;
+-    char *qs_string;
+-    char *sub_id_s;
+     int sub_id, sub_index;
+ 
+-    // Subscription manager replies to address http://%s%s/onvif/events_service?sub=%d
+-
+-    // Get parameters from query string
+-    get_from_query_string(&qs_string, &qs_size, "sub");
+-    if ((qs_size == -1) || (qs_string == NULL)) {
+-        log_error("No sub parameter in query string for Renew method");
++    sub_id = get_subscription_id("SetSynchronizationPoint");
++    if (sub_id < 0) {
+         send_fault("events_service", "Receiver", "wsrf-rw:ResourceUnknownFault", "wsrf-rw:ResourceUnknownFault", "Resource unknown", "");
+         return -1;
+     }
+-    sub_id_s = (char *) malloc((qs_size + 1) * sizeof(char));
+-    memset(sub_id_s, '\0', qs_size + 1);
+-    strncpy(sub_id_s, qs_string, qs_size);
+-    sub_id = atoi(sub_id_s);
+-    free(sub_id_s);
+-    if ((sub_id <= 0) || (sub_id > MAX_SUBSCRIPTIONS)) {
+-        log_error("sub index out of range for Renew method");
+-        send_fault("events_service", "Receiver", "wsrf-rw:ResourceUnknownFault", "wsrf-rw:ResourceUnknownFault", "Resource unknown", "");
+-        return -2;
+-    }
+ 
+     subs_evts = (shm_t *) create_shared_memory(0);
+     if (subs_evts == NULL) {
+--- a/events_service_files/CreatePullPointSubscription.xml
++++ b/events_service_files/CreatePullPointSubscription.xml
+@@ -4,12 +4,17 @@
+                    xmlns:wsnt="http://docs.oasis-open.org/wsn/b-2"
+                    xmlns:tev="http://www.onvif.org/ver10/events/wsdl">
+     <SOAP-ENV:Header>
+-        <wsa:Action>http://www.onvif.org/ver10/events/wsdl/EventPortType/CreatePullPointSubscriptionResponse</wsa:Action>
++        <wsa:MessageID>uuid:%MSG_UUID%</wsa:MessageID>
++        <wsa:To SOAP-ENV:mustUnderstand="1">http://www.w3.org/2005/08/addressing/anonymous</wsa:To>
++        <wsa:Action SOAP-ENV:mustUnderstand="1">http://www.onvif.org/ver10/events/wsdl/EventPortType/CreatePullPointSubscriptionResponse</wsa:Action>
+     </SOAP-ENV:Header>
+     <SOAP-ENV:Body>
+         <tev:CreatePullPointSubscriptionResponse>
+             <tev:SubscriptionReference>
+                 <wsa:Address>%ADDRESS%</wsa:Address>
++                <wsa:ReferenceParameters>
++                    <tev:SubscriptionId>%SUBSCRIPTION_ID%</tev:SubscriptionId>
++                </wsa:ReferenceParameters>
+             </tev:SubscriptionReference>
+             <wsnt:CurrentTime>%CURRENT_TIME%</wsnt:CurrentTime>
+             <wsnt:TerminationTime>%TERMINATION_TIME%</wsnt:TerminationTime>

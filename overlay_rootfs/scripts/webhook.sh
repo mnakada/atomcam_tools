@@ -12,6 +12,7 @@ BEGIN {
   }
   FS = " ";
   "hostname" | getline HOSTNAME;
+  close("hostname");
   logDisable = 1;
   lastTimestamp = 0;
   logPause = 0;

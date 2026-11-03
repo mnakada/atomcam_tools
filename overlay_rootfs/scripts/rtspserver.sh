@@ -43,7 +43,7 @@ RTSP_AUTH=$(awk -F "=" '/^RTSP_AUTH *=/ {print $2}' $HACK_INI)
 RTSP_USER=$(awk -F "=" '/^RTSP_USER *=/ {print $2}' $HACK_INI)
 RTSP_PASSWD=$(awk -F "=" '/^RTSP_PASSWD *=/ {print $2}' $HACK_INI)
 
-if [ "$1" = "watchdog" ] && [ "$RTMP_RESTART" != "" ] && [ $(( `date +"%s"` / 60 % RTMP_RESTART )) == 0 ] ; then
+if [ "$1" = "watchdog" ] && [ "$RTMP_ENABLE" = "on" ] && [ "$RTMP_RESTART" != "" ] && [ $(( `date +"%s"` / 60 % RTMP_RESTART )) == 0 ] ; then
   while pidof go2rtc > /dev/null ; do
     killall go2rtc > /dev/null 2>&1
     sleep 0.5

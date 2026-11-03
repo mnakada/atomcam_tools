@@ -55,6 +55,25 @@ if [ "$1" = "watchdog" ]; then
   [ "$RTSP_VIDEO0" = "on" -o "$RTSP_VIDEO1" = "on" -o "$RTSP_VIDEO2" = "on" ] || exit 0
 fi
 
+# Self-heal (seen on both cams after a reboot): a channel's capture switched off while its server keeps running leaves an
+# RTSP stream with no video track. Kill the server so the start below sets the captures again and restarts it.
+if [ "$1" = "watchdog" ] && pidof v4l2rtspserver > /dev/null ; then
+  for ch in 0 1 2; do
+    eval want=\$RTSP_VIDEO$ch
+    [ "$want" = "on" ] || continue
+    state=`/scripts/cmd video $ch`
+    case "$state" in
+      on*) ;;
+      *)
+        echo `date +"%Y/%m/%d %H:%M:%S"` ": video $ch capture was '$state', restarting v4l2rtspserver"
+        killall v4l2rtspserver > /dev/null 2>&1
+        sleep 1
+        break
+        ;;
+    esac
+  done
+fi
+
 if ! pidof v4l2rtspserver > /dev/null ; then
   [ "$1" != "on" -a "$1" != "restart" -a "$1" != "watchdog" -a "$RTSP_VIDEO0" != "on" -a "$RTSP_VIDEO1" != "on" -a "$RTSP_VIDEO2" != "on" ] && exit 0
 
@@ -76,6 +95,9 @@ if ! pidof v4l2rtspserver > /dev/null ; then
     [ "$RTSP_VIDEO0" = "on" ] && path="/dev/video0,hw:0,0@$RTSP_AUDIO0 "
     [ "$RTSP_VIDEO1" = "on" ] && path="$path /dev/video1,hw:2,0@$RTSP_AUDIO1 "
     [ "$RTSP_VIDEO2" = "on" ] && path="$path /dev/video2,hw:4,0@$RTSP_AUDIO2 "
+    # live555 asks for 512 KB per RTSP client socket (custompackages/package/live555/20_client_sndbuf.patch); the kernel
+    # clamps that to net.core.wmem_max (default ~200 KB), which a 200 kB keyframe burst would not fit into.
+    echo 1048576 > /proc/sys/net/core/wmem_max
     /usr/bin/v4l2rtspserver $option -C 1 -a S16_LE $path >> /tmp/log/rtspserver.log 2>&1 &
   fi
   while [ "`pidof v4l2rtspserver`" = "" ]; do

@@ -1,0 +1,29 @@
+Raise the send buffer live555 requests on RTSP client sockets from 50 KB to 512 KB.
+
+The ATOM Cam encodes 1080p HEVC keyframes of 100-230 kB. A 50 KB SO_SNDBUF cannot hold
+one, the non-blocking send fails, RTP packets are dropped and the decoder waits for the
+next keyframe (2-3 s gaps). The kernel clamps the request to net.core.wmem_max, which
+rtspserver.sh raises to 1 MB.
+
+--- a/liveMedia/GenericMediaServer.cpp	2026-10-12 08:47:25.170060651 +0000
++++ b/liveMedia/GenericMediaServer.cpp	2026-10-12 08:47:25.175060716 +0000
+@@ -240,7 +240,7 @@
+   }
+   ignoreSigPipeOnSocket(clientSocket); // so that clients on the same host that are killed don't also kill us
+   makeSocketNonBlocking(clientSocket);
+-  increaseSendBufferTo(envir(), clientSocket, 50*1024);
++  increaseSendBufferTo(envir(), clientSocket, 512*1024); // was 50*1024: a 200 kB keyframe burst overflows it
+   
+ #ifdef DEBUG
+   envir() << "accept()ed connection from " << AddressString(clientAddr).val() << "\n";
+--- a/liveMedia/RTPInterface.cpp	2026-10-12 08:47:25.172060677 +0000
++++ b/liveMedia/RTPInterface.cpp	2026-10-12 08:47:25.176060729 +0000
+@@ -142,7 +142,7 @@
+   // even if the socket was previously reported (e.g., by "select()") as having data available.
+   // (This can supposedly happen if the UDP checksum fails, for example.)
+   makeSocketNonBlocking(fGS->socketNum());
+-  increaseSendBufferTo(envir(), fGS->socketNum(), 50*1024);
++  increaseSendBufferTo(envir(), fGS->socketNum(), 512*1024); // was 50*1024 (RTP over the RTSP TCP socket)
+ }
+ 
+ RTPInterface::~RTPInterface() {

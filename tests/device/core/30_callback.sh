@@ -136,23 +136,28 @@ fi
 # property.c finds functions of iCamera_app from its machine code, so a vendor firmware update can
 # break it; the other hooks print an error only to the log. "jpeg err: save_jpeg(fd) failed" is
 # not counted: it means the client closed the connection before the JPEG was sent.
-boot=$(remote 'zcat /media/mmc/tools.log.1.gz 2> /dev/null; cat /media/mmc/tools.log' |
-  awk '/^iCamera_app address:/ { b = ""; } { b = b $0 "\n"; } END { printf("%s", b); }')
-if ! echo "$boot" | grep -q '^iCamera_app address:'; then
-  skip "libcallback: startup" "no 'iCamera_app address:' in tools.log (rotated out?)"
+if [ "$(remote '[ -f /media/mmc/atom-log ] && echo on')" != on ]; then
+  # atom_init.sh sends the libcallback log to tools.log only with this file; otherwise tools.log holds old boots
+  skip "libcallback: startup" "no /media/mmc/atom-log: the libcallback log goes to the console"
 else
-  parse=$(echo "$boot" | sed -ne 's/^set_property_init: P2P_ReceiveProtocol_Parse: //p' | tail -1)
-  setprop=$(echo "$boot" | sed -ne 's/^set_property_init: P2P_ReceiveProtocol_SetProperty: //p' | tail -1)
-  if [ -n "$parse" ] && [ -n "$setprop" ]; then
-    pass "libcallback: property hook found (P2P_ReceiveProtocol_Parse $parse, SetProperty $setprop)"
+  boot=$(remote 'zcat /media/mmc/tools.log.1.gz 2> /dev/null; cat /media/mmc/tools.log' |
+    awk '/^iCamera_app address:/ { n = 0; } { l[n++] = $0; } END { for(i = 0; i < n; i++) print l[i]; }')
+  if ! echo "$boot" | grep -q '^iCamera_app address:'; then
+    skip "libcallback: startup" "no 'iCamera_app address:' in tools.log (rotated out?)"
   else
-    fail "libcallback: property hook found" "$(echo "$boot" | grep -E '^set_property_init:|^setItemProp:' | head -3 | tr '\n' ';')"
-  fi
-  errors=$(echo "$boot" | grep -E "^set_property_init: (not found|file can't open|/proc/pid/maps format error)|^setItemProp: not found|^watermark file .*error|^local_sdk_video_osd_set_logo_bitmap error|^sdkosd_update_logo_data error|^regionHandle[01] error|^IMP_OSD_SetRgnAttr[01] error|^failed to (allocate memory for|open) PCM|^\[command\] jpeg err|^\[timelapse\] error" |
-    grep -v '^\[command\] jpeg err: save_jpeg([0-9]*) failed$')
-  if [ -z "$errors" ]; then
-    pass "libcallback: no startup or hook error in tools.log ($(echo "$boot" | grep -c .) lines since iCamera_app started)"
-  else
-    fail "libcallback: no startup or hook error in tools.log" "$(echo "$errors" | sort | uniq -c | head -5 | tr '\n' ';')"
+    parse=$(echo "$boot" | sed -ne 's/^set_property_init: P2P_ReceiveProtocol_Parse: //p' | tail -1)
+    setprop=$(echo "$boot" | sed -ne 's/^set_property_init: P2P_ReceiveProtocol_SetProperty: //p' | tail -1)
+    if [ -n "$parse" ] && [ -n "$setprop" ]; then
+      pass "libcallback: property hook found (P2P_ReceiveProtocol_Parse $parse, SetProperty $setprop)"
+    else
+      fail "libcallback: property hook found" "$(echo "$boot" | grep -E '^set_property_init:|^setItemProp:' | head -3 | tr '\n' ';')"
+    fi
+    errors=$(echo "$boot" | grep -E "^set_property_init: (not found|file can't open|/proc/pid/maps format error)|^setItemProp: not found|^watermark file .*error|^local_sdk_video_osd_set_logo_bitmap error|^sdkosd_update_logo_data error|^regionHandle[01] error|^IMP_OSD_SetRgnAttr[01] error|^failed to (allocate memory for|open) PCM|^\[command\] jpeg err|^\[timelapse\] error" |
+      grep -v '^\[command\] jpeg err: save_jpeg([0-9]*) failed$')
+    if [ -z "$errors" ]; then
+      pass "libcallback: no startup or hook error in tools.log ($(echo "$boot" | grep -c .) lines since iCamera_app started)"
+    else
+      fail "libcallback: no startup or hook error in tools.log" "$(echo "$errors" | sort | uniq -c | head -5 | tr '\n' ';')"
+    fi
   fi
 fi

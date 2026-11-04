@@ -154,16 +154,12 @@ sshは物理的にSD-Cardへアクセスして公開鍵を書かないとlogin�
 ## ファームウェアの更新の注意
 
  atomcam_toolsは以下のATOMCamのVersionで動作確認しています。更新した場合機能が使えなくなることもあるのでご注意ください。
+ 申し訳ありませんが、検証環境を維持しきれないのでATOMCam2とATOMSwingの最新Verのみの確認とさせてください。
+ （それ以前のVerやATOMCam, WyzeCamV3(Ver.4.36.9.139)で動かないわけではないけど未確認）
 
-ATOMCam Ver.4.33.3.68, 4.33.3.73
+ATOMCam2 Ver.4.58.0.180
 
-ATOMCam2 Ver.4.58.0.139, 4.58.0.154, 4.58.0.160
-
-ATOMSwing Ver.4.37.1.152, 4.37.1.162, 4.37.1.166
-
-WyzeCamV3 Ver.4.36.9.139 （Experimental release)  4.36.10.xx以降のVer.では動作しません。
-
-**WyzeCamV3は未検証／未対応の機能があります。また、H.265は対応していません。**
+ATOMSwing Ver.4.37.1.182
 
 <br>
 

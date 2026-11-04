@@ -11,6 +11,9 @@ int SetAlarmConfigInterval(int interval);
 static void *(*original_memset)(void *s, int c, size_t n);
 
 
+// The entry size depends on the firmware: 0x0bc4, or 0x0bc8 on ATOMCam2 4.58.0.180 and ATOMSwing 4.37.1.182.
+// The fields below up to alarmInterval are at the same offsets and the mutex is the last member.
+// Use atomEntry() and atomMutex() instead of indexing this struct.
 struct AlarmConfigAtomSt {  // 0x0bc4
   int valid;                // 0x0000
   int alarmType;            // 0x0004
@@ -62,10 +65,20 @@ struct AlarmConfigWyzeSt {  // 0x1444
   pthread_mutex_t mutex;    // 0x142c sizeof(pthread_mutex_t) = 0x18
 };
 
-static struct AlarmConfigAtomSt *alarmConfigAtom = NULL; // alarmConfigAtom[14]
+static char *alarmConfigAtom = NULL; // the table of atomCount entries of atomEntrySize bytes
+static size_t atomEntrySize = 0;
+static int atomCount = 0; // 15, or 18 on ATOMCam2 4.58.0.180
 static struct AlarmConfigWyzeSt *alarmConfigWyze = NULL; // alarmConfigWyze[14]
 extern int wyze;
 static int alarmInterval = 300;
+
+static struct AlarmConfigAtomSt *atomEntry(int i) {
+  return (struct AlarmConfigAtomSt *)(alarmConfigAtom + i * atomEntrySize);
+}
+
+static pthread_mutex_t *atomMutex(int i) {
+  return (pthread_mutex_t *)(alarmConfigAtom + (i + 1) * atomEntrySize - sizeof(pthread_mutex_t));
+}
 
 void *memset(void *s, int c, size_t n) {
 
@@ -80,14 +93,15 @@ void *memset(void *s, int c, size_t n) {
       if(s1 == 14) SetAlarmConfigInterval(alarmInterval);
     }
   } else {
-    if(!c && (n == 0x0bc4)) {
-      unsigned int s0 = 0;
-      asm volatile(
-        "ori %0, $16, 0\n"
-        : "=r"(s0)
-      );
-      if(!s0) alarmConfigAtom = s;
-      if(s0 == 14) SetAlarmConfigInterval(alarmInterval);
+    // iCamera_app clears the entries in order at startup and has no other memset of this size
+    if(!c && ((n == 0x0bc4) || (n == 0x0bc8))) {
+      if(!alarmConfigAtom) {
+        alarmConfigAtom = s;
+        atomEntrySize = n;
+        atomCount = 1;
+      } else if((n == atomEntrySize) && ((char *)s == alarmConfigAtom + atomCount * atomEntrySize)) {
+        atomCount++;
+      }
     }
   }
   // memset is called before the execution of constructor.
@@ -101,6 +115,7 @@ char *AlarmConfig(int fd, char *tokenPtr) {
   if(!p) return "error";
   int alarmType = atoi(p);
   if((alarmType < 0) || (alarmType > 14)) return "error";
+  if(wyze ? !alarmConfigWyze : (!alarmConfigAtom || (alarmType >= atomCount))) return "error";
 
   p = strtok_r(NULL, " \t\r\n", &tokenPtr);
   if(!p) return "error";
@@ -108,8 +123,8 @@ char *AlarmConfig(int fd, char *tokenPtr) {
   if(!strcasecmp(p, "alarmInterval")) {
     p = strtok_r(NULL, " \t\r\n", &tokenPtr);
     if(!p) {
-      int interval = wyze ? alarmConfigWyze[alarmType].alarmInterval : alarmConfigAtom[alarmType].alarmInterval;
-      time_t time = wyze ? alarmConfigWyze[alarmType].lastRecTime : alarmConfigAtom[alarmType].lastRecTime;
+      int interval = wyze ? alarmConfigWyze[alarmType].alarmInterval : atomEntry(alarmType)->alarmInterval;
+      time_t time = wyze ? alarmConfigWyze[alarmType].lastRecTime : atomEntry(alarmType)->lastRecTime;
       snprintf(CommandResBuf, 255, "%d ", interval);
       strftime(CommandResBuf + strlen(CommandResBuf), 255 - strlen(CommandResBuf), "%Y/%m/%d %T", localtime(&time));
       return CommandResBuf;
@@ -121,16 +136,16 @@ char *AlarmConfig(int fd, char *tokenPtr) {
       alarmConfigWyze[alarmType].alarmInterval = interval;
       pthread_mutex_unlock(&alarmConfigWyze[alarmType].mutex);
     } else {
-      pthread_mutex_lock(&alarmConfigAtom[alarmType].mutex);
-      alarmConfigAtom[alarmType].alarmInterval = interval;
-      pthread_mutex_unlock(&alarmConfigAtom[alarmType].mutex);
+      pthread_mutex_lock(atomMutex(alarmType));
+      atomEntry(alarmType)->alarmInterval = interval;
+      pthread_mutex_unlock(atomMutex(alarmType));
     }
     return "ok";
   }
 
   if(!strcasecmp(p, "dump")) {
-    void *addr = wyze ? (void *)(alarmConfigWyze + alarmType) : (void *)(alarmConfigAtom + alarmType);
-    int size = wyze ? sizeof(struct AlarmConfigWyzeSt) : sizeof(struct AlarmConfigAtomSt);
+    void *addr = wyze ? (void *)(alarmConfigWyze + alarmType) : (void *)atomEntry(alarmType);
+    int size = wyze ? sizeof(struct AlarmConfigWyzeSt) : atomEntrySize;
     fprintf(stderr, "AlarmConfig %d : %08x\n",alarmType, addr);
     Dump("AlarmConfig", addr, size);
     return "ok";
@@ -150,10 +165,14 @@ int SetAlarmConfigInterval(int interval) {
     }
   } else {
     if(!alarmConfigAtom) return -1;
-    for(int i = 0; i < 15; i++) {
-      pthread_mutex_lock(&alarmConfigAtom[i].mutex);
-      if(alarmConfigAtom[i].alarmInterval >= 30) alarmConfigAtom[i].alarmInterval = interval;
-      pthread_mutex_unlock(&alarmConfigAtom[i].mutex);
+    for(int i = 0; i < atomCount; i++) {
+      // With the 0x0bc8 entries a motion alarm is type 1 or 7 and each checks the time of the other.
+      // Changing all the types at startup stopped the alarms ("motion_alarm_tmp_screen!" all the time).
+      if((atomEntrySize == 0x0bc8) && (i != 1) && (i != 7)) continue;
+      pthread_mutex_lock(atomMutex(i));
+      if(atomEntry(i)->alarmInterval >= 30) atomEntry(i)->alarmInterval = interval;
+      pthread_mutex_unlock(atomMutex(i));
     }
   }
+  return 0;
 }

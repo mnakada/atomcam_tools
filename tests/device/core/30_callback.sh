@@ -95,6 +95,21 @@ cb_expect "STORAGE_SDCARD_DIRECT_WRITE" mp4write "periodicRec: $periodic, alarmR
 v=$(ini_get PERIODICREC_SKIP_JPEG)
 [ -n "$v" ] && cb_expect "PERIODICREC_SKIP_JPEG" skipRecJpeg "$v"
 [ "$(ini_get MINIMIZE_ALARM_CYCLE)" = on ] && cb_expect "MINIMIZE_ALARM_CYCLE" alarm 30
+# "alarm" only returns the saved setting. The alarm config table of iCamera_app holds what is really used.
+# Before Ver.2.6.0 alarmConfig reads a NULL pointer when the table was not found, which crashes iCamera_app.
+if [ "$(ini_get MINIMIZE_ALARM_CYCLE)" = on ]; then
+  ver=$(ini_get ATOMHACKVER)
+  if [ "$(printf '%s\n2.6.0\n' "$ver" | sort -t. -k1,1n -k2,2n -k3,3n | head -1)" != 2.6.0 ]; then
+    skip "setting: MINIMIZE_ALARM_CYCLE in the alarm table" "alarmConfig is not safe before Ver.2.6.0 (Ver.$ver)"
+  else
+    res=$(remote 'for t in 1 7; do /scripts/cmd alarmConfig $t alarmInterval | tr -d "\0" | cut -d" " -f1; done' | tr '\n' ' ')
+    if [ "$res" = "30 30 " ]; then
+      pass "setting: MINIMIZE_ALARM_CYCLE in the alarm table (type 1 and 7 = 30)"
+    else
+      fail "setting: MINIMIZE_ALARM_CYCLE in the alarm table" "type 1 and 7 = '$res', expected 30"
+    fi
+  fi
+fi
 [ "$(ini_get AWS_VIDEO_DISABLE)" = on ] && cb_expect "AWS_VIDEO_DISABLE" "curl upload" disable
 v=$(ini_get FRAMERATE)
 if [ -n "$v" ] && [ "$v" -gt 0 ]; then

@@ -349,11 +349,12 @@ static char *AEItMax(char *tokenPtr) {
 
 static char *AEMin(char *tokenPtr) {
 
-  IMPISPAEMin aemin;
+  // GetAeMin may leave the short exposure values unset
+  IMPISPAEMin aemin = { 0 };
   char *p = strtok_r(NULL, " \t\r\n", &tokenPtr);
   if(!p) {
     IMP_ISP_Tuning_GetAeMin(&aemin);
-    sprintf(CommandResBuf, "%d %d %d %d\n", aemin.min_it, aemin.min_again, aemin.min_it_short, aemin.min_again_short);
+    sprintf(CommandResBuf, "%u %u %u %u\n", aemin.min_it, aemin.min_again, aemin.min_it_short, aemin.min_again_short);
     return CommandResBuf;
   }
   aemin.min_it = atoi(p);
@@ -470,7 +471,7 @@ static char *Expr(char *tokenPtr) {
     attr.s_attr.mode = 0;
     attr.s_attr.unit = 0;
     attr.s_attr.time = 0;
-    IMPISPAEMin aemin;
+    IMPISPAEMin aemin = { 0 };
     IMP_ISP_Tuning_GetAeMin(&aemin);
     p = strtok_r(NULL, " \t\r\n", &tokenPtr);
     if(!p) return "error";
@@ -489,7 +490,7 @@ static char *Expr(char *tokenPtr) {
     p = strtok_r(NULL, " \t\r\n", &tokenPtr);
     if(!p) return "error";
     attr.s_attr.time = atoi(p);
-    IMPISPAEMin aemin;
+    IMPISPAEMin aemin = { 0 };
     IMP_ISP_Tuning_GetAeMin(&aemin);
     aemin.min_it = 1;
     res |= IMP_ISP_Tuning_SetAeMin(&aemin);

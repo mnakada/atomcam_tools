@@ -33,7 +33,6 @@ echo "KERNELVER=`uname -a`"
 echo "ATOMHACKVER=`cat /etc/atomhack.ver`"
 ifconfig | awk '/HWaddr/ { gsub(/^.*HWaddr */, ""); print "HWADDR=" $0}'
 awk '
-  /^CONFIG_VER/ { next; }
   /^appver/ { next; }
   /^PRODUCT_MODEL/ { next; }
   /^HOSTNAME/ { next; }

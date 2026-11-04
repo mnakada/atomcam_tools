@@ -56,14 +56,12 @@ else
     grep -q webhook.sh /proc/\$ppp/cmdline && tag=webhook || tag=
     echo \"\$tag \$p <- \$pp: \$(tr '\\0\\n' '  ' < /proc/\$pp/cmdline | cut -c1-80)\"
   done")
-  # the awk in webhook.sh did not close the "hostname" pipe (issue #149)
   webhook=$(echo "$persistent" | sed -ne 's/^webhook //p')
   others=$(echo "$persistent" | sed -ne 's/^ //p')
   if [ -n "$others" ]; then
     fail "no zombie process" "$(echo "$others" | tr '\n' ';')"
   elif [ -n "$webhook" ]; then
-    fail_known "no zombie process" "child of webhook.sh: $(echo "$webhook" | cut -d: -f1 | tr '\n' ';')" \
-      "#149 webhook.sh does not close the hostname pipe"
+    fail "no zombie process" "child of webhook.sh: $(echo "$webhook" | cut -d: -f1 | tr '\n' ';')"
   else
     pass "no zombie process ($(echo $zombies | wc -w) transient, gone after ${ZOMBIE_WAIT}s)"
   fi

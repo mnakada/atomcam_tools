@@ -65,9 +65,6 @@ fi
 lerr=$(part 5 | grep -v 'error opening .*: No such file or directory')
 if [ -z "$lerr" ]; then
   pass "logrotate: no error"
-elif echo "$lerr" | grep -q 'error creating state file .*Read-only file system'; then
-  fail_known "logrotate: no error" "$(echo "$lerr" | head -1)" \
-    "the default state file is on the read-only rootfs"
 else
   fail "logrotate: no error" "$(echo "$lerr" | head -3 | tr '\n' ';')"
 fi

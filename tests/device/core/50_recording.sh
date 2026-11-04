@@ -5,7 +5,7 @@
 # A file is written for every minute: /media/mmc/record/YYYYMMDD/HH/MM.mp4
 # PERIODICREC_SCHEDULE_LIST: [index_NN];Rule=<bit (1<<weekday), Mon=1..Sun=7>;ContinueTime=<min>;StartTime=<min>;...
 # ContinueTime is negative when the period crosses midnight.
-# Prints the minutes since the active period started and 1 if the period crosses midnight,
+# Prints the minutes since the active period started,
 # or nothing outside the schedule.
 schedule_elapsed() { # list weekday(1-7) minute-of-day
   echo "$1" | tr ';' '\n' | awk -F= -v w=$2 -v m=$3 '
@@ -13,13 +13,17 @@ schedule_elapsed() { # list weekday(1-7) minute-of-day
     $1 == "Rule" { rule = $2; }
     $1 == "ContinueTime" { cross = ($2 <= 0); len = cross ? $2 + 1440 : $2; }
     $1 == "StartTime" {
-      if(on(w) && m >= $2 && m < $2 + len) { print m - $2, cross; exit; }
-      if(on(w == 1 ? 7 : w - 1) && m + 1440 < $2 + len) { print m + 1440 - $2, cross; exit; }
+      if(on(w) && m >= $2 && m < $2 + len) { print m - $2; exit; }
+      if(on(w == 1 ? 7 : w - 1) && m + 1440 < $2 + len) { print m + 1440 - $2; exit; }
     }'
 }
 
+# Files are written every minute only with recordType cont; with motion only while something moves
+record_type=$(remote '/scripts/cmd property recordType' | tr -d '\0 \n')
 if [ "$(ini_get PERIODICREC_SDCARD)" != "on" ]; then
   skip "recording: periodic recording to SD card" "PERIODICREC_SDCARD is not on"
+elif [ "$record_type" != "cont" ]; then
+  skip "recording: periodic recording to SD card" "recordType is ${record_type:-unknown}, not cont"
 else
   rec=$(remote 'cut -d. -f1 /proc/uptime
     date +"%u %H %M %S"
@@ -32,7 +36,7 @@ else
   reason="just booted"
   if [ "$(ini_get PERIODICREC_SCHEDULE)" = "on" ]; then
     read wday hour min sec <<< "$(echo "$rec" | sed -n 2p)"
-    read elapsed cross <<< "$(schedule_elapsed "$(ini_get PERIODICREC_SCHEDULE_LIST)" $wday $((10#$hour * 60 + 10#$min)))"
+    read elapsed <<< "$(schedule_elapsed "$(ini_get PERIODICREC_SCHEDULE_LIST)" $wday $((10#$hour * 60 + 10#$min)))"
     if [ -z "$elapsed" ]; then
       started=
     elif [ $((elapsed * 60 + 10#$sec)) -lt $started ]; then
@@ -47,13 +51,7 @@ else
     if [ "$started" -lt 180 ]; then
       skip "recording: periodic recording to SD card" "$reason (${started}s)"
     else
-      # The recordings in a period crossing midnight were deleted as outside the schedule (issue #155)
-      if [ "$cross" = 1 ]; then
-        fail_known "recording: periodic recording to SD card" "no mp4 file in the last 3 minutes" \
-          "#155 a schedule crossing midnight is treated as outside the schedule"
-      else
-        fail "recording: periodic recording to SD card" "no mp4 file in the last 3 minutes"
-      fi
+      fail "recording: periodic recording to SD card" "no mp4 file in the last 3 minutes"
     fi
   else
     size=$(echo "$rec" | sed -n 4p)

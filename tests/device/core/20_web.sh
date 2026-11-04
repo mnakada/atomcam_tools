@@ -33,7 +33,9 @@ rm -f "$jpeg"
 # --- cmd.cgi GET (name=status, name=media-size; latest-ver is not used: it accesses github) ---
 status=$(http "/cgi-bin/cmd.cgi?name=status")
 st_get() { echo "$status" | sed -ne "s/^$1=//p"; }
-cam=$(date -d "$(st_get TIMESTAMP)" +%s 2> /dev/null)
+# date -d is GNU only; macOS reads the same format with -j -f
+ts=$(st_get TIMESTAMP)
+cam=$(date -d "$ts" +%s 2> /dev/null || date -j -f '%Y/%m/%d %H:%M:%S' "$ts" +%s 2> /dev/null)
 now=$(date +%s)
 if [ -n "$cam" ] && [ $((cam > now ? cam - now : now - cam)) -le 60 ]; then
   pass "web: cmd.cgi status TIMESTAMP"
@@ -50,7 +52,8 @@ fi
 pos=$(st_get MOTORPOS)
 if [ -z "$pos" ]; then
   skip "web: cmd.cgi status MOTORPOS" "no motor"
-elif echo "$pos" | grep -qE '^[0-9.]+ [0-9.]+ [01] [01]'; then
+# the flips are 0/1 from libcallback, 1/2 (horSwitch, verSwitch) from cmd.cgi before the motor is ready or without a motor
+elif echo "$pos" | grep -qE '^[0-9.]+ [0-9.]+ [012] [012]'; then
   pass "web: cmd.cgi status MOTORPOS ($pos)"
 else
   fail "web: cmd.cgi status MOTORPOS" "MOTORPOS=$pos"

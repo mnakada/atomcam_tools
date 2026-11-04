@@ -3,14 +3,13 @@
 # Tests for a running ATOM Cam with atomcam_tools.
 # 実機の ATOM Cam に対するテスト
 #
-# usage: tests/device/run.sh [-d] [-m] [-L] [-R] [-k] [-s suite] [host]
+# usage: tests/device/run.sh [-d] [-m] [-L] [-R] [-s suite] [host]
 #   host : default $ATOMCAM_HOST or atomcam.local
 #   -d   : also run disruptive checks (they change the camera state and restore it)
 #   -m   : with -d, also move the motor. The pointing may shift by the backlash
 #   -L   : also stream over RTSP and WebRTC with a timelapse and record the memory and load
 #          (about 3 minutes; needs ffprobe and python3 aiortc)
 #   -R   : also reboot the camera and check it again after the reboot
-#   -k   : count a known issue as a failure (for a build that should have the fix)
 #   -s   : test suite to run (default all)
 # env  : ZOMBIE_WAIT    seconds to wait before re-checking zombie processes (default 10)
 #        ATOMCAM_AUTH   user:password for the web UI when DIGEST is set in hack.ini
@@ -26,21 +25,19 @@
 DIR=$(cd "$(dirname "$0")" && pwd)
 . "$DIR/lib.sh"
 
-usage() { echo "usage: $0 [-d] [-m] [-L] [-R] [-k] [-s suite] [host]" >&2; exit 2; }
+usage() { echo "usage: $0 [-d] [-m] [-L] [-R] [-s suite] [host]" >&2; exit 2; }
 
 DISRUPTIVE=0
 MOTOR=0
 LOAD=0
 REBOOT=0
-STRICT=0
 SUITES=
-while getopts dmLRks: opt; do
+while getopts dmLRs: opt; do
   case $opt in
     d) DISRUPTIVE=1 ;;
     m) MOTOR=1 ;;
     L) LOAD=1 ;;
     R) REBOOT=1 ;;
-    k) STRICT=1 ;;
     s) [ -d "$DIR/$OPTARG" ] || usage
        SUITES=$OPTARG ;;
     *) usage ;;
@@ -52,7 +49,7 @@ shift $((OPTIND - 1))
 
 HOST=${1:-${ATOMCAM_HOST:-atomcam.local}}
 ZOMBIE_WAIT=${ZOMBIE_WAIT:-10}
-SSH="ssh -o BatchMode=yes -o ConnectTimeout=5 -o PubkeyAcceptedKeyTypes=ssh-rsa root@$HOST"
+SSH="ssh -o BatchMode=yes -o ConnectTimeout=5 -o PubkeyAcceptedKeyTypes=+ssh-rsa root@$HOST"
 
 for h in "$DIR"/*/hooks.sh; do
   [ -f "$h" ] && . "$h"
@@ -65,11 +62,11 @@ for suite in $SUITES; do
   echo "--- $suite ---"
   # core/10_base.sh loads hack.ini after checking the network
   [ "$suite" != core ] && [ -z "$INI" ] && load_ini
-  p0=$PASS f0=$FAIL s0=$SKIP k0=$KNOWN
+  p0=$PASS f0=$FAIL s0=$SKIP
   for t in "$DIR/$suite"/[0-9]*.sh; do
     . "$t"
   done
-  results="$results$suite: $(counts $((PASS - p0)) $((FAIL - f0)) $((SKIP - s0)) $((KNOWN - k0)))"$'\n'
+  results="$results$suite: $(counts $((PASS - p0)) $((FAIL - f0)) $((SKIP - s0)))"$'\n'
 done
 
 printf '%s' "$results"

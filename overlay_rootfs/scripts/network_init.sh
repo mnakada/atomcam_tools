@@ -15,12 +15,16 @@ ifconfig lo up
 
 [ -x /media/mmc/network_init.sh ] && /media/mmc/network_init.sh start && exit
 
+# Use the MAC address of the camera on both WiFi and USB-Ether
+HWADDR=$(awk -F "=" '/(CONFIG_INFO|NETRELATED_MAC)=/ { print substr($2,1,2) ":" substr($2,3,2) ":" substr($2,5,2) ":" substr($2,7,2) ":" substr($2,9,2) ":" substr($2,11,2); exit;}' /atom/configs/.product_config)
+
 # USB-Ether
 if lsusb | grep 'Device 002:' ; then
   for i in r8152 asix ax88179_178a cdc_ether ; do
     modprobe $i
     sleep 0.5
     if ip link | grep eth0 > /dev/null ; then
+      [ -n "$HWADDR" ] && ifconfig eth0 hw ether $HWADDR
       ifconfig eth0 up
       udhcpc -i eth0 -b 2> /dev/null
       for count in `seq 20` ; do
@@ -91,7 +95,6 @@ while ! ip link | grep wlan0 > /dev/null ; do
   [ 20 -le $count ] && break
 done
 
-HWADDR=$(awk -F "=" '/(CONFIG_INFO|NETRELATED_MAC)=/ { print substr($2,1,2) ":" substr($2,3,2) ":" substr($2,5,2) ":" substr($2,7,2) ":" substr($2,9,2) ":" substr($2,11,2); exit;}' /atom/configs/.product_config)
 ifconfig wlan0 hw ether $HWADDR up
 wpa_supplicant -f /tmp/log/wpa_supplicant.log -D nl80211 -i wlan0 -c /configs/etc/wpa_supplicant.conf -B
 

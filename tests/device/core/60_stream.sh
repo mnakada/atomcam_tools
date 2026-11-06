@@ -68,10 +68,10 @@ fi
 # --- Samba (publish the SD card) ---
 if [ "$(ini_get STORAGE_SDCARD_PUBLISH)" != on ]; then
   skip "storage: samba" "STORAGE_SDCARD_PUBLISH is not on"
-elif running smbd && running nmbd && listening 445; then
-  pass "storage: samba (smbd, nmbd, port 445)"
+elif running smbd && listening 445; then
+  pass "storage: samba (smbd, port 445)"
 else
-  fail "storage: samba" "smbd/nmbd not running or not listening on 445"
+  fail "storage: samba" "smbd not running or not listening on 445"
 fi
 
 # --- CIFS (record to a network share) ---

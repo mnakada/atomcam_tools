@@ -8,10 +8,6 @@ if [ "$1" == "on" ]; then
     printf "Starting SMB services: "
     pidof smbd || smbd -D
     [ $? = 0 ] && echo "OK" || echo "FAIL"
-
-    printf "Starting NMB services: "
-    pidof nmbd || nmbd -D
-    [ $? = 0 ] && echo "OK" || echo "FAIL"
   fi
 fi
 

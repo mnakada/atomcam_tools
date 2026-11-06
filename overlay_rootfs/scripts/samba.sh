@@ -6,6 +6,7 @@ if [ "$1" == "on" ]; then
 
   if [ "$STORAGE_SDCARD_PUBLISH" = "on" ]; then
     printf "Starting SMB services: "
+    mkdir -p /media/mmc/.samba/cache
     pidof smbd || smbd -D
     [ $? = 0 ] && echo "OK" || echo "FAIL"
   fi

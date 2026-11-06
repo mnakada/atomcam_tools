@@ -7,6 +7,8 @@ case "$1" in
     mkdir -p /var/log/samba
     mkdir -p /tmp/samba/lib/private
     mount -o bind /tmp/samba/lib /var/lib/samba
+    # the state on the SD card is rebuilt at each boot, as it was on the RAM disk
+    rm -rf /media/mmc/.samba
   	/scripts/samba.sh on &
   ;;
   stop)

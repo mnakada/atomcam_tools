@@ -948,6 +948,20 @@ Lockスイッチを解除してRebootボタンを押してください。
 
 <br>
 
+### Special Thanks
+
+[Contributors](https://github.com/mnakada/atomcam_tools/graphs/contributors?all=1)
+
+[bakueikozo](https://github.com/bakueikozo), [thematrixdev](https://github.com/thematrixdev), [bi119aTe5hXk](https://github.com/bi119aTe5hXk), [virmaior](https://github.com/virmaior), [flll](https://github.com/flll), [scrips](https://github.com/scrips), [heronshoes](https://github.com/heronshoes), [specializedken](https://github.com/specializedken)
+
+<br>気がついて調べるまで知らなかったのですが、GitHubの仕様でforkしたrepoはCotributorsの表示がされないようです。このrepoは[bakueikozo/atomcam_tools_obsolute](https://github.com/bakueikozo/atomcam_tools_obsolute)からのforkなのでContributorsの表示がされていませんでした。
+
+forkを外して独立させると表示されるようですが、今度はこのrepoからのforkが親repoに紐づけ直されるようで影響が読めないのでこのままにしておきます。
+
+これまでPR送ってくださった皆様、ここに記すことでお許しください。
+
+<br>
+
 ### Copyright
 
 LICENSEファイルを参照してください

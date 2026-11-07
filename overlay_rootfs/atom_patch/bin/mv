@@ -95,6 +95,9 @@ else
   FMT=`date +"%Y%m%d_%H%M%S"`
 fi
 
+# the firmware writes the JPEG of this minute to the SD-Card when it starts the mp4 (none with PERIODICREC_SKIP_JPEG)
+JPEGFILE=${2%.mp4}.jpeg
+
 if [ "$FMT" != "" ]; then
   TMPFILE="/tmp/mv_`cat /proc/sys/kernel/random/uuid`"
   /bin/busybox mv $1 $TMPFILE
@@ -106,6 +109,12 @@ if [ "$FMT" != "" ]; then
       mkdir -p $DIR_PATH
       /bin/busybox cp -f $TMPFILE $OUTFILE
       STORAGE=", \"cifsFile\":\"${CIFSFILE}\""
+      # the JPEG goes to the NAS too, as to the SD-Card (#134)
+      if [ -f "$JPEGFILE" ]; then
+        CIFSJPEG=`date -d $TIME +"record/$PERIODICREC_CIFS_PATH.jpeg"`
+        mkdir -p /mnt/$HOSTNAME/${CIFSJPEG%/*}
+        /bin/busybox cp -f $JPEGFILE /mnt/$HOSTNAME/$CIFSJPEG
+      fi
     fi
 
     if [ "$PERIODICREC_SDCARD" = "on" ]; then
@@ -114,6 +123,8 @@ if [ "$FMT" != "" ]; then
       STORAGE="${STORAGE}, \"sdcardFile\":\"${SDCARDFILE}\""
     else
       /bin/busybox rm $TMPFILE
+      # without SD-Card recording the JPEG was left on the SD-Card and never removed
+      /bin/busybox rm -f $JPEGFILE
       LD_LIBRARY_PATH=/tmp/system/lib:/tmp/system/usr/lib /tmp/system/lib/ld.so.1 /tmp/system/bin/find /media/mmc/record -depth -type d -empty -delete
     fi
     if [ "$WEBHOOK_URL" != "" ] && [ "$WEBHOOK_RECORD_EVENT" = "on" ]; then
@@ -122,6 +133,7 @@ if [ "$FMT" != "" ]; then
   ) &
 else
   /bin/busybox rm $1
+  [ "$PERIODICREC_SDCARD" = "on" ] || /bin/busybox rm -f $JPEGFILE
 fi
 exit 0
 

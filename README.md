@@ -416,7 +416,9 @@ NASへの記録をします。
 
 ##### - JPEG記録の停止
 
- /media/mmc/recordディレクトリへのJPEGファイルの記録を停止します。
+SD-Card/NASのrecordディレクトリへのJPEGファイルの記録を停止します。
+
+offの場合、JPEGファイルはmp4ファイルと同じPATHに拡張子.jpegで保存されます。SD-Card録画がoffの場合、SD-CardにはJPEGファイルを残しません。
 
 ##### - JPEG記録の停止（モーション検知録画）
 

@@ -158,7 +158,7 @@ record:
       - Constant Recoring
   skipJpeg:
     title: Skip JPEG Recording
-    tooltip: Stop recording JPEG files to record directory
+    tooltip: Stop recording JPEG files to the record directory on the SD-Card and NAS
   alarmSkipJpeg:
     title: Skip JPEG Recording
     tooltip: Stop recording JPEG files to the alarm_record directory on the SD-Card and NAS

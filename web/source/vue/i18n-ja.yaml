@@ -158,7 +158,7 @@ record:
       - スケジュール
   skipJpeg:
     title: JPEG記録の停止
-    tooltip: recordディレクトリへのJPEGファイルの記録を停止
+    tooltip: SD-Card/NASのrecordディレクトリへのJPEGファイルの記録を停止
   alarmSkipJpeg:
     title: JPEG記録の停止
     tooltip: SD-Card/NASのalarm_recordディレクトリへのJPEGファイルの記録を停止

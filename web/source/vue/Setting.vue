@@ -1429,6 +1429,9 @@
             href = `http://${this.config.HOSTNAME}.local`;
           }
         }
+        if(this.config.TIMESTAMP_SIZE !== this.oldConfig.TIMESTAMP_SIZE) {
+          execCmds.push(`timestamp ${this.config.TIMESTAMP_SIZE}`);
+        }
         if(this.config.MINIMIZE_ALARM_CYCLE !== this.oldConfig.MINIMIZE_ALARM_CYCLE) {
           execCmds.push(`alarm ${this.config.MINIMIZE_ALARM_CYCLE === 'on' ? '30' : '300'}`);
         }

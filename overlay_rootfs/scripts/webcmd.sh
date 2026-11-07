@@ -68,6 +68,11 @@ do
     echo "$cmd $params $res" >> /var/run/webres
     cmd=""
   fi
+  if [ "$cmd" = "timestamp" ]; then
+    res=`/scripts/cmd timestamp ${params}`
+    echo "$cmd $params $res" >> /var/run/webres
+    cmd=""
+  fi
   if [ "$cmd" = "skipRecJpeg" ]; then
     res=`/scripts/cmd skipRecJpeg ${params}`
     echo "$cmd $params $res" >> /var/run/webres

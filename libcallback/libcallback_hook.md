@@ -415,15 +415,25 @@ mp4は停止していて中間ファイルが残った状態のものをmp4フ�
 
 ### timestamp.c
 
+##### commandIF
+
+```
+timestamp [100|75|67|50]
+```
+
+Main HD(ch0, ch3)のタイムスタンプの大きさを変える。引数が無い場合は現在の大きさを返す。起動時はhack.iniのTIMESTAMP_SIZEを使う。
+
 ##### hook point
 
 ```c
 /system/lib/liblocalsdk.so : int local_sdk_video_osd_set_parameters(int ch, struct osdParams_st *params)
 ```
 
-hack.iniのTIMESTAMP_SIZE(75, 67, 50)に合わせて、Main HD(ch0)のタイムスタンプをSDKの縮小機能(scaleNum / scaleDen)で小さくし、右下の位置を保つようにx, yを直す。Sub 360pは変えない。再起動後に反映される。
+liblocalsdkはOSDのグループごとの設定(get_osd_params)を持ち、毎秒g_osdTimestampMutexの中でタイムスタンプを描き直す。scaleDenとscaleNumが違うと原寸で描いてから縮小し、縮小した幅で詰めて領域のバッファに書く。領域のバッファと大きさは起動時にsample_osd_initがその時の縮小率で決める。
 
-文字の大きさはsdkosd_get_font_bitmapで取得する。見つからないファームウェアでは原寸のままにする。
+そのため起動時はiCamera_appが設定する原寸のままにして(バッファが最大になる)、その後で設定値のx, y, scaleDen, scaleNumとIMP_OSD_SetRgnAttrの領域の大きさを書き換える。右下の位置は保つ。起動時はOSDが動き出すまで待ってから変える。
+
+この関数のフックでは、iCamera_appが設定した値から設定値の位置を探す(ATOM Cam2とSwingで構造体の位置が違う)。Sub 360pは変えない。必要な関数が見つからないファームウェアでは原寸のままにする。
 
 ### usb_power.c
 

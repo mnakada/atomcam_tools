@@ -178,6 +178,7 @@
             <div v-if="config.ALARMREC_SCHEDULE === 'on'">
               <SettingSchedule v-for="(timeTable, idx) of alarmRecSchedule" :key="'timetable'+idx" :timeRange="true" :removeSchedule="true" v-model="alarmRecSchedule[idx]" @add="AddSchedule('alarmRecSchedule')" @remove="DeleteSchedule('alarmRecSchedule', idx, 'ALARMREC_SCHEDULE')" />
             </div>
+            <SettingSwitch i18n="record.alarmSkipJpeg" v-model="config.ALARMREC_SKIP_JPEG" />
           </div>
         </ElTabPane>
 
@@ -443,7 +444,7 @@
     data() {
       return {
         config: {
-          CONFIG_VER: '1.0.1',
+          CONFIG_VER: '1.0.3',
           appver: '', // ATOMCam app_ver (/atom/config/app.ver)
           ATOMHACKVER: '', // AtomHack Ver (/etc/atomhack.ver)
           PRODUCT_MODEL: '', // ATOMCam Model (/atom/configs/.product_config)
@@ -490,11 +491,12 @@
           ALARMREC_SDCARD_PATH: '%Y%m%d/%H%M%S',
           ALARMREC_SDCARD_REMOVE: 'off',
           ALARMREC_SDCARD_REMOVE_DAYS: 30,
+          ALARMREC_SKIP_JPEG: 'off',
           ALARMREC_CIFS: 'off',
           ALARMREC_CIFS_PATH: '%Y%m%d/%H%M%S',
           ALARMREC_CIFS_REMOVE: 'off',
           ALARMREC_CIFS_REMOVE_DAYS: 30,
-          ALARMREC_SCHEDHULE: 'off',
+          ALARMREC_SCHEDULE: 'off',
           ALARMREC_SCHEDULE_LIST: '',
           TIMELAPSE_SDCARD: 'off',
           TIMELAPSE_SDCARD_PATH: '%Y%m%d%H%M',

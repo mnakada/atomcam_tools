@@ -11,11 +11,12 @@ fi
 SPATH=${FILE%/*}
 
 HACK_INI=/tmp/hack.ini
-ALARMREC_SCHEDHULE=$(awk -F "=" '/^ALARMREC_SCHEDHULE *=/ {print $2}' $HACK_INI)
+ALARMREC_SCHEDULE=$(awk -F "=" '/^ALARMREC_SCHEDULE *=/ {print $2}' $HACK_INI)
 ALARMREC_CIFS=$(awk -F "=" '/^ALARMREC_CIFS *=/ { gsub(/^\/*/, "", $2);print $2}' $HACK_INI)
 ALARMREC_CIFS_PATH=$(awk -F "=" '/^ALARMREC_CIFS_PATH *=/ { gsub(/^\/*/, "", $2);print $2}' $HACK_INI)
 ALARMREC_SDCARD_PATH=$(awk -F "=" '/^ALARMREC_SDCARD_PATH *=/ { gsub(/^\/*/, "", $2);print $2}' $HACK_INI)
 ALARMREC_SDCARD=$(awk -F "=" '/^ALARMREC_SDCARD *=/ {print $2}' $HACK_INI)
+ALARMREC_SKIP_JPEG=$(awk -F "=" '/^ALARMREC_SKIP_JPEG *=/ {print $2}' $HACK_INI)
 WEBHOOK_URL=$(awk -F "=" '/^WEBHOOK_URL *=/ {print $2}' $HACK_INI)
 [ "$(awk -F "=" '/^WEBHOOK_INSECURE *=/ {print $2}' $HACK_INI)" = "on" ] && INSECURE_FLAG="-k "
 WEBHOOK_ALERM_PICT=$(awk -F "=" '/^WEBHOOK_ALERM_PICT *=/ {print $2}' $HACK_INI)
@@ -24,7 +25,7 @@ WEBHOOK_ALERM_VIDEO=$(awk -F "=" '/^WEBHOOK_ALERM_VIDEO *=/ {print $2}' $HACK_IN
 WEBHOOK_ALARM_VIDEO_FINISH=$(awk -F "=" '/^WEBHOOK_ALARM_VIDEO_FINISH *=/ {print $2}' $HACK_INI)
 HOSTNAME=`hostname`
 
-if [ "$ALARMREC_SCHEDHULE" = "on" ]; then
+if [ "$ALARMREC_SCHEDULE" = "on" ]; then
   FMT=`awk '
     BEGIN {
       FS=";";
@@ -106,7 +107,10 @@ TMPFILE="${SPATH}/rm_`cat /proc/sys/kernel/random/uuid`.${FILE##*.}"
   fi
   if [ "$FMT" != "" ] ; then
     NOW=`date +"%Y%m%d%H%M.%S"`
-    if [ "$ALARMREC_CIFS" = "on" ] && /tmp/system/bin/mount_cifs.sh ; then
+    # The webhook still gets the JPEG; only the copies to the NAS and the SD-Card are skipped (#138)
+    SAVE=on
+    [ "$ALARMREC_SKIP_JPEG" = "on" ] && [ "${FILE##*.}" = "jpg" ] && SAVE=off
+    if [ "$SAVE" = "on" ] && [ "$ALARMREC_CIFS" = "on" ] && /tmp/system/bin/mount_cifs.sh ; then
       CIFSFILE=`date -d $NOW +"alarm_record/$ALARMREC_CIFS_PATH.${FILE##*.}"`
       OUTFILE="/mnt/$HOSTNAME/$CIFSFILE"
       DIR_PATH=${OUTFILE%/*}
@@ -115,7 +119,7 @@ TMPFILE="${SPATH}/rm_`cat /proc/sys/kernel/random/uuid`.${FILE##*.}"
       STORAGE=", \"cifsFile\":\"${CIFSFILE}\""
     fi
 
-    if [ "$ALARMREC_SDCARD" = "on" ]; then
+    if [ "$SAVE" = "on" ] && [ "$ALARMREC_SDCARD" = "on" ]; then
       SDCARDFILE=`date -d $NOW +"alarm_record/$ALARMREC_SDCARD_PATH.${FILE##*.}"`
       OUTFILE="/media/mmc/$SDCARDFILE"
       DIR_PATH=${OUTFILE%/*}

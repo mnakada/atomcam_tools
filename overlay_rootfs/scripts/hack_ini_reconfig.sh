@@ -69,7 +69,7 @@ if [ "$CONFIG_VER" = "" ] ; then
 
   /^RECORDING_LOCAL_SCHEDULE *=/ {
     printf("PERIODICREC_SCHEDULE=%s\n", $2);
-    printf("ALARMREC_SCHEDHULE=%s\n", $2);
+    printf("ALARMREC_SCHEDULE=%s\n", $2);
     next;
   }
 
@@ -155,6 +155,36 @@ if [ "$CONFIG_VER" = "1.0.1" ] ; then
     } else {
       print $0;
     }
+    next;
+  }
+
+  {
+    print $0;
+  }
+  ' $HACK_INI > $HACK_INI.new
+  mv $HACK_INI.new $HACK_INI
+fi
+
+# Ver.1.0.3
+# ALARMREC_SCHEDHULE (typo) -> ALARMREC_SCHEDULE. The web UI already saved its switch as ALARMREC_SCHEDULE,
+# so a value under that name is kept and the old name is dropped.
+CONFIG_VER=$(awk -F "=" '/CONFIG_VER *=/ {print $2}' $HACK_INI)
+if [ "$CONFIG_VER" = "1.0.2" ] ; then
+  cp $HACK_INI ${HACK_INI}_1_0_2.bak
+  rm -f $HACK_INI.new
+  HAS_NEW=0
+  grep -q '^ALARMREC_SCHEDULE *=' $HACK_INI && HAS_NEW=1
+  awk -F "=" -v hasNew=$HAS_NEW '
+  BEGIN {
+    printf("CONFIG_VER=1.0.3\n");
+  }
+
+  /^CONFIG_VER *=/ {
+    next;
+  }
+
+  /^ALARMREC_SCHEDHULE *=/ {
+    if(!hasNew) printf("ALARMREC_SCHEDULE=%s\n", $2);
     next;
   }
 

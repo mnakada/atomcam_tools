@@ -418,6 +418,12 @@ NASへの記録をします。
 
  /media/mmc/recordディレクトリへのJPEGファイルの記録を停止します。
 
+##### - JPEG記録の停止（モーション検知録画）
+
+SD-Card/NASのalarm_recordディレクトリへのJPEGファイルの記録を停止します。
+
+WebhookへのJPEGの送信はそのまま行います。
+
 <br>
 
 ### タイムラプス設定

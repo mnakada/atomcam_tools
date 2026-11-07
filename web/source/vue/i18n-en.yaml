@@ -159,6 +159,9 @@ record:
   skipJpeg:
     title: Skip JPEG Recording
     tooltip: Stop recording JPEG files to record directory
+  alarmSkipJpeg:
+    title: Skip JPEG Recording
+    tooltip: Stop recording JPEG files to the alarm_record directory on the SD-Card and NAS
 
 timelapse:
   tab: Timelapse

@@ -413,6 +413,18 @@ mp4は停止していて中間ファイルが残った状態のものをmp4フ�
 
 
 
+### timestamp.c
+
+##### hook point
+
+```c
+/system/lib/liblocalsdk.so : int local_sdk_video_osd_set_parameters(int ch, struct osdParams_st *params)
+```
+
+hack.iniのTIMESTAMP_SIZE(75, 67, 50)に合わせて、Main HD(ch0)のタイムスタンプをSDKの縮小機能(scaleNum / scaleDen)で小さくし、右下の位置を保つようにx, yを直す。Sub 360pは変えない。再起動後に反映される。
+
+文字の大きさはsdkosd_get_font_bitmapで取得する。見つからないファームウェアでは原寸のままにする。
+
 ### usb_power.c
 
 iCamera_appからのUSB VBUS制御を無視する。
@@ -540,6 +552,8 @@ Videoの BitRate, FrameRate, GOPの設定をユーザー設定値に変更する
 IMP_Encoder_CreateChnで最初に設定されたGOPとfpsは最大値に設定されるため、以降でこの値以上の値を設定することはできない。
 
 また、GOPはfpsで割り切れる必要がある。
+
+hack.iniのJPEG_QUALITYが設定されている場合、JPEGのチャンネル(eProfileが4)のiInitialQP(attr + 48)をその値に置き換えて、静止画のJPEG画質を変える。再起動後に反映される。
 
 ### wait_motion.c
 

@@ -33,11 +33,14 @@ static const struct {
 };
 
 static int (*real_local_sdk_video_osd_set_parameters)(int ch, struct osdParams_st *params);
-extern int sdkosd_get_font_bitmap(struct fontBitmap_st **font);
+static int (*real_sdkosd_get_font_bitmap)(struct fontBitmap_st **font);
 
 static void __attribute ((constructor)) timestamp_init(void) {
 
-  real_local_sdk_video_osd_set_parameters = dlsym(dlopen("/system/lib/liblocalsdk.so", RTLD_LAZY), "local_sdk_video_osd_set_parameters");
+  void *handle = dlopen("/system/lib/liblocalsdk.so", RTLD_LAZY);
+  real_local_sdk_video_osd_set_parameters = dlsym(handle, "local_sdk_video_osd_set_parameters");
+  // looked up here, not linked: a firmware without it keeps the original size instead of failing at the call
+  real_sdkosd_get_font_bitmap = dlsym(handle, "sdkosd_get_font_bitmap");
 }
 
 static int GetTimestampSize() {
@@ -63,7 +66,7 @@ int local_sdk_video_osd_set_parameters(int ch, struct osdParams_st *params) {
     struct fontBitmap_st *font = NULL;
     for(int i = 0; i < sizeof(ScaleTable) / sizeof(ScaleTable[0]); i++) {
       if(size != ScaleTable[i].size) continue;
-      if(sdkosd_get_font_bitmap(&font) || !font) {
+      if(!real_sdkosd_get_font_bitmap || real_sdkosd_get_font_bitmap(&font) || !font) {
         fprintf(stderr, "[timestamp] font bitmap error\n");
         break;
       }

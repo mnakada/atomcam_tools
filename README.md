@@ -282,17 +282,17 @@ onにすると暗視の白黒画像、offにするとカラー画像、autoに�
 
 選択範囲にした場合は画面のオレンジの枠で選択範囲を設定します。
 
-##### - サウンド検知
+##### - サウンド検出
 
-サウンド検知でモーション検知録画をするかどうかの設定です。
+サウンド検出でモーション検知録画をするかどうかの設定です。
 
 ##### - 感度調整
 
-サウンド検知の感度を高／中／低から選択します。
+サウンド検出の感度を高／中／低から選択します。
 
-##### - 火災／CO警報音検知
+##### - 火災／CO警報機音検知
 
-火災／CO警報音検知でモーション録画をするかどうかの設定です。
+火災／CO警報機音検知でモーション録画をするかどうかの設定です。
 
 ##### - モーションタグ
 
@@ -308,9 +308,13 @@ onにすると暗視の白黒画像、offにするとカラー画像、autoに�
 
 正面のLEDの点灯を設定します。
 
-##### - 画像180°反転
+##### - 画像180度反転
 
 画像を180°回転させます。
+
+##### - 録音
+
+録画に音声を記録するかどうかを設定します。
 
 ##### - タイムスタンプ
 
@@ -372,7 +376,7 @@ SD-Card/NASのrecordフォルダーに１分ごとのファイルが記録され
 
 ATOMCamアプリで設定した検出時にクラウドサーバーに保存される12秒の映像と静止画をSD-Card/NASにも記録します。記録されるフォルダーは alarm_record です。
 
-！！！　「録画ファイルの自動削除」で保存日数を指定しないと一杯になっても削除されません　！！！
+！！！　「ファイルの自動削除」で保存日数を指定しないと一杯になっても削除されません　！！！
 
 以下、各録画項目内の設定です。
 
@@ -477,6 +481,8 @@ mp4ファイルを生成して中止します。
 ##### - smbアクセス
 
 onにするとSD-Cardの /record, /time_lapse, /alarm_record をSamba4.0でデバイス名のネットワークフォルダとしてLAN内に公開します。
+
+NetBIOSは使わないので、Windowsのネットワークの一覧には表示されません。 `\\<デバイス名>.local` で接続してください。
 
 ​	**※ 負荷が重いためストリーミングRTSPと同時使用は推奨しません。**
 
@@ -598,54 +604,6 @@ RTSPのアカウントを設定します。
 
 RTSPのパスワードを設定します。
 
-#### HomeKit
-
-HomeKitのOn/Offを設定します。
-
-Onにしたあと設定ボタンを押すとしばらくしてQR-Codeが表示されます。
-
-iOSのホームアプリで右上の＋を開いてアクセサリを追加の画面でQR-Codeを読み取ってください。
-
-登録完了するとQR-Codeが消えて下記の画面に切り替わります。
-
-<kbd><img src="https://github.com/mnakada/atomcam_tools/blob/images/homekit.jpg" /></kbd>
-
-##### 強制接続解除
-
-iOS側で登録を解除しても、解除のタイミングによっては設定が残ることがあります。
-
-iOSで解除してもQR-Codeが表示されない場合は強制接続解除を実行してください。
-
-HomeKitのアクセサリーは同時に複数のiOS/HomeHUBには接続できません。
-
-（iOS/HomeHUBに複数のアクセサリーは登録できます）
-
-#### RTMP
-
-<kbd><img src="https://github.com/mnakada/atomcam_tools/blob/images/rtmp.jpg" /></kbd>
-
-RTMPのOn/Offを設定します。
-
-URLに配信先のURLを設定してください。
-
-YouTube liveへの配信の場合は`rtmp://a.rtmp.youtube.com/live2/<livekey>`の形式になります。
-
-配信するアカウントのYouTube Studioのライブ配信設定を確認してください。
-
-##### 周期リスタート
-
-RTMPの配信が１日程度で停止することがあります。
-
-対策として周期的なRTMPのリスタート機能を追加しています。
-
-#### WebRTC
-
-<kbd><img src="https://github.com/mnakada/atomcam_tools/blob/images/webrtc.jpg" /></kbd>
-
-WebRTCのOn/Offを設定します。
-
-URLをコピーしてブラウザで開くか、Linkボタンで開くことができます。
-
 #### ONVIF
 
 ONVIFのOn/Offを設定します。Onにするとlighttpd(Port:80)でONVIFサーバが起動し、WS-Discoveryでもカメラが検出されます。
@@ -705,6 +663,54 @@ cameras:
 
 `return_preset`に指定する`home`プリセットは、ホームにしたい位置でONVIFクライアントから`home`という名前のプリセットを保存して作成してください。
 
+#### HomeKit
+
+HomeKitのOn/Offを設定します。
+
+Onにしたあと設定ボタンを押すとしばらくしてQR-Codeが表示されます。
+
+iOSのホームアプリで右上の＋を開いてアクセサリを追加の画面でQR-Codeを読み取ってください。
+
+登録完了するとQR-Codeが消えて下記の画面に切り替わります。
+
+<kbd><img src="https://github.com/mnakada/atomcam_tools/blob/images/homekit.jpg" /></kbd>
+
+##### 強制接続解除
+
+iOS側で登録を解除しても、解除のタイミングによっては設定が残ることがあります。
+
+iOSで解除してもQR-Codeが表示されない場合は強制接続解除を実行してください。
+
+HomeKitのアクセサリーは同時に複数のiOS/HomeHUBには接続できません。
+
+（iOS/HomeHUBに複数のアクセサリーは登録できます）
+
+#### RTMP
+
+<kbd><img src="https://github.com/mnakada/atomcam_tools/blob/images/rtmp.jpg" /></kbd>
+
+RTMPのOn/Offを設定します。
+
+URLに配信先のURLを設定してください。
+
+YouTube liveへの配信の場合は`rtmp://a.rtmp.youtube.com/live2/<livekey>`の形式になります。
+
+配信するアカウントのYouTube Studioのライブ配信設定を確認してください。
+
+##### 周期リスタート
+
+RTMPの配信が１日程度で停止することがあります。
+
+対策として周期的なRTMPのリスタート機能を追加しています。
+
+#### WebRTC
+
+<kbd><img src="https://github.com/mnakada/atomcam_tools/blob/images/webrtc.jpg" /></kbd>
+
+WebRTCのOn/Offを設定します。
+
+URLをコピーしてブラウザで開くか、Linkボタンで開くことができます。
+
 <br>
 
 ### イベント通知
@@ -761,9 +767,9 @@ URLが自己証明書等の認証されていない証明書を提示しても�
 
 タイムラプス記録のたびに通知URLに type: timelapseEvent, data: timelapse pathをpostします。
 
-##### - タイムラプス録画終了
+##### - タイムラプス録画完了
 
-タイムラプス録画終了時に通知URLに type: timelapseFinish, data: timelapse pathをpostします。
+タイムラプス録画完了時に通知URLに type: timelapseFinish, data: timelapse pathをpostします。
 
 <br>
 

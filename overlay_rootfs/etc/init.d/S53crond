@@ -5,7 +5,9 @@
 
 start() {
 	printf "Starting crond: "
-	/usr/sbin/crond -l 8
+	# -l 9: do not log "USER root pid N cmd ..." for each job; the every-minute watchdogs
+	# filled the syslog on the RAM disk and pushed out everything older than a few hours
+	/usr/sbin/crond -l 9
 	echo "OK"
 }
 

@@ -21,8 +21,10 @@ GO2RTC_FILENAME = go2rtc
 GO2RTC_INSTALL_STAGING = YES
 GO2RTC_INSTALL_TARGET = YES
 
+# not UPX compressed: a UPX binary unpacks its code and read-only data (15 MB) into anonymous
+# memory; a plain binary is mapped from the file, and only the pages in use stay, as page cache
 define GO2RTC_BUILD_CMDS
-  cd $(@D); $(GO2RTC_GO_ENV) $(GO2RTC_GO) build -ldflags "$(GO2RTC_LDFLAGS)" -trimpath -o $(GO2RTC_FILENAME) && upx --lzma $(GO2RTC_FILENAME)
+  cd $(@D); $(GO2RTC_GO_ENV) $(GO2RTC_GO) build -ldflags "$(GO2RTC_LDFLAGS)" -trimpath -o $(GO2RTC_FILENAME)
 endef
 
 define GO2RTC_INSTALL_TARGET_CMDS

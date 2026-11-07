@@ -68,6 +68,11 @@ do
     echo "$cmd $params $res" >> /var/run/webres
     cmd=""
   fi
+  if [ "$cmd" = "jpegq" ]; then
+    res=`/scripts/cmd video jpegq ${params}`
+    echo "$cmd $params $res" >> /var/run/webres
+    cmd=""
+  fi
   if [ "$cmd" = "timestamp" ]; then
     res=`/scripts/cmd timestamp ${params}`
     echo "$cmd $params $res" >> /var/run/webres

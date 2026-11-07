@@ -141,6 +141,7 @@ static char *DGain(char *tokenPtr);
 static char *Expr(char *tokenPtr);
 static char *Bitrate(char *tokenPtr);
 static char *Framerate(char *tokenPtr);
+static char *JpegQuality(char *tokenPtr);
 
 struct CommandTableSt {
   const char *cmd;
@@ -165,11 +166,18 @@ static struct CommandTableSt VideoCommandTable[] = {
   { "expr",      &Expr }, // expr manual|auto <time>
   { "bitrate",   &Bitrate }, // bitrate <ch> 10-3000(kbps)|auto
   { "fps",       &Framerate }, // fps <ch> 1-30(fps)|auto
+  { "jpegq",     &JpegQuality }, // jpegq 1-100
 };
 
 static int (*real_local_sdk_video_set_kbps)(int ch, int kbps);
 static int (*real_local_sdk_video_set_fps)(int fps);
 static int (*real_IMP_Encoder_CreateChn)(int ch, unsigned char *encAttr);
+static int (*real_IMP_Encoder_RegisterChn)(int grp, int ch);
+static int (*real_IMP_Encoder_GetChnAttr)(int ch, unsigned char *encAttr);
+static int (*real_IMP_Encoder_UnRegisterChn)(int ch);
+static int (*real_IMP_Encoder_DestroyChn)(int ch);
+extern void video_param_set_mutex_lock();
+extern void video_param_set_mutex_unlock();
 
 int VideoControl_UserFps = 0;
 int VideoControl_AppFps = 25;
@@ -182,6 +190,10 @@ static void __attribute ((constructor)) video_control_init(void) {
   real_local_sdk_video_set_kbps = dlsym(dlopen ("/system/lib/liblocalsdk.so", RTLD_LAZY), "local_sdk_video_set_kbps");
   real_local_sdk_video_set_fps = dlsym(dlopen ("/system/lib/liblocalsdk.so", RTLD_LAZY), "local_sdk_video_set_fps");
   real_IMP_Encoder_CreateChn = dlsym(dlopen ("/system/lib/libimp.so", RTLD_LAZY), "IMP_Encoder_CreateChn");
+  real_IMP_Encoder_RegisterChn = dlsym(dlopen ("/system/lib/libimp.so", RTLD_LAZY), "IMP_Encoder_RegisterChn");
+  real_IMP_Encoder_GetChnAttr = dlsym(dlopen ("/system/lib/libimp.so", RTLD_LAZY), "IMP_Encoder_GetChnAttr");
+  real_IMP_Encoder_UnRegisterChn = dlsym(dlopen ("/system/lib/libimp.so", RTLD_LAZY), "IMP_Encoder_UnRegisterChn");
+  real_IMP_Encoder_DestroyChn = dlsym(dlopen ("/system/lib/libimp.so", RTLD_LAZY), "IMP_Encoder_DestroyChn");
 }
 
 char *VideoCommand(int fd, char *tokenPtr) {
@@ -224,6 +236,18 @@ int local_sdk_video_set_fps(int fps) {
 #define HACK_INI              "/tmp/hack.ini"
 #define ENC_PROFILE_JPEG      4     // eProfile (attr + 0) >> 24
 #define ENC_ATTR_JPEG_QP      48    // iInitialQP (short) of FixQP; works as the JPEG quality (default 32)
+#define ENC_ATTR_SIZE         256   // larger than IMPEncoderChnAttr
+#define JPEG_CHN_MAX          4
+
+// JPEG channels, kept for "video jpegq". The quality is fixed when the channel is created, and
+// IMP has no call to change it, so the channel is created again with the new quality.
+static struct {
+  int ch;
+  int grp;
+  int quality;
+} JpegChn[JPEG_CHN_MAX];
+static int JpegChnNum = 0;
+static int JpegQualityNow = 0;
 
 static int GetJpegQuality() {
 
@@ -248,6 +272,13 @@ int IMP_Encoder_CreateChn(int ch, unsigned char *attr) {
     if(quality) {
       fprintf(stderr, "[jpeg] ch%d quality %d -> %d\n", ch, *(short *)(attr + ENC_ATTR_JPEG_QP), quality);
       *(short *)(attr + ENC_ATTR_JPEG_QP) = quality;
+    }
+    if(JpegChnNum < JPEG_CHN_MAX) {
+      JpegChn[JpegChnNum].ch = ch;
+      JpegChn[JpegChnNum].grp = -1;
+      JpegChn[JpegChnNum].quality = *(short *)(attr + ENC_ATTR_JPEG_QP);
+      JpegChnNum++;
+      JpegQualityNow = *(short *)(attr + ENC_ATTR_JPEG_QP);
     }
   }
 
@@ -597,4 +628,77 @@ static char *Framerate(char *tokenPtr) {
   local_sdk_video_start(1);
   local_sdk_video_start(3);
   return "ok";
+}
+
+// the group of each JPEG channel, to register the channel again after "video jpegq"
+int IMP_Encoder_RegisterChn(int grp, int ch) {
+
+  for(int i = 0; i < JpegChnNum; i++) {
+    if(JpegChn[i].ch == ch) JpegChn[i].grp = grp;
+  }
+  return real_IMP_Encoder_RegisterChn(grp, ch);
+}
+
+// call with video_param_set_mutex locked: every JPEG capture (local_sdk_video_get_jpeg,
+// local_sdk_video_get_jpeg_data, jpeg.c) starts and stops the channel within this lock,
+// so the channel is not receiving pictures here.
+static int RecreateJpegChn(int i, int quality) {
+
+  int ch = JpegChn[i].ch;
+  int grp = JpegChn[i].grp;
+
+  unsigned char attr[ENC_ATTR_SIZE];
+  memset(attr, 0, sizeof(attr));
+  if(real_IMP_Encoder_GetChnAttr(ch, attr)) {
+    fprintf(stderr, "[jpeg] ch%d IMP_Encoder_GetChnAttr error\n", ch);
+    return -1;
+  }
+  if(((*(unsigned int *)attr >> 24) != ENC_PROFILE_JPEG) || (*(short *)(attr + ENC_ATTR_JPEG_QP) != JpegChn[i].quality)) {
+    fprintf(stderr, "[jpeg] ch%d unexpected attr profile:0x%08x qp:%d\n", ch, *(unsigned int *)attr, *(short *)(attr + ENC_ATTR_JPEG_QP));
+    return -1;
+  }
+  *(short *)(attr + ENC_ATTR_JPEG_QP) = quality;
+  if(real_IMP_Encoder_UnRegisterChn(ch)) {
+    fprintf(stderr, "[jpeg] ch%d IMP_Encoder_UnRegisterChn error\n", ch);
+    return -1;
+  }
+  // from here the channel must come back, or JPEG capture stops until reboot
+  if(real_IMP_Encoder_DestroyChn(ch)) fprintf(stderr, "[jpeg] ch%d IMP_Encoder_DestroyChn error\n", ch);
+  if(real_IMP_Encoder_CreateChn(ch, attr)) {
+    fprintf(stderr, "[jpeg] ch%d IMP_Encoder_CreateChn error\n", ch);
+    return -2;
+  }
+  if(real_IMP_Encoder_RegisterChn(grp, ch)) {
+    fprintf(stderr, "[jpeg] ch%d IMP_Encoder_RegisterChn(%d) error\n", ch, grp);
+    return -2;
+  }
+  fprintf(stderr, "[jpeg] ch%d quality %d -> %d\n", ch, JpegChn[i].quality, quality);
+  JpegChn[i].quality = quality;
+  return 0;
+}
+
+// jpegq [1-100] : the quality of the JPEG channels (JPEG_QUALITY in hack.ini), without a reboot
+static char *JpegQuality(char *tokenPtr) {
+
+  char *p = strtok_r(NULL, " \t\r\n", &tokenPtr);
+  if(!p) {
+    snprintf(CommandResBuf, 255, "%d", JpegQualityNow);
+    return CommandResBuf;
+  }
+  int quality = atoi(p);
+  if((quality < 1) || (quality > 100)) return "error";
+  if(!JpegChnNum || !real_IMP_Encoder_GetChnAttr || !real_IMP_Encoder_UnRegisterChn || !real_IMP_Encoder_DestroyChn) return "error";
+  for(int i = 0; i < JpegChnNum; i++) {
+    if(JpegChn[i].grp < 0) return "error";
+  }
+  int ret = 0;
+  video_param_set_mutex_lock(1);
+  for(int i = 0; i < JpegChnNum; i++) {
+    if(JpegChn[i].quality == quality) continue;
+    ret = RecreateJpegChn(i, quality);
+    if(ret) break;
+  }
+  if(!ret) JpegQualityNow = quality;
+  video_param_set_mutex_unlock(1);
+  return ret ? "error" : "ok";
 }

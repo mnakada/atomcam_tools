@@ -563,7 +563,9 @@ IMP_Encoder_CreateChnで最初に設定されたGOPとfpsは最大値に設定�
 
 また、GOPはfpsで割り切れる必要がある。
 
-hack.iniのJPEG_QUALITYが設定されている場合、JPEGのチャンネル(eProfileが4)のiInitialQP(attr + 48)をその値に置き換えて、静止画のJPEG画質を変える。再起動後に反映される。
+hack.iniのJPEG_QUALITYが設定されている場合、JPEGのチャンネル(eProfileが4)のiInitialQP(attr + 48)をその値に置き換えて、静止画のJPEG画質を変える。
+
+video jpegq [1-100]で起動後に画質を変える。引数が無い場合は現在の画質を返す。JPEGの画質はチャンネルを作る時に決まり、IMPに変更する関数が無いため(IMP_Encoder_SetChnAttrRcModeは受け付けるが反映されない)、video_param_set_mutexの中でIMP_Encoder_GetChnAttrで設定を読み、UnRegisterChn, DestroyChn, CreateChn, RegisterChnでチャンネルを作り直す。JPEGの取得(local_sdk_video_get_jpeg, local_sdk_video_get_jpeg_data, jpeg.c)はすべてこのmutexの中でStartRecvPicからStopRecvPicまでを行うので、作り直す間にチャンネルは使われていない。登録先のグループはIMP_Encoder_RegisterChnのフックで覚えておく。
 
 ### wait_motion.c
 

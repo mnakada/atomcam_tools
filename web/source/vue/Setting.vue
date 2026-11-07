@@ -541,7 +541,7 @@
           FRAMERATE: 20,
           BITRATE_MAIN_AVC: 960,   // ch0 H264 HD   Record/Alarm, RTSP AVC Main
           BITRATE_SUB_HEVC: -180,  // ch1 H265 360p MobileApp,    RTSP HEVC Sub
-          JPEG_QUALITY: '32',      // ch4/ch5 JPEG snapshots (takes effect after reboot)
+          JPEG_QUALITY: '32',      // ch4/ch5 JPEG snapshots
           BITRATE_MAIN_HEVC: -800, // ch3 H265 HD   MobileApp,    RTSP HEVC Main
           TIMESTAMP_SIZE: '100',
         },
@@ -1428,6 +1428,9 @@
           if(window.location.host === `${this.oldConfig.HOSTNAME}.local`) {
             href = `http://${this.config.HOSTNAME}.local`;
           }
+        }
+        if(this.config.JPEG_QUALITY !== this.oldConfig.JPEG_QUALITY) {
+          execCmds.push(`jpegq ${this.config.JPEG_QUALITY}`);
         }
         if(this.config.TIMESTAMP_SIZE !== this.oldConfig.TIMESTAMP_SIZE) {
           execCmds.push(`timestamp ${this.config.TIMESTAMP_SIZE}`);

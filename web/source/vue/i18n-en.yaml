@@ -462,7 +462,7 @@ videoSpec:
       - 1/2
   jpegQuality:
     title: JPEG quality
-    tooltip: Set the quality of still images (JPEG). Higher values give better images and larger files. Used for snapshots on this page, webhooks, recording thumbnails, etc. Takes effect after reboot.
+    tooltip: Set the quality of still images (JPEG). Higher values give better images and larger files. Used for snapshots on this page, webhooks, recording thumbnails, etc.
     text:
       - Default (32)
       - '50'

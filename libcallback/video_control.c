@@ -221,7 +221,35 @@ int local_sdk_video_set_fps(int fps) {
   return real_local_sdk_video_set_fps(fps);
 }
 
+#define HACK_INI              "/tmp/hack.ini"
+#define ENC_PROFILE_JPEG      4     // eProfile (attr + 0) >> 24
+#define ENC_ATTR_JPEG_QP      48    // iInitialQP (short) of FixQP; works as the JPEG quality (default 32)
+
+static int GetJpegQuality() {
+
+  FILE *fp = fopen(HACK_INI, "r");
+  if(!fp) return 0;
+  char buf[256];
+  int quality = 0;
+  while(fgets(buf, sizeof(buf), fp)) {
+    if(!strncmp(buf, "JPEG_QUALITY=", 13)) {
+      quality = atoi(buf + 13);
+      break;
+    }
+  }
+  fclose(fp);
+  return ((quality >= 1) && (quality <= 100)) ? quality : 0;
+}
+
 int IMP_Encoder_CreateChn(int ch, unsigned char *attr) {
+
+  if((*(unsigned int *)attr >> 24) == ENC_PROFILE_JPEG) {
+    int quality = GetJpegQuality();
+    if(quality) {
+      fprintf(stderr, "[jpeg] ch%d quality %d -> %d\n", ch, *(short *)(attr + ENC_ATTR_JPEG_QP), quality);
+      *(short *)(attr + ENC_ATTR_JPEG_QP) = quality;
+    }
+  }
 
   struct IMPEncoderGopAttr *gopAttr = (struct IMPEncoderGopAttr *)(attr + 88);
   struct IMPEncoderFrmRate *frm = (struct IMPEncoderFrmRate *)(attr + 80);

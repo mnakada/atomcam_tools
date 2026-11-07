@@ -149,8 +149,14 @@ CURLcode curl_easy_perform(struct SessionHandle *data) {
       goto curl_ok;
     }
     CURLcode res = original_curl_easy_perform(data);
-    if(!res) lastAccess = now.tv_sec;
-    return res;
+    if(!res) {
+      lastAccess = now.tv_sec;
+      return res;
+    }
+    printf("[curl] alarm post failed (%d), continue with a local response.\n", res);
+    if(debug) fprintf(stderr, "[curl] alarm post failed (%d), continue with a local response.\n", res);
+    memcpy(data->out, DummyRes, strlen(DummyRes));
+    goto curl_ok;
   }
 
   if(url && !strncmp(url, DummyHost, strlen(DummyHost))) {

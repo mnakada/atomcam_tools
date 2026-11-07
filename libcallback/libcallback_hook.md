@@ -159,6 +159,8 @@ curl uploadはiCamera_appがalarm videoをuploadする事を許可するかど�
 
 サーバーへの検知動画のuploadを停止した場合の棄却処理を行う。
 
+サーバーへの検知の通知が失敗した場合（インターネットに接続できない場合など）も、同じ応答を返してalarm_recordへの記録を続ける。
+
 棄却処理は単純に捨ててしまうとエラーになってしまうため、それらしい応答を返してうまく処理する必要がある。
 
 
@@ -174,6 +176,18 @@ curl uploadはiCamera_appがalarm videoをuploadする事を許可するかど�
 stdoutの情報からhookを掛けるため、iCamera_appがstdoutの出力を止める処理をしているところを回避。
 
 
+
+### getaddrinfo.c
+
+##### hook point
+
+```C
+libc : int getaddrinfo(const char *node, const char *service, const struct addrinfo *hints, struct addrinfo **res)
+```
+
+iCamera_appはwww.google.comとdevice-api.atomtech.co.jpの名前解決でネットワークの状態を判定し、両方とも失敗するとofflineにする。offlineの間はalarm_event_handleが検知を捨てるため、ルーターのインターネットを止めているとalarm_recordに記録されない（#142）。
+
+この2つの名前が解決できない時は127.0.0.1を返す。判定はonlineのままになり、クラウドへの接続はすぐに失敗するので、curl.cが検知の通知に応答して記録を続ける。
 
 ### gmtime_r.c
 
@@ -552,6 +566,16 @@ timeoutを指定しないと待ち続ける。
 AtomCamSwingでiCamera_appの動体検知の枠描画から追尾目標を計算して返す処理。
 
 
+
+### ppcs_login.c
+
+##### hook point
+
+```C
+libPPCS_API.so : int PPCS_LoginStatus_Check(char *bLoginStatus)
+```
+
+iCamera_app(shangyun.c)はP2Pサーバーへのログイン状態をこの関数で確認して保持し、ログインしていない間はalarm_event_handleが検知を捨てる。インターネットに接続できないとalarm_recordに記録されないため（#142）、ログインできていなくてもログイン済みとして返す。アプリからのリモート視聴はもともとサーバーが必要なので影響しない。
 
 ### property.c
 

@@ -30,7 +30,6 @@ mkdir -p /atomtools/build/buildroot-2016.02/output/web
 cp -pr /src/web/webpack.config.js /src/web/package* /src/web/source /atomtools/build/buildroot-2016.02/output/web
 cd /atomtools/build/buildroot-2016.02/output/web
 rm -rf frontend
-npm install -g npm@latest
 npm install
 ./node_modules/.bin/webpack --mode production --progress
 [ $? != 0 ] && exit 1
